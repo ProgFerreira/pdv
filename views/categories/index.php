@@ -43,14 +43,14 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
                                 <a href="?route=category/edit&id=<?php echo $c['id']; ?>"
-                                    class="btn btn-outline-primary btn-sm p-2 no-underline"
+                                    class="inline-flex items-center gap-1 btn btn-outline-primary btn-sm px-2 py-1.5 no-underline"
                                     title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit"></i><span>Editar</span>
                                 </a>
                                 <a href="?route=category/delete&id=<?php echo $c['id']; ?>"
-                                    class="btn btn-outline-danger btn-sm p-2 no-underline"
+                                    class="inline-flex items-center gap-1 btn btn-outline-danger btn-sm px-2 py-1.5 no-underline"
                                     title="Excluir" onclick="return confirm('Tem certeza que deseja excluir?');">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash"></i><span>Excluir</span>
                                 </a>
                             </div>
                         </td>

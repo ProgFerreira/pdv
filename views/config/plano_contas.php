@@ -59,8 +59,7 @@
                                 </span>
                             </td>
                             <td class="text-right">
-                                <button class="btn btn-ghost btn-xs text-gray-300 hover:text-primary"><i
-                                        class="fas fa-edit"></i></button>
+                                <button type="button" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-300 hover:text-primary" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></button>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -23,10 +23,10 @@
             <p class="text-sm text-gray-400">Gerencie suas despesas e pagamentos a fornecedores. <span class="text-gray-300" title="Competência: para DRE e relatórios por período. Vencimento/pagamento: para fluxo de caixa.">Competência × Caixa</span></p>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
-            <button
-                class="btn btn-ghost bg-gray-50 hover:bg-gray-100 text-gray-400 btn-sm shadow-sm rounded-xl border border-gray-100"
+            <button type="button"
+                class="inline-flex items-center gap-2 btn btn-ghost bg-gray-50 hover:bg-gray-100 text-gray-400 btn-sm shadow-sm rounded-xl border border-gray-100"
                 onclick="window.location.reload()">
-                <i class="fas fa-sync-alt"></i>
+                <i class="fas fa-sync-alt"></i><span>Atualizar</span>
             </button>
         </div>
     </div>
@@ -302,16 +302,15 @@
                                 <td class="text-right">
                                     <div class="flex justify-end gap-1">
                                         <?php if (in_array($p['status'], ['ABERTO', 'PARCIAL', 'VENCIDO'])): ?>
-                                            <button
-                                                class="btn bg-indigo-600 hover:bg-indigo-700 btn-xs text-white border-none shadow-sm"
+                                            <button type="button"
+                                                class="inline-flex items-center gap-1 btn bg-indigo-600 hover:bg-indigo-700 btn-xs text-white border-none shadow-sm"
                                                 @click="selectedPayable = <?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>; showModal = true"
                                                 title="Baixar/Pagar">
-                                                <i class="fas fa-check"></i>
+                                                <i class="fas fa-check"></i><span>Pagar</span>
                                             </button>
                                         <?php endif; ?>
-                                        <button
-                                            class="btn btn-ghost btn-xs text-gray-300 hover:text-indigo-600 transition-colors"><i
-                                                class="fas fa-edit text-[10px]"></i></button>
+                                        <button type="button"
+                                            class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-300 hover:text-indigo-600 transition-colors" title="Editar"><i class="fas fa-edit text-[10px]"></i><span>Editar</span></button>
                                     </div>
                                 </td>
                             </tr>

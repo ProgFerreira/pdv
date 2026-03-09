@@ -61,11 +61,11 @@
                         <td class="px-3 text-sm text-gray-600"><?php echo e($p['contact'] ?? '—'); ?></td>
                         <td class="px-3 text-sm text-gray-600"><?php echo e($p['document'] ?? '—'); ?></td>
                         <td class="text-right px-3">
-                            <a href="<?php echo e($baseUrl); ?>?route=investment/participantEdit&id=<?php echo (int)($p['id'] ?? 0); ?>" class="btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo e($baseUrl); ?>?route=investment/participantEdit&id=<?php echo (int)($p['id'] ?? 0); ?>" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                             <form action="?route=investment/participantDelete" method="POST" class="inline" onsubmit="return confirm('Excluir este participante?');">
                                 <?php echo csrf_field(); ?>
                                 <input type="hidden" name="id" value="<?php echo (int)($p['id'] ?? 0); ?>">
-                                <button type="submit" class="btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                <button type="submit" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i><span>Excluir</span></button>
                             </form>
                         </td>
                     </tr>

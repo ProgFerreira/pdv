@@ -13,8 +13,8 @@
                     value="<?php echo $_GET['query'] ?? ''; ?>"
                     class="border-0 focus:ring-0 text-sm p-2 w-64 rounded-l-lg">
                 <button type="submit"
-                    class="bg-gray-50 hover:bg-gray-100 text-gray-400 px-4 py-2 rounded-r-lg transition-colors border-l">
-                    <i class="fas fa-search"></i>
+                    class="inline-flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-400 px-4 py-2 rounded-r-lg transition-colors border-l text-sm">
+                    <i class="fas fa-search"></i><span>Buscar</span>
                 </button>
             </form>
         </div>
@@ -25,8 +25,8 @@
                     value="<?php echo htmlspecialchars($_GET['giftcard_code'] ?? ''); ?>"
                     class="border-0 focus:ring-0 text-sm p-2 w-64 rounded-l-lg">
                 <button type="submit"
-                    class="bg-blue-50 hover:bg-blue-100 text-blue-500 px-4 py-2 rounded-r-lg transition-colors border-l">
-                    <i class="fas fa-receipt"></i>
+                    class="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-500 px-4 py-2 rounded-r-lg transition-colors border-l text-sm">
+                    <i class="fas fa-receipt"></i><span>Ver gastos</span>
                 </button>
             </form>
         </div>
@@ -247,9 +247,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <?php if ($exp['sale_id']): ?>
                                             <a href="?route=sale/view&id=<?php echo $exp['sale_id']; ?>" 
-                                               class="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded hover:bg-blue-100 transition-colors inline-block"
+                                               class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 bg-blue-50 px-2 py-1.5 rounded hover:bg-blue-100 transition-colors text-sm"
                                                title="Ver Venda">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye"></i><span>Ver venda</span>
                                             </a>
                                         <?php endif; ?>
                                     </td>

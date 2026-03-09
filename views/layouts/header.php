@@ -113,8 +113,8 @@
       </aside>
       <div id="page-content" class="flex flex-col min-h-0 flex-1 overflow-auto">
         <header class="md:hidden no-print border-b border-gray-200 bg-white px-4 py-2 flex items-center gap-2">
-          <button type="button" onclick="history.back();" class="p-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-50" aria-label="Voltar" title="Voltar"><i class="fas fa-arrow-left"></i></button>
-          <button type="button" id="sidebar-open-btn" class="p-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-50" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+          <button type="button" onclick="history.back();" class="inline-flex items-center gap-1.5 px-2 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium" aria-label="Voltar" title="Voltar"><i class="fas fa-arrow-left"></i><span>Voltar</span></button>
+          <button type="button" id="sidebar-open-btn" class="inline-flex items-center gap-1.5 px-2 py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium" aria-label="Abrir menu"><i class="fas fa-bars"></i><span>Menu</span></button>
           <span class="font-bold text-gray-800">PDV</span>
         </header>
         <main class="flex-1 <?php echo !empty($is_pos_page) ? 'pos-main p-0 max-w-none w-full min-h-0 flex items-center justify-center' : 'main-content-90 px-4 sm:px-6 py-6'; ?>">

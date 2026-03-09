@@ -311,9 +311,9 @@ $userHasOpenRegister = $cashModelForOpen->getOpenRegister($_SESSION['user_id'] ?
                                                         </td>
                                                         <td class="px-4 py-2 text-center">
                                                             <a href="?route=sale/view&id=<?php echo $sale['id']; ?>" 
-                                                               class="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded transition-colors"
+                                                               class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 bg-blue-50 px-2 py-1.5 rounded transition-colors text-sm"
                                                                title="Ver Venda">
-                                                                <i class="fas fa-eye"></i>
+                                                                <i class="fas fa-eye"></i><span>Ver venda</span>
                                                             </a>
                                                         </td>
                                                     </tr>

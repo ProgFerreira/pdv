@@ -74,11 +74,11 @@ $origemLabels = $origemLabels ?? ['comprado' => 'Comprado', 'doado' => 'Doado', 
                         <td class="px-3 text-sm font-bold text-right">R$ <?php echo number_format((float)($a['valor_estimado'] ?? 0), 2, ',', '.'); ?></td>
                         <td class="px-3 text-xs text-gray-600"><?php echo date('d/m/Y', strtotime($a['data_entrada'] ?? '')); ?></td>
                         <td class="text-right px-3">
-                            <a href="<?php echo e($baseUrl); ?>?route=investment/assetEdit&id=<?php echo (int)$a['id']; ?>" class="btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo e($baseUrl); ?>?route=investment/assetEdit&id=<?php echo (int)$a['id']; ?>" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                             <form action="?route=investment/assetDelete" method="POST" class="inline" onsubmit="return confirm('Excluir este bem?');">
                                 <?php echo csrf_field(); ?>
                                 <input type="hidden" name="id" value="<?php echo (int)$a['id']; ?>">
-                                <button type="submit" class="btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                <button type="submit" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i><span>Excluir</span></button>
                             </form>
                         </td>
                     </tr>

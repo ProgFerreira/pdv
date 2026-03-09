@@ -73,9 +73,9 @@
                     <i class="fas fa-search"></i> Filtrar
                 </button>
                 <a href="?route=product/index"
-                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-2 rounded border border-gray-300 transition-colors"
+                    class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded border border-gray-300 transition-colors"
                     title="Limpar Filtros">
-                    <i class="fas fa-eraser"></i>
+                    <i class="fas fa-eraser"></i><span>Limpar filtros</span>
                 </a>
             </div>
         </form>

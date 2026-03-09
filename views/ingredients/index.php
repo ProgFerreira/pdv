@@ -45,12 +45,12 @@
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <a href="<?php echo BASE_URL; ?>?route=ingredient/edit&id=<?php echo (int)$i['id']; ?>"
-                                    class="text-indigo-600 hover:text-indigo-800 mr-3" title="Editar"><i class="fas fa-edit"></i></a>
+                                    class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 mr-3 text-sm" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                                 <a href="<?php echo BASE_URL; ?>?route=ingredient/toggle&id=<?php echo (int)$i['id']; ?>"
-                                    class="text-gray-600 hover:text-gray-800 mr-3" title="Ativar/Desativar"><i class="fas fa-toggle-on"></i></a>
+                                    class="inline-flex items-center gap-1 text-gray-600 hover:text-gray-800 mr-3 text-sm" title="Ativar/Desativar"><i class="fas fa-toggle-on"></i><span>Ativar/Desativar</span></a>
                                 <a href="<?php echo BASE_URL; ?>?route=ingredient/delete&id=<?php echo (int)$i['id']; ?>"
-                                    class="text-red-600 hover:text-red-800"
-                                    onclick="return confirm('Excluir este insumo?');" title="Excluir"><i class="fas fa-trash"></i></a>
+                                    class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"
+                                    onclick="return confirm('Excluir este insumo?');" title="Excluir"><i class="fas fa-trash"></i><span>Excluir</span></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

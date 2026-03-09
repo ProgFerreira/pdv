@@ -71,10 +71,10 @@
                                     <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><?php echo money($row['item_total_cost'] ?? 0); ?></td>
                                     <td class="px-3 py-2 text-center">
                                         <a href="<?php echo BASE_URL; ?>?route=technicalSheet/itemEdit&product_id=<?php echo (int)$product['id']; ?>&sheet_id=<?php echo (int)$sheet['id']; ?>&item_id=<?php echo (int)$row['id']; ?>"
-                                            class="text-blue-600 hover:text-blue-800 text-sm mr-2" title="Editar"><i class="fas fa-edit"></i></a>
+                                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm mr-2" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                                         <a href="<?php echo BASE_URL; ?>?route=technicalSheet/itemDelete&item_id=<?php echo (int)$row['id']; ?>&product_id=<?php echo (int)$product['id']; ?>"
-                                            class="text-red-600 hover:text-red-800 text-sm"
-                                            onclick="return confirm('Remover este item da ficha?');" title="Remover"><i class="fas fa-trash"></i></a>
+                                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-sm"
+                                            onclick="return confirm('Remover este item da ficha?');" title="Remover"><i class="fas fa-trash"></i><span>Remover</span></a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

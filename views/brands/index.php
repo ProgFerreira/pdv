@@ -43,14 +43,14 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
                                 <a href="?route=brand/edit&id=<?php echo $b['id']; ?>"
-                                    class="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded hover:bg-blue-100 transition-colors"
+                                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 bg-blue-50 px-2 py-1.5 rounded hover:bg-blue-100 transition-colors text-sm"
                                     title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit"></i><span>Editar</span>
                                 </a>
                                 <a href="?route=brand/delete&id=<?php echo $b['id']; ?>"
-                                    class="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded hover:bg-red-100 transition-colors"
+                                    class="inline-flex items-center gap-1 text-red-600 hover:text-red-900 bg-red-50 px-2 py-1.5 rounded hover:bg-red-100 transition-colors text-sm"
                                     title="Excluir" onclick="return confirm('Tem certeza que deseja excluir?');">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash"></i><span>Excluir</span>
                                 </a>
                             </div>
                         </td>

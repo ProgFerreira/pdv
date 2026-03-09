@@ -86,18 +86,18 @@
                             <td class="stock-actions-cell px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2 flex-nowrap">
                                     <a href="?route=stock/view&id=<?php echo $e['id']; ?>"
-                                        class="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-lg transition-colors"
-                                        title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                                        class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
+                                        title="Ver Detalhes"><i class="fas fa-eye"></i><span>Ver</span></a>
                                     <a href="?route=stock/edit&id=<?php echo $e['id']; ?>"
-                                        class="text-amber-600 hover:text-amber-800 bg-amber-50 p-2 rounded-lg transition-colors"
-                                        title="Editar"><i class="fas fa-edit"></i></a>
+                                        class="inline-flex items-center gap-1 text-amber-600 hover:text-amber-800 bg-amber-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
+                                        title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                                     <a href="?route=stock/addItems&id=<?php echo $e['id']; ?>"
-                                        class="text-emerald-600 hover:text-emerald-800 bg-emerald-50 p-2 rounded-lg transition-colors"
-                                        title="Adicionar itens"><i class="fas fa-plus-circle"></i></a>
+                                        class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
+                                        title="Adicionar itens"><i class="fas fa-plus-circle"></i><span>Adicionar itens</span></a>
                                     <a href="?route=stock/delete&id=<?php echo $e['id']; ?>"
                                         onclick="return confirm('ATENÇÃO: A exclusão desta entrada irá estornar o estoque de todos os itens. Deseja prosseguir?')"
-                                        class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg transition-colors"
-                                        title="Excluir"><i class="fas fa-trash"></i></a>
+                                        class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 bg-red-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
+                                        title="Excluir"><i class="fas fa-trash"></i><span>Excluir</span></a>
                                 </div>
                             </td>
                         </tr>

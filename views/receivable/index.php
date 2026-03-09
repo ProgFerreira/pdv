@@ -20,8 +20,8 @@
             <p class="text-sm text-gray-400">Gerencie suas receitas, vendas a prazo e créditos.</p>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
-            <button class="btn btn-outline btn-sm shadow-sm rounded-xl" onclick="window.location.reload()">
-                <i class="fas fa-sync-alt"></i>
+            <button type="button" class="inline-flex items-center gap-2 btn btn-outline btn-sm shadow-sm rounded-xl" onclick="window.location.reload()">
+                <i class="fas fa-sync-alt"></i><span>Atualizar</span>
             </button>
         </div>
     </div>
@@ -279,16 +279,15 @@
                                 <td class="text-right">
                                     <div class="flex justify-end gap-1">
                                         <?php if (in_array($r['status'], ['ABERTO', 'PARCIAL', 'VENCIDO'])): ?>
-                                            <button
-                                                class="btn bg-indigo-600 hover:bg-indigo-700 border-none btn-xs text-white shadow-sm"
+                                            <button type="button"
+                                                class="inline-flex items-center gap-1 btn bg-indigo-600 hover:bg-indigo-700 border-none btn-xs text-white shadow-sm"
                                                 @click="selectedReceivable = <?php echo htmlspecialchars(json_encode($r), ENT_QUOTES, 'UTF-8'); ?>; showModal = true"
                                                 title="Baixar/Receber">
-                                                <i class="fas fa-hand-holding-usd"></i>
+                                                <i class="fas fa-hand-holding-usd"></i><span>Receber</span>
                                             </button>
                                         <?php endif; ?>
-                                        <button
-                                            class="btn btn-ghost btn-xs text-gray-300 hover:text-indigo-600 transition-colors"><i
-                                                class="fas fa-eye text-[10px]"></i></button>
+                                        <button type="button"
+                                            class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-300 hover:text-indigo-600 transition-colors" title="Ver"><i class="fas fa-eye text-[10px]"></i><span>Ver</span></button>
                                     </div>
                                 </td>
                             </tr>

@@ -68,12 +68,11 @@
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                             <div class="flex justify-center gap-2">
                                 <a href="?route=user/edit&id=<?php echo $u['id']; ?>"
-                                    class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></a>
+                                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 px-2 py-1 rounded text-sm"><i class="fas fa-edit"></i><span>Editar</span></a>
                                 <?php if ($u['id'] != $_SESSION['user_id']): ?>
                                     <a href="?route=user/delete&id=<?php echo $u['id']; ?>"
-                                        class="text-red-600 hover:text-red-900"
-                                        onclick="return confirm('Tem certeza que deseja excluir este usuário?')"><i
-                                            class="fas fa-trash"></i></a>
+                                        class="inline-flex items-center gap-1 text-red-600 hover:text-red-900 px-2 py-1 rounded text-sm"
+                                        onclick="return confirm('Tem certeza que deseja excluir este usuário?')"><i class="fas fa-trash"></i><span>Excluir</span></a>
                                 <?php endif; ?>
                             </div>
                         </td>

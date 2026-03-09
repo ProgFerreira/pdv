@@ -31,8 +31,8 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $c['phone']; ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $c['email']; ?></td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="?route=customer/edit&id=<?php echo $c['id']; ?>" class="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded hover:bg-blue-100 transition-colors">
-                                <i class="fas fa-edit"></i>
+                            <a href="?route=customer/edit&id=<?php echo $c['id']; ?>" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 bg-blue-50 px-2 py-1.5 rounded hover:bg-blue-100 transition-colors text-sm">
+                                <i class="fas fa-edit"></i><span>Editar</span>
                             </a>
                         </td>
                     </tr>

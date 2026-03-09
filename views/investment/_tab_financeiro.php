@@ -106,11 +106,11 @@ $formasPagamento = ['PIX', 'Dinheiro', 'Transferência', 'Cartão', 'À vista', 
                             <?php endif; ?>
                         </td>
                         <td class="text-right px-3">
-                            <a href="<?php echo e($baseUrl); ?>?route=investment/edit&id=<?php echo (int)$inv['id']; ?>" class="btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo e($baseUrl); ?>?route=investment/edit&id=<?php echo (int)$inv['id']; ?>" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-indigo-600" title="Editar"><i class="fas fa-edit"></i><span>Editar</span></a>
                             <form action="?route=investment/delete" method="POST" class="inline" onsubmit="return confirm('Excluir este lançamento?');">
                                 <?php echo csrf_field(); ?>
                                 <input type="hidden" name="id" value="<?php echo (int)$inv['id']; ?>">
-                                <button type="submit" class="btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                <button type="submit" class="inline-flex items-center gap-1 btn btn-ghost btn-xs text-gray-400 hover:text-red-600" title="Excluir"><i class="fas fa-trash-alt"></i><span>Excluir</span></button>
                             </form>
                         </td>
                     </tr>

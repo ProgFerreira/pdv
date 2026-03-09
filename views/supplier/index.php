@@ -71,15 +71,15 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2 text-base">
                                     <a href="?route=supplier/edit&id=<?php echo $s['id']; ?>"
-                                        class="text-amber-600 hover:text-amber-800 bg-amber-50 p-2 rounded-lg transition-colors"
+                                        class="inline-flex items-center gap-1 text-amber-600 hover:text-amber-800 bg-amber-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
                                         title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-edit"></i><span>Editar</span>
                                     </a>
                                     <a href="?route=supplier/delete&id=<?php echo $s['id']; ?>"
                                         onclick="return confirm('Deseja excluir este fornecedor? Produtos vinculados a ele ficarão sem fornecedor.')"
-                                        class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg transition-colors"
+                                        class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 bg-red-50 px-2 py-1.5 rounded-lg transition-colors text-sm"
                                         title="Excluir">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash"></i><span>Excluir</span>
                                     </a>
                                 </div>
                             </td>
