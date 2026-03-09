@@ -208,7 +208,7 @@ class Sale
                 LEFT JOIN users u ON s.user_id = u.id
                 LEFT JOIN customers c ON s.customer_id = c.id
                 LEFT JOIN sectors sec ON s.sector_id = sec.id
-                WHERE 1=1 AND COALESCE(s.status, 'completed') = 'completed'";
+                WHERE 1=1 AND (COALESCE(s.status, 'completed') = 'completed' OR s.status = 'cancelled')";
 
         $params = [];
         $targetSector = $filters['sector_id'] ?? $sessionSectorId;
