@@ -1,0 +1,6 @@
+.env
+.env.local
+/vendor/
+storage/logs/*.log
+storage/rate_limit_login.json
+composer.lock

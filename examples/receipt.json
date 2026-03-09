@@ -1,0 +1,13 @@
+{
+  "store_name": "ALIANCA GALETERIA",
+  "title": "CUPOM NAO FISCAL",
+  "order_number": "12345",
+  "customer_name": "JOAO SILVA",
+  "datetime": "2026-02-20 23:10:00",
+  "payment_method": "PIX",
+  "items": [
+    { "desc": "Galeto Assado", "qty": 1, "unit": 35.00 },
+    { "desc": "Arroz", "qty": 1, "unit": 8.00 }
+  ],
+  "notes": "Obrigado pela preferencia!"
+}
