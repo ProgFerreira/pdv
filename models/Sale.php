@@ -313,6 +313,69 @@ class Sale
     }
 
     /**
+     * Quantidade de produtos vendidos por produto (respeitando os mesmos filtros da listagem de vendas).
+     * Retorna: product_id, product_name, quantity, subtotal
+     *
+     * @param array $filters start_date, end_date, sector_id, cash_register_id, payment_method, customer_query
+     * @return array
+     */
+    public function getQuantitySoldByProduct($filters = [])
+    {
+        $sessionSectorId = $_SESSION['sector_id'] ?? 1;
+        $sql = "SELECT p.id as product_id, p.name as product_name,
+                       SUM(si.quantity) as quantity,
+                       SUM(si.subtotal) as subtotal
+                FROM sale_items si
+                JOIN sales s ON si.sale_id = s.id
+                JOIN products p ON si.product_id = p.id
+                LEFT JOIN customers c ON s.customer_id = c.id
+                WHERE 1=1 AND COALESCE(s.status, 'completed') = 'completed'";
+
+        $params = [];
+        $targetSector = $filters['sector_id'] ?? $sessionSectorId;
+
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'admin') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $_SESSION['sector_id'];
+        } elseif ($targetSector && $targetSector !== 'all') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $targetSector;
+        }
+
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND DATE(s.created_at) >= :start_date";
+            $params['start_date'] = $filters['start_date'];
+        }
+
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND DATE(s.created_at) <= :end_date";
+            $params['end_date'] = $filters['end_date'];
+        }
+
+        if (!empty($filters['cash_register_id'])) {
+            $sql .= " AND s.cash_register_id = :cash_id";
+            $params['cash_id'] = $filters['cash_register_id'];
+        }
+
+        if (!empty($filters['payment_method'])) {
+            $sql .= " AND s.payment_method = :pay_method";
+            $params['pay_method'] = $filters['payment_method'];
+        }
+
+        if (!empty($filters['customer_query'])) {
+            $sql .= " AND (c.name LIKE :c_query OR s.customer_id = :c_id)";
+            $params['c_query'] = "%" . $filters['customer_query'] . "%";
+            $params['c_id'] = $filters['customer_query'];
+        }
+
+        $sql .= " GROUP BY p.id, p.name ORDER BY quantity DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Cancela uma venda: estorna estoque, movimentações de caixa, fiado e vale.
      * Registra status cancelled, cancelled_at, cancelled_by.
      */

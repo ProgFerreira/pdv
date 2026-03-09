@@ -24,6 +24,7 @@ class SaleController
 
         $sales = $saleModel->getAll(100, 0, $filters);
         $totals = $saleModel->getTotals($filters);
+        $productsSold = $saleModel->getQuantitySoldByProduct($filters);
         $sectors = $sectorModel->getAll();
 
         require 'views/sales/index.php';

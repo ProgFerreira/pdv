@@ -170,6 +170,41 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
     </div>
 </div>
 
+<!-- Quantidade vendida por produto (respeita os filtros acima) -->
+<div class="card-standard overflow-hidden">
+    <div class="card-standard-header"><i class="fas fa-boxes"></i> Quantidade vendida por produto</div>
+    <div class="overflow-x-auto">
+        <?php if (empty($productsSold)): ?>
+            <p class="p-4 text-gray-500 text-sm">Nenhuma venda no período com os filtros aplicados.</p>
+        <?php else: ?>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd. vendida</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Faturamento</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php foreach ($productsSold as $row): ?>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-3 text-sm font-medium text-gray-900">
+                                <?php echo htmlspecialchars($row['product_name'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>
+                            </td>
+                            <td class="px-6 py-3 text-sm text-right font-semibold text-gray-800">
+                                <?php echo (int) ($row['quantity'] ?? 0); ?>
+                            </td>
+                            <td class="px-6 py-3 text-sm text-right text-gray-600">
+                                R$ <?php echo number_format((float) ($row['subtotal'] ?? 0), 2, ',', '.'); ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+</div>
+
 <div class="card-standard overflow-hidden">
     <div class="card-standard-header"><i class="fas fa-list"></i> Listagem de Vendas</div>
     <div class="overflow-x-auto">
