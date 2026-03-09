@@ -66,11 +66,11 @@ require 'views/layouts/header.php';
                 onclick="document.getElementById('openCashModal').classList.remove('hidden'); document.getElementById('opening-amount').focus();"
                 title="Abrir caixa e informar valor inicial">
                 <i class="fas fa-cash-register"></i>
-                <span>Caixa fechado now</span>
+                <span>Caixa fechado.</span>
             </button>
             <span id="pos-caixa-aberto-label" class="hidden flex flex-shrink-0 items-center gap-2 rounded-lg bg-green-600 text-white font-bold py-2 px-4 text-sm shadow">
                 <i class="fas fa-check-circle"></i>
-                <span>Caixa aberto ok</span>
+                <span>Caixa aberto.</span>
             </span>
             <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
                 <i class="fas fa-user text-gray-400" aria-hidden="true"></i>
