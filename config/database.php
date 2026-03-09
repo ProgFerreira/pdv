@@ -4,9 +4,9 @@
  * Variáveis vêm do .env (via config/env.php). Usa $_ENV primeiro (Hostinger e outros hosts).
  */
 $dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'pdv_religioso';
+$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'u256572549_pdv';
 $dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'u256572549_pdv';
 
 define('DB_HOST', $dbHost);
 define('DB_NAME', $dbName);
