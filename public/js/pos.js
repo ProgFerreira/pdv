@@ -5,6 +5,10 @@ let customerTimeout;
 let posLastList = [];
 /** Produto atualmente selecionado no painel */
 let posSelectedProduct = null;
+/** Cliente selecionado (objeto completo) para exibir endereço */
+let posSelectedCustomer = null;
+/** Endereço de entrega atual (linha para cupom) */
+let posDeliveryAddress = '';
 
 function escapeHtml(s) {
   if (s == null || s === "") return "";
@@ -58,9 +62,9 @@ document
             data.forEach((c) => {
               const item = document.createElement("a");
               item.className =
-                "list-group-item list-group-item-action cursor-pointer";
-              item.innerHTML = `<strong>${c.name}</strong> <small class="text-muted">| ${c.phone || ""}</small>`;
-              item.onclick = () => selectCustomer(c.id, c.name);
+                "list-group-item list-group-item-action cursor-pointer block px-3 py-2 hover:bg-gray-100 border-b border-gray-100 last:border-0";
+              item.innerHTML = `<strong>${escapeHtml(c.name)}</strong> <small class="text-gray-500">| ${escapeHtml(c.phone || "")}</small>`;
+              item.onclick = () => selectCustomer(c);
               list.appendChild(item);
             });
           } else {
@@ -70,12 +74,191 @@ document
     }, 300);
   });
 
-function selectCustomer(id, name) {
+function buildDeliveryLine(c) {
+  if (!c) return "";
+  const parts = [
+    (c.address_street || "").trim(),
+    (c.address_number || "").trim(),
+    (c.address_complement || "").trim(),
+    (c.address_neighborhood || "").trim(),
+    (c.address_city || "").trim(),
+    (c.address_state || "").trim(),
+  ].filter(Boolean);
+  if (parts.length === 0) return (c.address || "").trim();
+  let line = parts.join(", ");
+  const cep = (c.cep || "").trim();
+  if (cep) line += " - CEP: " + cep;
+  return line;
+}
+
+function refreshCustomerAddressUI() {
+  const wrap = document.getElementById("customer-address-wrap");
+  const noWrap = document.getElementById("customer-no-address-wrap");
+  const textEl = document.getElementById("customer-address-text");
+  if (!wrap || !noWrap || !textEl) return;
+  const line = posDeliveryAddress || (posSelectedCustomer ? buildDeliveryLine(posSelectedCustomer) : "");
+  if (line) {
+    wrap.classList.remove("hidden");
+    noWrap.classList.add("hidden");
+    textEl.textContent = line;
+  } else if (posSelectedCustomer) {
+    wrap.classList.add("hidden");
+    noWrap.classList.remove("hidden");
+  } else {
+    wrap.classList.add("hidden");
+    noWrap.classList.add("hidden");
+  }
+}
+
+function selectCustomer(c) {
+  const id = typeof c === "object" ? c.id : c;
+  const name = typeof c === "object" ? c.name : (arguments[1] || "");
   document.getElementById("selected-customer-id").value = id;
   document.getElementById("customer-search").value = name;
   document.getElementById("customer-search").classList.add("is-valid");
   document.getElementById("customer-list").style.display = "none";
+  posSelectedCustomer = typeof c === "object" ? c : null;
+  posDeliveryAddress = posSelectedCustomer ? buildDeliveryLine(posSelectedCustomer) : "";
+  refreshCustomerAddressUI();
 }
+
+// Endereço de entrega: abrir modal para informar/editar
+function openAddressModal() {
+  if (!posSelectedCustomer) return;
+  const modal = document.getElementById("addressModal");
+  if (!modal) return;
+  const c = posSelectedCustomer;
+  document.getElementById("addr-cep").value = (c.cep || "").trim();
+  document.getElementById("addr-street").value = (c.address_street || "").trim();
+  document.getElementById("addr-number").value = (c.address_number || "").trim();
+  document.getElementById("addr-complement").value = (c.address_complement || "").trim();
+  document.getElementById("addr-neighborhood").value = (c.address_neighborhood || "").trim();
+  document.getElementById("addr-city").value = (c.address_city || "").trim();
+  document.getElementById("addr-state").value = (c.address_state || "").trim();
+  document.getElementById("addr-cep-msg").textContent = "";
+  modal.classList.remove("hidden");
+  setTimeout(function () {
+    document.getElementById("addr-cep").focus();
+  }, 100);
+}
+
+function closeAddressModal() {
+  const modal = document.getElementById("addressModal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function fetchViaCep(cep, callback) {
+  cep = (cep || "").replace(/\D/g, "");
+  if (cep.length !== 8) {
+    if (typeof callback === "function") callback(null, "CEP deve ter 8 dígitos");
+    return;
+  }
+  const msgEl = document.getElementById("addr-cep-msg");
+  if (msgEl) msgEl.textContent = "Buscando...";
+  fetch("https://viacep.com.br/ws/" + cep + "/json/")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.erro) {
+        if (msgEl) msgEl.textContent = "CEP não encontrado";
+        if (typeof callback === "function") callback(null, "CEP não encontrado");
+        return;
+      }
+      if (msgEl) msgEl.textContent = "";
+      if (typeof callback === "function") callback(data);
+    })
+    .catch(function () {
+      if (msgEl) msgEl.textContent = "Erro ao buscar CEP";
+      if (typeof callback === "function") callback(null, "Erro ao buscar CEP");
+    });
+}
+
+function saveAddressFromModal() {
+  if (!posSelectedCustomer) return;
+  const customerId = posSelectedCustomer.id;
+  const cep = (document.getElementById("addr-cep").value || "").replace(/\D/g, "");
+  const addressStreet = (document.getElementById("addr-street").value || "").trim();
+  const addressNumber = (document.getElementById("addr-number").value || "").trim();
+  const addressComplement = (document.getElementById("addr-complement").value || "").trim();
+  const addressNeighborhood = (document.getElementById("addr-neighborhood").value || "").trim();
+  const addressCity = (document.getElementById("addr-city").value || "").trim();
+  const addressState = (document.getElementById("addr-state").value || "").trim();
+  if (!addressStreet && !cep) {
+    alert("Informe o CEP para buscar o endereço.");
+    return;
+  }
+  const btn = document.getElementById("btn-save-address");
+  if (btn) btn.disabled = true;
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : "";
+  fetch("index.php?route=customer/updateAddress", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      csrf_token: csrfToken,
+      customer_id: customerId,
+      cep: cep || null,
+      address_street: addressStreet || null,
+      address_number: addressNumber || null,
+      address_complement: addressComplement || null,
+      address_neighborhood: addressNeighborhood || null,
+      address_city: addressCity || null,
+      address_state: addressState || null,
+    }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.success && res.delivery_address !== undefined) {
+        posDeliveryAddress = res.delivery_address;
+        if (posSelectedCustomer) {
+          posSelectedCustomer.address_street = addressStreet || null;
+          posSelectedCustomer.address_number = addressNumber || null;
+          posSelectedCustomer.address_complement = addressComplement || null;
+          posSelectedCustomer.address_neighborhood = addressNeighborhood || null;
+          posSelectedCustomer.address_city = addressCity || null;
+          posSelectedCustomer.address_state = addressState || null;
+          posSelectedCustomer.cep = cep || null;
+        }
+        refreshCustomerAddressUI();
+        closeAddressModal();
+      } else {
+        alert(res.message || "Erro ao salvar endereço.");
+      }
+    })
+    .catch(function () {
+      alert("Erro de conexão ao salvar endereço.");
+    })
+    .finally(function () {
+      if (btn) btn.disabled = false;
+    });
+}
+
+(function setupAddressModal() {
+  const btnAdd = document.getElementById("btn-add-address");
+  const btnEdit = document.getElementById("btn-edit-address");
+  const btnSave = document.getElementById("btn-save-address");
+  const addrCep = document.getElementById("addr-cep");
+  if (btnAdd) btnAdd.addEventListener("click", openAddressModal);
+  if (btnEdit) btnEdit.addEventListener("click", openAddressModal);
+  if (btnSave) btnSave.addEventListener("click", saveAddressFromModal);
+  if (addrCep) {
+    addrCep.addEventListener("blur", function () {
+      const cep = this.value.replace(/\D/g, "");
+      if (cep.length === 8) fetchViaCep(cep, function (data) {
+        if (!data) return;
+        document.getElementById("addr-street").value = data.logradouro || "";
+        document.getElementById("addr-neighborhood").value = data.bairro || "";
+        document.getElementById("addr-city").value = data.localidade || "";
+        document.getElementById("addr-state").value = data.uf || "";
+      });
+    });
+    addrCep.addEventListener("input", function () {
+      let v = this.value.replace(/\D/g, "");
+      if (v.length > 8) v = v.slice(0, 8);
+      if (v.length > 5) this.value = v.slice(0, 5) + "-" + v.slice(5);
+      else this.value = v;
+    });
+  }
+})();
 
 document
   .getElementById("product-search")
@@ -577,6 +760,7 @@ function processCheckout() {
     change: change,
     customerId: customerId,
     customerName: customerName,
+    deliveryAddress: posDeliveryAddress || null,
     discount: discount,
     giftCardId: document.getElementById("gift-card-id").value || null,
     csrf_token: csrfToken,

@@ -78,6 +78,17 @@ require 'views/layouts/header.php';
                 <input type="hidden" id="selected-customer-id">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
+            <!-- Endereço de entrega: exibe se cliente tiver; senão botão para abrir modal -->
+            <div id="customer-address-wrap" class="hidden w-full flex-shrink-0 flex items-center gap-2 text-xs">
+                <span class="text-gray-500 whitespace-nowrap"><i class="fas fa-map-marker-alt text-sky-500 mr-1"></i> Entrega:</span>
+                <span id="customer-address-text" class="flex-1 min-w-0 truncate text-gray-700"></span>
+                <button type="button" id="btn-edit-address" class="flex-shrink-0 text-sky-600 hover:text-sky-800 font-medium" title="Alterar endereço de entrega">Editar</button>
+            </div>
+            <div id="customer-no-address-wrap" class="hidden w-full flex-shrink-0">
+                <button type="button" id="btn-add-address" class="text-xs text-sky-600 hover:text-sky-800 font-medium flex items-center gap-1" title="Informar endereço de entrega para imprimir no cupom">
+                    <i class="fas fa-map-marker-alt"></i> Informar endereço de entrega
+                </button>
+            </div>
             <div class="pos-field-wrap border-2 border-transparent rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
                 <i class="fas fa-search text-indigo-500" aria-hidden="true"></i>
                 <input type="text" id="product-search" class="text-sm border-0 bg-transparent outline-none focus:ring-0" placeholder="Buscar produto... (/) " autofocus>
@@ -251,6 +262,62 @@ require 'views/layouts/header.php';
                         class="btn btn-ghost bg-white hover:bg-gray-50 text-gray-600 rounded-xl border border-gray-200 transition-all font-bold btn-sm shadow-sm">
                         Voltar ao Dashboard
                     </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Endereço de Entrega (CEP → ViaCEP → número e complemento) -->
+<div id="addressModal" class="fixed inset-0 z-[60] hidden" aria-labelledby="address-modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeAddressModal()"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full border-t-4 border-sky-600 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4" id="address-modal-title">
+                    <i class="fas fa-map-marker-alt text-sky-600 mr-2"></i> Endereço de entrega
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">Preencha o CEP para buscar. Depois informe número e complemento.</p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                        <input type="text" id="addr-cep" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="00000-000" maxlength="9" autocomplete="postal-code">
+                        <p id="addr-cep-msg" class="text-xs mt-1 min-h-[1rem]"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Logradouro</label>
+                        <input type="text" id="addr-street" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50" readonly>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Número</label>
+                            <input type="text" id="addr-number" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="123">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
+                            <input type="text" id="addr-complement" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Apto, sala...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
+                        <input type="text" id="addr-neighborhood" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50" readonly>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                            <input type="text" id="addr-city" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">UF</label>
+                            <input type="text" id="addr-state" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-center" readonly maxlength="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeAddressModal()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                    <button type="button" id="btn-save-address" class="px-4 py-2 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow transition">
+                        <i class="fas fa-save mr-1"></i> Salvar endereço
+                    </button>
                 </div>
             </div>
         </div>

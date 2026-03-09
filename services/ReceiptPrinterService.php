@@ -134,6 +134,7 @@ class ReceiptPrinterService
             $title = $this->normalizeText((string) ($payload['title'] ?? 'CUPOM NAO FISCAL'));
             $orderNumber = (string) ($payload['order_number'] ?? '');
             $customerName = $this->normalizeText((string) ($payload['customer_name'] ?? ''));
+            $deliveryAddress = $this->normalizeText((string) ($payload['delivery_address'] ?? ''));
             $datetime = (string) ($payload['datetime'] ?? date('d/m/Y H:i'));
             $paymentMethod = $this->normalizeText((string) ($payload['payment_method'] ?? ''));
             $totalGeral = (float) ($payload['total'] ?? 0);
@@ -204,6 +205,9 @@ class ReceiptPrinterService
                 $printer->text($this->normalizeText('Cliente: ') . $customerName . "\n");
             } else {
                 $printer->text($this->normalizeText('Consumidor Final') . "\n");
+            }
+            if ($deliveryAddress !== '') {
+                $printer->text($this->normalizeText('Entrega: ') . $deliveryAddress . "\n");
             }
             $printer->text("\n" . $notes . "\n");
             $printer->text($this->normalizeText('Sistema PDV v1.0') . "\n");

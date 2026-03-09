@@ -27,7 +27,9 @@ return [
     'customer/store' => 'customer',
     'customer/edit' => 'customer',
     'customer/update' => 'customer',
+    'customer/updateAddress' => 'pos',
     'customer/delete' => 'customer',
+    'customer/search' => 'pos',
 
     'product/index' => 'product',
     'product/create' => 'product',

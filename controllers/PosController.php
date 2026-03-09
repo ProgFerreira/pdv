@@ -65,6 +65,7 @@ class PosController
                 $customerId = null;
             }
             $customerName = isset($input['customerName']) ? trim((string) $input['customerName']) : '';
+            $deliveryAddress = isset($input['deliveryAddress']) ? trim((string) $input['deliveryAddress']) : null;
             $giftCardId = $input['giftCardId'] ?? null;
 
             // Se não há cliente selecionado mas foi digitado um nome, cria o cliente e associa à venda
@@ -111,7 +112,7 @@ class PosController
                 exit;
             }
 
-            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId);
+            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress);
 
             if ($saleId) {
                 $audit = new AuditLog();

@@ -187,6 +187,7 @@ $payload = [
     'title' => trim((string)($input['title'] ?? 'CUPOM NAO FISCAL')),
     'order_number' => (string)($input['order_number'] ?? ''),
     'customer_name' => trim((string)($input['customer_name'] ?? '')),
+    'delivery_address' => trim((string)($input['delivery_address'] ?? '')),
     'datetime' => trim((string)($input['datetime'] ?? date('d/m/Y H:i'))),
     'payment_method' => trim((string)($input['payment_method'] ?? '')),
     'total' => (float)($input['total'] ?? 0),

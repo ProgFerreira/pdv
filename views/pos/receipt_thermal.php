@@ -121,6 +121,7 @@ $storeName = $_ENV['STORE_NAME'] ?? getenv('STORE_NAME') ?: 'LOJA RELIGIOSA';
 $storeCnpj = $_ENV['STORE_CNPJ'] ?? getenv('STORE_CNPJ') ?: '00.000.000/0001-00';
 $storeAddress = $_ENV['STORE_ADDRESS'] ?? getenv('STORE_ADDRESS') ?: 'Rua Exemplo, 123 - Centro';
 $storePhone = $_ENV['STORE_PHONE'] ?? getenv('STORE_PHONE') ?: 'Tel: (11) 99999-9999';
+$deliveryAddress = trim((string)($sale['delivery_address'] ?? ''));
 $receiptPayload = [
     'store_name' => $storeName,
     'store_cnpj' => $storeCnpj,
@@ -129,6 +130,7 @@ $receiptPayload = [
     'title' => 'CUPOM NAO FISCAL',
     'order_number' => str_pad((string) ($sale['id'] ?? ''), 6, '0', STR_PAD_LEFT),
     'customer_name' => trim((string)($sale['customer_name'] ?? '')),
+    'delivery_address' => $deliveryAddress,
     'datetime' => date('d/m/Y H:i', strtotime($sale['created_at'] ?? 'now')),
     'payment_method' => $sale['payment_method'] ?? '',
     'total' => (float) ($sale['total'] ?? 0),
@@ -267,6 +269,9 @@ $csrfToken = function_exists('csrf_token') ? csrf_token() : '';
                 <p>Cliente: <?php echo htmlspecialchars($receiptCustomerName); ?></p>
             <?php else: ?>
                 <p>Consumidor Final</p>
+            <?php endif; ?>
+            <?php if ($deliveryAddress !== ''): ?>
+                <p class="text-xs">Entrega: <?php echo htmlspecialchars($deliveryAddress); ?></p>
             <?php endif; ?>
 
             <br>

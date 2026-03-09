@@ -26,6 +26,10 @@
                 <div class="mb-6 p-4 rounded-xl bg-sky-50 border border-sky-100">
                     <p class="text-xs font-medium text-sky-600 uppercase tracking-wider mb-1">Cliente</p>
                     <p class="font-semibold text-gray-800"><?php echo htmlspecialchars($displayCustomerName); ?></p>
+                    <?php if (!empty($sale['delivery_address'])): ?>
+                        <p class="text-xs font-medium text-sky-600 uppercase tracking-wider mt-3 mb-1">Endereço de entrega</p>
+                        <p class="text-sm text-gray-700"><?php echo htmlspecialchars($sale['delivery_address']); ?></p>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 

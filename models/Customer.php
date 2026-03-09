@@ -48,4 +48,58 @@ class Customer {
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }
+
+    /**
+     * Atualiza apenas o endereço do cliente (usado no PDV após preencher via CEP).
+     * Aceita: cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state
+     */
+    public function updateAddress(int $id, array $data): bool {
+        $line = self::buildDeliveryLine($data);
+        $stmt = $this->pdo->prepare("
+            UPDATE customers SET
+                cep = :cep,
+                address_street = :address_street,
+                address_number = :address_number,
+                address_complement = :address_complement,
+                address_neighborhood = :address_neighborhood,
+                address_city = :address_city,
+                address_state = :address_state,
+                address = :address
+            WHERE id = :id
+        ");
+        return $stmt->execute([
+            'id' => $id,
+            'cep' => $data['cep'] ?? null,
+            'address_street' => $data['address_street'] ?? null,
+            'address_number' => $data['address_number'] ?? null,
+            'address_complement' => $data['address_complement'] ?? null,
+            'address_neighborhood' => $data['address_neighborhood'] ?? null,
+            'address_city' => $data['address_city'] ?? null,
+            'address_state' => $data['address_state'] ?? null,
+            'address' => $line ?: null,
+        ]);
+    }
+
+    /**
+     * Monta uma única linha de endereço de entrega a partir dos campos (para exibir e imprimir no cupom).
+     */
+    public static function buildDeliveryLine(array $c): string {
+        $parts = array_filter([
+            trim((string) ($c['address_street'] ?? '')),
+            trim((string) ($c['address_number'] ?? '')),
+            trim((string) ($c['address_complement'] ?? '')),
+            trim((string) ($c['address_neighborhood'] ?? '')),
+            trim((string) ($c['address_city'] ?? '')),
+            trim((string) ($c['address_state'] ?? '')),
+        ]);
+        if (empty($parts)) {
+            return trim((string) ($c['address'] ?? ''));
+        }
+        $line = implode(', ', $parts);
+        $cep = trim((string) ($c['cep'] ?? ''));
+        if ($cep !== '') {
+            $line .= ' - CEP: ' . $cep;
+        }
+        return $line;
+    }
 }

@@ -12,7 +12,7 @@ class Sale
         $this->pdo = $pdo;
     }
 
-    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null)
+    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null, $deliveryAddress = null)
     {
         $sectorId = $_SESSION['sector_id'] ?? 1;
 
@@ -42,14 +42,15 @@ class Sale
             if ($total < 0)
                 $total = 0;
 
-            // 2. Insert Sale
+            // 2. Insert Sale (delivery_address = endereço de entrega para imprimir no cupom)
             $stmt = $this->pdo->prepare("
-                INSERT INTO sales (user_id, customer_id, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id) 
-                VALUES (:user_id, :customer_id, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
+                INSERT INTO sales (user_id, customer_id, delivery_address, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id) 
+                VALUES (:user_id, :customer_id, :delivery_address, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
             ");
             $stmt->execute([
                 'user_id' => $userId,
                 'customer_id' => $customerId,
+                'delivery_address' => $deliveryAddress ?: null,
                 'cash_register_id' => $cashRegisterId,
                 'total' => $total,
                 'discount_amount' => $discountAmount,
