@@ -101,4 +101,53 @@ class CustomerController {
             echo json_encode(['success' => false, 'message' => 'Erro ao salvar endereço']);
         }
     }
+
+    /**
+     * Cadastro rápido do PDV: cria cliente com endereço em uma chamada.
+     * POST JSON: name, phone, email (opcional), cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state
+     */
+    public function storeFromPos() {
+        header('Content-Type: application/json; charset=utf-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método não permitido']);
+            return;
+        }
+        $input = $GLOBALS['_JSON_BODY'] ?? json_decode(file_get_contents('php://input'), true) ?? [];
+        $input = is_array($input) ? $input : [];
+        $name = isset($input['name']) ? trim((string) $input['name']) : '';
+        $phone = isset($input['phone']) ? trim((string) $input['phone']) : '';
+        if ($name === '') {
+            echo json_encode(['success' => false, 'message' => 'Informe o nome do cliente']);
+            return;
+        }
+        if ($phone === '') {
+            echo json_encode(['success' => false, 'message' => 'Informe o telefone do cliente']);
+            return;
+        }
+        $customerModel = new Customer();
+        $data = [
+            'name' => $name,
+            'phone' => $phone,
+            'email' => isset($input['email']) ? trim((string) $input['email']) : null,
+            'cep' => isset($input['cep']) ? trim((string) $input['cep']) : null,
+            'address_street' => isset($input['address_street']) ? trim((string) $input['address_street']) : null,
+            'address_number' => isset($input['address_number']) ? trim((string) $input['address_number']) : null,
+            'address_complement' => isset($input['address_complement']) ? trim((string) $input['address_complement']) : null,
+            'address_neighborhood' => isset($input['address_neighborhood']) ? trim((string) $input['address_neighborhood']) : null,
+            'address_city' => isset($input['address_city']) ? trim((string) $input['address_city']) : null,
+            'address_state' => isset($input['address_state']) ? trim((string) $input['address_state']) : null,
+        ];
+        try {
+            $id = $customerModel->createWithAddress($data);
+        } catch (\Throwable $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar. Execute a migration 008_customer_address_delivery.sql se ainda não executou.']);
+            return;
+        }
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar cliente']);
+            return;
+        }
+        $customer = $customerModel->getById((int) $id);
+        echo json_encode(['success' => true, 'customer' => $customer]);
+    }
 }

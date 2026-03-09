@@ -37,9 +37,30 @@ class Customer {
         ]);
     }
     
+    /**
+     * Busca por nome ou telefone (aceita telefone com ou sem formatação).
+     */
     public function search($term) {
-        $stmt = $this->pdo->prepare("SELECT * FROM customers WHERE name LIKE :term OR phone LIKE :term LIMIT 10");
-        $stmt->execute(['term' => "%$term%"]);
+        $term = trim((string) $term);
+        if ($term === '') {
+            return [];
+        }
+        $likeTerm = '%' . $term . '%';
+        $digitsOnly = preg_replace('/\D/', '', $term);
+        if (strlen($digitsOnly) >= 2) {
+            $likeDigits = '%' . $digitsOnly . '%';
+            $stmt = $this->pdo->prepare("
+                SELECT * FROM customers 
+                WHERE name LIKE :term 
+                   OR phone LIKE :term 
+                   OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '(', ''), ')', ''), '+', '') LIKE :digits 
+                LIMIT 10
+            ");
+            $stmt->execute(['term' => $likeTerm, 'digits' => $likeDigits]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT * FROM customers WHERE name LIKE :term OR phone LIKE :term LIMIT 10");
+            $stmt->execute(['term' => $likeTerm]);
+        }
         return $stmt->fetchAll();
     }
     
@@ -78,6 +99,32 @@ class Customer {
             'address_state' => $data['address_state'] ?? null,
             'address' => $line ?: null,
         ]);
+    }
+
+    /**
+     * Cadastro rápido do PDV: cria cliente com endereço em uma única operação.
+     * $data: name, phone, email (opcional), cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state
+     */
+    public function createWithAddress(array $data): int|false {
+        $line = self::buildDeliveryLine($data);
+        $stmt = $this->pdo->prepare("
+            INSERT INTO customers (name, phone, email, cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, address)
+            VALUES (:name, :phone, :email, :cep, :address_street, :address_number, :address_complement, :address_neighborhood, :address_city, :address_state, :address)
+        ");
+        $ok = $stmt->execute([
+            'name' => trim((string) ($data['name'] ?? '')),
+            'phone' => trim((string) ($data['phone'] ?? '')) ?: null,
+            'email' => trim((string) ($data['email'] ?? '')) ?: null,
+            'cep' => trim((string) ($data['cep'] ?? '')) ?: null,
+            'address_street' => trim((string) ($data['address_street'] ?? '')) ?: null,
+            'address_number' => trim((string) ($data['address_number'] ?? '')) ?: null,
+            'address_complement' => trim((string) ($data['address_complement'] ?? '')) ?: null,
+            'address_neighborhood' => trim((string) ($data['address_neighborhood'] ?? '')) ?: null,
+            'address_city' => trim((string) ($data['address_city'] ?? '')) ?: null,
+            'address_state' => trim((string) ($data['address_state'] ?? '')) ?: null,
+            'address' => $line ?: null,
+        ]);
+        return $ok ? (int) $this->pdo->lastInsertId() : false;
     }
 
     /**

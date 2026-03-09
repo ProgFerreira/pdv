@@ -74,7 +74,7 @@ require 'views/layouts/header.php';
             </span>
             <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
                 <i class="fas fa-user text-gray-400" aria-hidden="true"></i>
-                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0" placeholder="Nome do cliente (imprime no cupom)" title="Digite o nome do cliente para aparecer no cupom térmico">
+                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0" placeholder="Telefone ou nome do cliente" title="Digite o telefone ou nome para buscar; se não existir, cadastre novo">
                 <input type="hidden" id="selected-customer-id">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
@@ -317,6 +317,79 @@ require 'views/layouts/header.php';
                     <button type="button" onclick="closeAddressModal()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                     <button type="button" id="btn-save-address" class="px-4 py-2 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow transition">
                         <i class="fas fa-save mr-1"></i> Salvar endereço
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Cliente (cadastro rápido no PDV com endereço) -->
+<div id="newCustomerModal" class="fixed inset-0 z-[60] hidden" aria-labelledby="new-customer-modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeNewCustomerModal()"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full border-t-4 border-emerald-600 p-6 max-h-[90vh] overflow-y-auto">
+                <h3 class="text-lg font-bold text-gray-900 mb-4" id="new-customer-modal-title">
+                    <i class="fas fa-user-plus text-emerald-600 mr-2"></i> Novo cliente
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">Cadastre o cliente e o endereço de entrega para imprimir no cupom.</p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome <span class="text-red-500">*</span></label>
+                        <input type="text" id="new-customer-name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Nome completo" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefone <span class="text-red-500">*</span></label>
+                        <input type="text" id="new-customer-phone" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="(11) 99999-9999" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">E-mail (opcional)</label>
+                        <input type="email" id="new-customer-email" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="email@exemplo.com">
+                    </div>
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <p class="text-xs font-semibold text-gray-600 mb-2">Endereço de entrega (opcional)</p>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-0.5">CEP</label>
+                                <input type="text" id="new-addr-cep" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm" placeholder="00000-000" maxlength="9">
+                                <p id="new-addr-cep-msg" class="text-xs mt-0.5 min-h-[1rem] text-red-600"></p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-0.5">Logradouro</label>
+                                <input type="text" id="new-addr-street" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-gray-50" readonly>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-0.5">Número</label>
+                                    <input type="text" id="new-addr-number" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm" placeholder="123">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-0.5">Complemento</label>
+                                    <input type="text" id="new-addr-complement" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm" placeholder="Apto">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-0.5">Bairro</label>
+                                <input type="text" id="new-addr-neighborhood" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-gray-50" readonly>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-medium text-gray-600 mb-0.5">Cidade</label>
+                                    <input type="text" id="new-addr-city" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-gray-50" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-0.5">UF</label>
+                                    <input type="text" id="new-addr-state" class="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-gray-50 text-center" readonly maxlength="2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeNewCustomerModal()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+                    <button type="button" id="btn-save-new-customer" class="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow transition">
+                        <i class="fas fa-check mr-1"></i> Cadastrar e usar
                     </button>
                 </div>
             </div>

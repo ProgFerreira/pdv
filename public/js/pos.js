@@ -68,7 +68,12 @@ document
               list.appendChild(item);
             });
           } else {
-            list.style.display = "none";
+            list.style.display = "block";
+            const addItem = document.createElement("a");
+            addItem.className = "block px-3 py-2 hover:bg-emerald-50 border-b border-gray-100 text-emerald-700 font-medium";
+            addItem.innerHTML = "<i class=\"fas fa-plus-circle mr-2\"></i> Cadastrar novo cliente";
+            addItem.onclick = () => openNewCustomerModal(term);
+            list.appendChild(addItem);
           }
         });
     }, 300);
@@ -256,6 +261,125 @@ function saveAddressFromModal() {
       if (v.length > 8) v = v.slice(0, 8);
       if (v.length > 5) this.value = v.slice(0, 5) + "-" + v.slice(5);
       else this.value = v;
+    });
+  }
+})();
+
+function openNewCustomerModal(term) {
+  const modal = document.getElementById("newCustomerModal");
+  const list = document.getElementById("customer-list");
+  if (modal) modal.classList.remove("hidden");
+  if (list) list.style.display = "none";
+  document.getElementById("new-customer-name").value = "";
+  document.getElementById("new-customer-phone").value = "";
+  document.getElementById("new-customer-email").value = "";
+  document.getElementById("new-addr-cep").value = "";
+  document.getElementById("new-addr-street").value = "";
+  document.getElementById("new-addr-number").value = "";
+  document.getElementById("new-addr-complement").value = "";
+  document.getElementById("new-addr-neighborhood").value = "";
+  document.getElementById("new-addr-city").value = "";
+  document.getElementById("new-addr-state").value = "";
+  document.getElementById("new-addr-cep-msg").textContent = "";
+  term = (term || "").trim();
+  var digitsOnly = term.replace(/\D/g, "");
+  if (digitsOnly.length >= 8 && digitsOnly.length <= 11) {
+    document.getElementById("new-customer-phone").value = term;
+    document.getElementById("new-customer-name").focus();
+  } else if (term.length >= 2) {
+    document.getElementById("new-customer-name").value = term;
+    document.getElementById("new-customer-phone").focus();
+  } else {
+    document.getElementById("new-customer-name").focus();
+  }
+}
+
+function closeNewCustomerModal() {
+  const modal = document.getElementById("newCustomerModal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function saveNewCustomer() {
+  var name = (document.getElementById("new-customer-name").value || "").trim();
+  var phone = (document.getElementById("new-customer-phone").value || "").trim();
+  if (!name) {
+    alert("Informe o nome do cliente.");
+    return;
+  }
+  if (!phone) {
+    alert("Informe o telefone do cliente.");
+    return;
+  }
+  var cep = (document.getElementById("new-addr-cep").value || "").replace(/\D/g, "");
+  var payload = {
+    csrf_token: document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute("content") : "",
+    name: name,
+    phone: phone,
+    email: (document.getElementById("new-customer-email").value || "").trim() || null,
+    cep: cep || null,
+    address_street: (document.getElementById("new-addr-street").value || "").trim() || null,
+    address_number: (document.getElementById("new-addr-number").value || "").trim() || null,
+    address_complement: (document.getElementById("new-addr-complement").value || "").trim() || null,
+    address_neighborhood: (document.getElementById("new-addr-neighborhood").value || "").trim() || null,
+    address_city: (document.getElementById("new-addr-city").value || "").trim() || null,
+    address_state: (document.getElementById("new-addr-state").value || "").trim() || null,
+  };
+  var btn = document.getElementById("btn-save-new-customer");
+  if (btn) btn.disabled = true;
+  fetch("index.php?route=customer/storeFromPos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.success && res.customer) {
+        selectCustomer(res.customer);
+        document.getElementById("customer-search").value = res.customer.name;
+        closeNewCustomerModal();
+      } else {
+        alert(res.message || "Erro ao cadastrar cliente.");
+      }
+    })
+    .catch(function () {
+      alert("Erro de conexão ao cadastrar cliente.");
+    })
+    .finally(function () {
+      if (btn) btn.disabled = false;
+    });
+}
+
+(function setupNewCustomerModal() {
+  var btnSave = document.getElementById("btn-save-new-customer");
+  var newCep = document.getElementById("new-addr-cep");
+  if (btnSave) btnSave.addEventListener("click", saveNewCustomer);
+  if (newCep) {
+    newCep.addEventListener("blur", function () {
+      var cep = this.value.replace(/\D/g, "");
+      if (cep.length !== 8) return;
+      var msgEl = document.getElementById("new-addr-cep-msg");
+      if (msgEl) msgEl.textContent = "Buscando...";
+      fetch("https://viacep.com.br/ws/" + cep + "/json/")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (msgEl) msgEl.textContent = "";
+          if (data.erro) {
+            if (msgEl) msgEl.textContent = "CEP não encontrado";
+            return;
+          }
+          document.getElementById("new-addr-street").value = data.logradouro || "";
+          document.getElementById("new-addr-neighborhood").value = data.bairro || "";
+          document.getElementById("new-addr-city").value = data.localidade || "";
+          document.getElementById("new-addr-state").value = data.uf || "";
+        })
+        .catch(function () {
+          if (msgEl) msgEl.textContent = "Erro ao buscar CEP";
+        });
+    });
+    newCep.addEventListener("input", function () {
+      var v = this.value.replace(/\D/g, "");
+      if (v.length > 8) v = v.slice(0, 8);
+      this.value = v.length > 5 ? v.slice(0, 5) + "-" + v.slice(5) : v;
     });
   }
 })();
