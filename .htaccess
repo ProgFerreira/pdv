@@ -1,0 +1,17 @@
+# Bloquear acesso direto a pastas sensíveis
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^storage/ - [F,L]
+    RewriteRule ^controllers/ - [F,L]
+    RewriteRule ^models/ - [F,L]
+    RewriteRule ^views/ - [F,L]
+</IfModule>
+
+# Alternativa para servidores sem mod_rewrite: negar por diretório
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(env|sql|log|json)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>

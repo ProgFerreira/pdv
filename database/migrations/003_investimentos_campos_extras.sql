@@ -1,0 +1,2 @@
+-- Campos extras para investimentos: observações, documento, quantidade, data devolução, forma pagamento, categoria
+-- O run_migration_investments.php adiciona cada coluna somente se não existir (evita erro em reexecução).

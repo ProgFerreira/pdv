@@ -1,0 +1,172 @@
+<?php
+
+/**
+ * Mapeamento rota -> permissão necessária (controle de acesso por tela).
+ * Rotas não listadas ou sem permissão exigida: apenas login necessário.
+ */
+
+return [
+    'dashboard/index' => 'dashboard',
+
+    'pos/index' => 'pos',
+    'pos/search' => 'pos',
+    'pos/checkout' => 'pos',
+    'pos/receipt' => 'pos',
+    'pos/receipt_thermal' => 'pos',
+
+    'print/receipt' => 'pos',
+
+    'sale/index' => 'sale_view',
+    'sale/view' => 'sale_view',
+    'sale/open' => 'sale_view',
+    'sale/cancel' => 'sale_cancel',
+
+
+    'customer/index' => 'customer',
+    'customer/create' => 'customer',
+    'customer/store' => 'customer',
+    'customer/edit' => 'customer',
+    'customer/update' => 'customer',
+    'customer/delete' => 'customer',
+
+    'product/index' => 'product',
+    'product/create' => 'product',
+    'product/store' => 'product',
+    'product/edit' => 'product',
+    'product/update' => 'product',
+    'product/delete' => 'product',
+    'product/toggle' => 'product',
+    'label/index' => 'product',
+
+    'ingredient/index' => 'product',
+    'ingredient/create' => 'product',
+    'ingredient/edit' => 'product',
+    'ingredient/delete' => 'product',
+    'ingredient/toggle' => 'product',
+
+    'technicalSheet/view' => 'product',
+    'technicalSheet/itemForm' => 'product',
+    'technicalSheet/itemEdit' => 'product',
+    'technicalSheet/itemAdd' => 'product',
+    'technicalSheet/itemUpdate' => 'product',
+    'technicalSheet/itemDelete' => 'product',
+    'technicalSheet/updateNotes' => 'product',
+
+    'stock/index' => 'stock',
+    'stock/create' => 'stock',
+    'stock/store' => 'stock',
+    'stock/view' => 'stock',
+    'stock/edit' => 'stock',
+    'stock/update' => 'stock',
+    'stock/delete' => 'stock',
+    'stock/addItems' => 'stock',
+
+    'category/index' => 'category',
+    'category/create' => 'category',
+    'category/store' => 'category',
+    'category/edit' => 'category',
+    'category/update' => 'category',
+    'category/delete' => 'category',
+
+    'brand/index' => 'brand',
+    'brand/create' => 'brand',
+    'brand/store' => 'brand',
+    'brand/edit' => 'brand',
+    'brand/update' => 'brand',
+    'brand/delete' => 'brand',
+
+    'giftcard/index' => 'giftcard',
+    'giftcard/create' => 'giftcard',
+    'giftcard/store' => 'giftcard',
+    'giftcard/view' => 'giftcard',
+    'giftcard/edit' => 'giftcard',
+    'giftcard/update' => 'giftcard',
+    'giftcard/refund' => 'giftcard',
+    'giftcard/delete' => 'giftcard',
+    'giftcard/check' => 'giftcard',
+
+    'report/index' => 'report',
+    'report/abc_curve' => 'report',
+    'report/best_sellers' => 'report',
+    'report/consigned' => 'report',
+    'report/inventory_batches' => 'report',
+    'report/sector_performance' => 'report',
+    'report/advanced' => 'report',
+    'report/daily' => 'report',
+    'report/payments' => 'report',
+    'report/profitability' => 'report',
+    'report/printable' => 'report',
+
+    'audit/index' => 'audit',
+
+    'user/index' => 'user',
+    'user/create' => 'user',
+    'user/store' => 'user',
+    'user/edit' => 'user',
+    'user/update' => 'user',
+    'user/delete' => 'user',
+
+    'permission/index' => 'permission_manage',
+    'permission/update' => 'permission_manage',
+
+    'cash/index' => 'cash',
+    'cash/history' => 'cash',
+    'cash/view' => 'cash',
+    'cash/edit' => 'cash',
+    'cash/update' => 'cash',
+    'cash/delete' => 'cash',
+    'cash/open' => 'cash',
+    'cash/close' => 'cash',
+    'cash/report' => 'cash',
+    'cash/status' => 'cash',
+    'cash/movement' => 'cash',
+
+    'supplier/index' => 'product',
+    'supplier/create' => 'product',
+    'supplier/store' => 'product',
+    'supplier/edit' => 'product',
+    'supplier/update' => 'product',
+    'supplier/delete' => 'product',
+
+    'import/products' => 'product',
+    'import/downloadTemplate' => 'product',
+
+    'payable/index' => 'cash',
+    'payable/store' => 'cash',
+    'payable/pay' => 'cash',
+    'payable/cancel' => 'cash',
+
+    'receivable/index' => 'receivable',
+    'receivable/store' => 'receivable',
+    'receivable/pay' => 'receivable',
+
+    'planoContas/index' => 'finance_dashboard',
+    'planoContas/store' => 'finance_dashboard',
+
+    'account/index' => 'finance_dashboard',
+    'account/store' => 'finance_dashboard',
+
+    'investment/index' => 'investment_manage',
+    'investment/create' => 'investment_manage',
+    'investment/store' => 'investment_manage',
+    'investment/edit' => 'investment_manage',
+    'investment/update' => 'investment_manage',
+    'investment/delete' => 'investment_manage',
+    'investment/show' => 'investment_manage',
+    'investment/paymentStore' => 'investment_manage',
+    'investment/export' => 'investment_manage',
+    'investment/participants' => 'investment_manage',
+    'investment/participantCreate' => 'investment_manage',
+    'investment/participantStore' => 'investment_manage',
+    'investment/participantEdit' => 'investment_manage',
+    'investment/participantUpdate' => 'investment_manage',
+    'investment/participantDelete' => 'investment_manage',
+    'investment/assetCreate' => 'investment_manage',
+    'investment/assetStore' => 'investment_manage',
+    'investment/assetEdit' => 'investment_manage',
+    'investment/assetUpdate' => 'investment_manage',
+    'investment/assetDelete' => 'investment_manage',
+
+    'cashFlow/index' => 'finance_dashboard',
+    'cashFlow/dashboard' => 'finance_dashboard',
+];
