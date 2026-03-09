@@ -70,7 +70,7 @@ require 'views/layouts/header.php';
             </button>
             <span id="pos-caixa-aberto-label" class="hidden flex flex-shrink-0 items-center gap-2 rounded-lg bg-green-600 text-white font-bold py-2 px-4 text-sm shadow">
                 <i class="fas fa-check-circle"></i>
-                <span>Caixa aberto</span>
+                <span>Caixa aberto ok</span>
             </span>
             <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
                 <i class="fas fa-user text-gray-400" aria-hidden="true"></i>
