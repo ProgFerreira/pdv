@@ -420,28 +420,28 @@
                                 <?php echo $p['location'] ?? '-'; ?>
                             </td>
                             <td class="px-3 py-3 whitespace-nowrap text-right align-middle">
-                                <div class="flex justify-end gap-2 flex-wrap">
+                                <div class="flex justify-end gap-2">
                                     <?php if (function_exists('hasPermission') && hasPermission('product')): ?>
                                     <a href="?route=technicalSheet/view&product_id=<?php echo (int)$p['id']; ?>"
-                                        class="inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-2 px-3 rounded-lg text-sm font-semibold transition-colors"
+                                        class="text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2 rounded-lg transition-colors"
                                         title="Ficha Técnica">
-                                        <i class="fas fa-clipboard-list"></i> Ficha Técnica
+                                        <i class="fas fa-clipboard-list"></i>
                                     </a>
                                     <?php endif; ?>
                                     <a href="?route=product/edit&id=<?php echo $p['id']; ?>"
-                                        class="inline-flex items-center gap-1.5 text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 py-2 px-3 rounded-lg text-sm font-semibold transition-colors"
+                                        class="text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 p-2 rounded-lg transition-colors"
                                         title="Editar">
-                                        <i class="fas fa-edit"></i> Editar
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="?route=product/toggle&id=<?php echo $p['id']; ?>"
-                                        class="inline-flex items-center gap-1.5 text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2 px-3 rounded-lg text-sm font-semibold transition-colors"
+                                        class="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2 rounded-lg transition-colors"
                                         title="<?php echo $p['active'] ? 'Desativar' : 'Ativar'; ?>">
-                                        <i class="fas fa-power-off"></i> <?php echo $p['active'] ? 'Desativar' : 'Ativar'; ?>
+                                        <i class="fas fa-power-off"></i>
                                     </a>
                                     <a href="?route=product/delete&id=<?php echo $p['id']; ?>"
-                                        class="inline-flex items-center gap-1.5 text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 py-2 px-3 rounded-lg text-sm font-semibold transition-colors"
+                                        class="text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 p-2 rounded-lg transition-colors"
                                         title="Excluir" onclick="return confirm('Tem certeza que deseja excluir?');">
-                                        <i class="fas fa-trash"></i> Excluir
+                                        <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
                             </td>
