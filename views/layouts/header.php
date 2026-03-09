@@ -18,8 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Font Awesome 6 (jsDelivr - boa disponibilidade global; evita ícones quebrados) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
 
   <!-- Alpine.js 3.14 (garante @click.outside para fechar dropdowns) -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
@@ -30,6 +30,8 @@
     body * { font-weight: 400; }
     .js-dropdown-panel { display: none !important; }
     .js-dropdown-panel.is-open { display: block !important; }
+    /* Garante que ícones Font Awesome não sejam sobrescritos por reset (display e smoothing) */
+    .fas, .far, .fab, .fa, .fa-solid, .fa-regular, .fa-brands { -moz-osx-font-smoothing: grayscale; -webkit-font-smoothing: antialiased; display: inline-block; }
   </style>
 </head>
 
