@@ -5,7 +5,7 @@
  */
 $dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
 $dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'u256572549_pdv';
-$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'u256572549_pdv_admin';
 $dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '3N*JOc$5W#o';
 
 define('DB_HOST', $dbHost);
@@ -13,7 +13,21 @@ define('DB_NAME', $dbName);
 define('DB_USER', $dbUser);
 define('DB_PASS', $dbPass);
 
-$appUrl = rtrim($_ENV['APP_URL'] ?? getenv('APP_URL') ?: 'http://localhost/PDV/', '/') . '/';
+$appUrl = $_ENV['APP_URL'] ?? getenv('APP_URL') ?: '';
+$appUrl = trim($appUrl);
+// Em produção/web: se APP_URL não estiver definido ou for localhost, monta a base a partir da requisição
+if ($appUrl === '' || strpos($appUrl, 'localhost') !== false) {
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'];
+        $script = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '/index.php';
+        $basePath = rtrim(dirname($script), '/\\') . '/';
+        $appUrl = $protocol . '://' . $host . $basePath;
+    } else {
+        $appUrl = 'http://localhost/PDV/';
+    }
+}
+$appUrl = rtrim($appUrl, '/') . '/';
 define('BASE_URL', $appUrl);
 
 $isProduction = ($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'development') === 'production';
