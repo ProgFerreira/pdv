@@ -6,7 +6,7 @@
 $dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
 $dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'u256572549_pdv';
 $dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'u256572549_pdv';
+$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '3N*JOc$5W#o';
 
 define('DB_HOST', $dbHost);
 define('DB_NAME', $dbName);
