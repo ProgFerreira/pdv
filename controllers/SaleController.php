@@ -38,7 +38,8 @@ class SaleController
             'sector_id' => $_GET['sector_id'] ?? null,
             'cash_register_id' => $_GET['cash_register_id'] ?? '',
             'payment_method' => $_GET['payment_method'] ?? '',
-            'customer_query' => $_GET['customer_query'] ?? ''
+            'customer_query' => $_GET['customer_query'] ?? '',
+            'delivered' => $_GET['delivered'] ?? ''  // '' = todos, '1' = entregue, '0' = não entregue
         ];
 
         $sales = $saleModel->getAll(100, 0, $filters);
@@ -200,7 +201,8 @@ class SaleController
             'sector_id' => $_GET['sector_id'] ?? null,
             'cash_register_id' => $_GET['cash_register_id'] ?? '',
             'payment_method' => $_GET['payment_method'] ?? '',
-            'customer_query' => $_GET['customer_query'] ?? ''
+            'customer_query' => $_GET['customer_query'] ?? '',
+            'delivered' => $_GET['delivered'] ?? ''
         ];
 
         $sales = $saleModel->getAll(50000, 0, $filters);

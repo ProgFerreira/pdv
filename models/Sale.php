@@ -271,6 +271,15 @@ class Sale
             $params['c_id'] = $filters['customer_query'];
         }
 
+        // Filtro entregue / não entregue (delivered_at)
+        if (isset($filters['delivered']) && $filters['delivered'] !== '') {
+            if ($filters['delivered'] === '1') {
+                $sql .= " AND s.delivered_at IS NOT NULL";
+            } else {
+                $sql .= " AND s.delivered_at IS NULL";
+            }
+        }
+
         $sql .= " ORDER BY s.created_at DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
@@ -328,6 +337,15 @@ class Sale
             $sql .= " AND (c.name LIKE :c_query OR s.customer_id = :c_id)";
             $params['c_query'] = "%" . $filters['customer_query'] . "%";
             $params['c_id'] = $filters['customer_query'];
+        }
+
+        // Filtro entregue / não entregue
+        if (isset($filters['delivered']) && $filters['delivered'] !== '') {
+            if ($filters['delivered'] === '1') {
+                $sql .= " AND s.delivered_at IS NOT NULL";
+            } else {
+                $sql .= " AND s.delivered_at IS NULL";
+            }
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -389,6 +407,14 @@ class Sale
             $sql .= " AND (c.name LIKE :c_query OR s.customer_id = :c_id)";
             $params['c_query'] = "%" . $filters['customer_query'] . "%";
             $params['c_id'] = $filters['customer_query'];
+        }
+
+        if (isset($filters['delivered']) && $filters['delivered'] !== '') {
+            if ($filters['delivered'] === '1') {
+                $sql .= " AND s.delivered_at IS NOT NULL";
+            } else {
+                $sql .= " AND s.delivered_at IS NULL";
+            }
         }
 
         $sql .= " GROUP BY p.id, p.name ORDER BY quantity DESC";

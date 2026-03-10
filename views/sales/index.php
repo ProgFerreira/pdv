@@ -16,7 +16,8 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
             'sector_id' => $filters['sector_id'],
             'cash_register_id' => $filters['cash_register_id'],
             'payment_method' => $filters['payment_method'],
-            'customer_query' => $filters['customer_query']
+            'customer_query' => $filters['customer_query'],
+            'delivered' => $filters['delivered'] ?? ''
         ]));
         ?>
         <a href="<?php echo BASE_URL; ?>?<?php echo $exportQuery; ?>"
@@ -115,6 +116,16 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">📅 Até</label>
                 <input type="date" name="end_date" value="<?php echo $filters['end_date']; ?>"
                     class="w-full rounded-lg border-gray-200 shadow-sm focus:border-primary focus:ring-primary text-sm p-2">
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">🚚 Entrega</label>
+                <select name="delivered"
+                    class="w-full rounded-lg border-gray-200 shadow-sm focus:border-primary text-sm p-2">
+                    <option value="" <?php echo (($filters['delivered'] ?? '') === '') ? 'selected' : ''; ?>>Todos</option>
+                    <option value="1" <?php echo (($filters['delivered'] ?? '') === '1') ? 'selected' : ''; ?>>Entregue</option>
+                    <option value="0" <?php echo (($filters['delivered'] ?? '') === '0') ? 'selected' : ''; ?>>Não entregue</option>
+                </select>
             </div>
 
             <div>
@@ -261,7 +272,7 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                     $saleCancelled = isset($s['status']) && $s['status'] === 'cancelled';
                     $whatsappSent = !empty($s['whatsapp_sent_at']);
                     $delivered = !empty($s['delivered_at']);
-                    $rowBg = $saleCancelled ? 'bg-red-50/50' : ($delivered ? 'bg-green-50/80' : ($whatsappSent ? 'bg-green-50/70' : ''));
+                    $rowBg = $saleCancelled ? 'bg-red-50/50' : ($delivered ? 'bg-emerald-100 border-l-4 border-emerald-500' : ($whatsappSent ? 'bg-green-50/70' : ''));
                 ?>
                     <tr class="hover:opacity-95 transition-colors <?php echo $rowBg; ?>">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#
