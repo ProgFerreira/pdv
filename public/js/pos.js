@@ -917,6 +917,8 @@ function processCheckout() {
 
   const csrfMeta = document.querySelector('meta[name="csrf-token"]');
   const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : "";
+  const obsEl = document.getElementById("order-observation");
+  const observation = obsEl ? (obsEl.value || "").trim() : "";
   const data = {
     cart: cart,
     paymentMethod: method,
@@ -928,6 +930,7 @@ function processCheckout() {
     deliveryAddress: posIsPickup ? null : (posDeliveryAddress || null),
     discount: discount,
     giftCardId: document.getElementById("gift-card-id").value || null,
+    observation: observation || null,
     csrf_token: csrfToken,
   };
 

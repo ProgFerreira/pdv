@@ -21,6 +21,7 @@ class SaleController
         $sectorId = $_GET['sector_id'] ?? null;
 
         $inPreparation = $saleModel->getQueueInPreparation($date, $sectorId);
+        $outForDelivery = $saleModel->getQueueOutForDelivery($date, $sectorId);
         $delivered = $saleModel->getQueueDelivered($date, $sectorId);
         $sectors = $sectorModel->getAll();
 
@@ -106,6 +107,62 @@ class SaleController
             exit;
         }
         header('Location: ' . BASE_URL . '?route=sale/index&success=delivered');
+        exit;
+    }
+
+    /**
+     * Marca o pedido como "saiu para entrega". Redireciona para fila (return_to=queue) ou listagem.
+     */
+    public function markOutForDelivery()
+    {
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ' . BASE_URL . '?route=sale/index');
+            exit;
+        }
+        $saleModel = new Sale();
+        $saleModel->markOutForDelivery($id);
+        $returnTo = $_GET['return_to'] ?? '';
+        if ($returnTo === 'queue') {
+            $q = ['route' => 'sale/queue', 'success' => 'out_for_delivery'];
+            if (!empty($_GET['date'])) {
+                $q['date'] = $_GET['date'];
+            }
+            if (isset($_GET['sector_id']) && $_GET['sector_id'] !== '') {
+                $q['sector_id'] = $_GET['sector_id'];
+            }
+            header('Location: ' . BASE_URL . '?' . http_build_query($q));
+            exit;
+        }
+        header('Location: ' . BASE_URL . '?route=sale/index&success=out_for_delivery');
+        exit;
+    }
+
+    /**
+     * Remove a marca "saiu para entrega". Redireciona para fila (return_to=queue) ou listagem.
+     */
+    public function unmarkOutForDelivery()
+    {
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ' . BASE_URL . '?route=sale/index');
+            exit;
+        }
+        $saleModel = new Sale();
+        $saleModel->unmarkOutForDelivery($id);
+        $returnTo = $_GET['return_to'] ?? '';
+        if ($returnTo === 'queue') {
+            $q = ['route' => 'sale/queue', 'success' => 'out_for_delivery_removed'];
+            if (!empty($_GET['date'])) {
+                $q['date'] = $_GET['date'];
+            }
+            if (isset($_GET['sector_id']) && $_GET['sector_id'] !== '') {
+                $q['sector_id'] = $_GET['sector_id'];
+            }
+            header('Location: ' . BASE_URL . '?' . http_build_query($q));
+            exit;
+        }
+        header('Location: ' . BASE_URL . '?route=sale/index&success=out_for_delivery_removed');
         exit;
     }
 

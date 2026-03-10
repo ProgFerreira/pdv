@@ -148,6 +148,7 @@ $receiptPayload = [
             'unit' => (float) ($item['unit_price'] ?? 0),
         ];
     }, $sale['items'] ?? []),
+    'observation' => trim((string)($sale['observation'] ?? '')),
     'notes' => 'Obrigado pela preferencia!',
 ];
 $printReceiptBase = (defined('BASE_URL') ? rtrim(BASE_URL, '/') : '');
@@ -281,6 +282,11 @@ $csrfToken = function_exists('csrf_token') ? csrf_token() : '';
                 <p class="text-xs font-medium">Cliente retira</p>
             <?php elseif ($deliveryAddress !== ''): ?>
                 <p class="text-xs">Entrega: <?php echo htmlspecialchars($deliveryAddress); ?></p>
+            <?php endif; ?>
+            <?php
+            $obs = trim((string)($sale['observation'] ?? ''));
+            if ($obs !== ''): ?>
+                <p class="text-xs font-medium mt-1">Obs: <?php echo htmlspecialchars($obs); ?></p>
             <?php endif; ?>
 
             <br>

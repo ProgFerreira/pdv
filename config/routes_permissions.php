@@ -24,6 +24,8 @@ return [
     'sale/markWhatsappSent' => 'sale_view',
     'sale/markDelivered' => 'sale_view',
     'sale/unmarkDelivered' => 'sale_view',
+    'sale/markOutForDelivery' => 'sale_view',
+    'sale/unmarkOutForDelivery' => 'sale_view',
 
 
     'customer/index' => 'customer',

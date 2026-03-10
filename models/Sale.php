@@ -12,7 +12,7 @@ class Sale
         $this->pdo = $pdo;
     }
 
-    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null, $deliveryAddress = null, $isPickup = false)
+    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null, $deliveryAddress = null, $isPickup = false, $observation = null)
     {
         $sectorId = $_SESSION['sector_id'] ?? 1;
 
@@ -55,14 +55,16 @@ class Sale
                 'sector_id' => $sectorId
             ];
             $saleId = null;
+            $observation = $observation !== null && $observation !== '' ? trim((string) $observation) : null;
             try {
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO sales (user_id, customer_id, delivery_address, is_pickup, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id)
-                    VALUES (:user_id, :customer_id, :delivery_address, :is_pickup, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
+                    INSERT INTO sales (user_id, customer_id, delivery_address, is_pickup, observation, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id)
+                    VALUES (:user_id, :customer_id, :delivery_address, :is_pickup, :observation, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
                 ");
                 $stmt->execute(array_merge($baseParams, [
                     'delivery_address' => $deliveryAddress ?: null,
                     'is_pickup' => $isPickup ? 1 : 0,
+                    'observation' => $observation,
                 ]));
                 $saleId = (int) $this->pdo->lastInsertId();
             } catch (\PDOException $e) {
@@ -519,11 +521,31 @@ class Sale
     }
 
     /**
-     * Remove a marca de entregue (delivered_at = NULL).
+     * Remove a marca de entregue (delivered_at = NULL e out_for_delivery_at = NULL).
      */
     public function unmarkDelivered(int $saleId): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE sales SET delivered_at = NULL WHERE id = :id");
+        $stmt = $this->pdo->prepare("UPDATE sales SET delivered_at = NULL, out_for_delivery_at = NULL WHERE id = :id");
+        $stmt->execute(['id' => $saleId]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Marca o pedido como "saiu para entrega".
+     */
+    public function markOutForDelivery(int $saleId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE sales SET out_for_delivery_at = NOW() WHERE id = :id AND (COALESCE(status, 'completed') = 'completed') AND delivered_at IS NULL");
+        $stmt->execute(['id' => $saleId]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Remove a marca "saiu para entrega" (out_for_delivery_at = NULL).
+     */
+    public function unmarkOutForDelivery(int $saleId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE sales SET out_for_delivery_at = NULL WHERE id = :id AND delivered_at IS NULL");
         $stmt->execute(['id' => $saleId]);
         return $stmt->rowCount() > 0;
     }
@@ -548,6 +570,7 @@ class Sale
                 LEFT JOIN sectors sec ON s.sector_id = sec.id
                 WHERE (COALESCE(s.status, 'completed') = 'completed')
                   AND s.delivered_at IS NULL
+                  AND (s.out_for_delivery_at IS NULL)
                   AND DATE(s.created_at) = :date";
 
         $params = ['date' => $date];
@@ -560,6 +583,45 @@ class Sale
         }
 
         $sql .= " ORDER BY s.created_at ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Pedidos que saíram para entrega (ainda não entregues) para a coluna "Saiu para entrega" da fila.
+     * Filtro: data do created_at (padrão hoje), setor. Ordenação: mais antigo primeiro.
+     *
+     * @param string|null $date Y-m-d (null = hoje)
+     * @param int|string|null $sectorId null = usar sessão; 'all' = todos (só admin)
+     * @return array
+     */
+    public function getQueueOutForDelivery(?string $date = null, $sectorId = null): array
+    {
+        $date = $date ?: date('Y-m-d');
+        $sql = "SELECT s.id, s.created_at, s.out_for_delivery_at, s.total, s.delivery_address, s.is_pickup,
+                       c.name as customer_name, c.phone as customer_phone,
+                       u.name as user_name, sec.name as sector_name
+                FROM sales s
+                LEFT JOIN customers c ON s.customer_id = c.id
+                LEFT JOIN users u ON s.user_id = u.id
+                LEFT JOIN sectors sec ON s.sector_id = sec.id
+                WHERE (COALESCE(s.status, 'completed') = 'completed')
+                  AND s.out_for_delivery_at IS NOT NULL
+                  AND s.delivered_at IS NULL
+                  AND DATE(s.created_at) = :date";
+
+        $params = ['date' => $date];
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'admin') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $_SESSION['sector_id'];
+        } elseif ($sectorId !== null && $sectorId !== '' && $sectorId !== 'all') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $sectorId;
+        }
+
+        $sql .= " ORDER BY s.out_for_delivery_at ASC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);

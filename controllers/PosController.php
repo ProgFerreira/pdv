@@ -68,6 +68,10 @@ class PosController
             $isPickup = !empty($input['isPickup']);
             $deliveryAddress = $isPickup ? null : (isset($input['deliveryAddress']) ? trim((string) $input['deliveryAddress']) : null);
             $giftCardId = $input['giftCardId'] ?? null;
+            $observation = isset($input['observation']) ? trim((string) $input['observation']) : null;
+            if ($observation === '') {
+                $observation = null;
+            }
 
             // Se não há cliente selecionado mas foi digitado um nome, cria o cliente e associa à venda
             if ($customerId === null && $customerName !== '') {
@@ -113,7 +117,7 @@ class PosController
                 exit;
             }
 
-            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress, $isPickup);
+            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress, $isPickup, $observation);
 
             if ($saleId) {
                 $audit = new AuditLog();

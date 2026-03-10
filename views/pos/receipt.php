@@ -45,6 +45,15 @@
                 </div>
             <?php endif; ?>
 
+            <?php
+            $receiptObs = trim((string)($sale['observation'] ?? ''));
+            if ($receiptObs !== ''): ?>
+                <div class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
+                    <p class="text-xs font-medium text-amber-700 uppercase tracking-wider mb-1"><i class="fas fa-sticky-note mr-1"></i> Observação do pedido</p>
+                    <p class="font-medium text-gray-800"><?php echo htmlspecialchars($receiptObs); ?></p>
+                </div>
+            <?php endif; ?>
+
             <!-- Itens -->
             <div class="mb-6">
                 <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Itens</h2>

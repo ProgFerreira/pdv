@@ -124,6 +124,11 @@ require 'views/layouts/header.php';
                 <tbody id="cart-table-body" class="divide-y divide-gray-100"></tbody>
             </table>
         </div>
+        <!-- Observação do pedido (ex: mandar sem farofa) -->
+        <div class="px-2 py-1.5 border-t border-gray-100 flex-shrink-0">
+            <label for="order-observation" class="block text-xs font-medium text-gray-500 mb-0.5"><i class="fas fa-sticky-note text-amber-500 mr-1"></i> Observação do pedido</label>
+            <input type="text" id="order-observation" class="w-full text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: mandar sem farofa, ponto da carne, etc." maxlength="500">
+        </div>
         <!-- Total + Finalizar logo abaixo do carrinho -->
         <div class="p-3 border-t border-gray-200 flex-shrink-0 bg-gray-50">
             <div class="flex justify-between items-center mb-1">
