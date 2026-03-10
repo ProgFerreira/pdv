@@ -36,6 +36,52 @@ class Customer {
             'address' => $data['address']
         ]);
     }
+
+    /**
+     * Atualiza cliente com todos os campos incluindo endereço estruturado (CEP, logradouro, etc.).
+     * Usado no formulário de edição quando a tabela tem as colunas da migration 008.
+     */
+    public function updateWithAddress(int $id, array $data): bool {
+        $line = self::buildDeliveryLine($data);
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE customers SET
+                    name = :name,
+                    phone = :phone,
+                    email = :email,
+                    cep = :cep,
+                    address_street = :address_street,
+                    address_number = :address_number,
+                    address_complement = :address_complement,
+                    address_neighborhood = :address_neighborhood,
+                    address_city = :address_city,
+                    address_state = :address_state,
+                    address = :address
+                WHERE id = :id
+            ");
+            return $stmt->execute([
+                'id' => $id,
+                'name' => trim((string) ($data['name'] ?? '')),
+                'phone' => trim((string) ($data['phone'] ?? '')) ?: null,
+                'email' => trim((string) ($data['email'] ?? '')) ?: null,
+                'cep' => trim((string) ($data['cep'] ?? '')) ?: null,
+                'address_street' => trim((string) ($data['address_street'] ?? '')) ?: null,
+                'address_number' => trim((string) ($data['address_number'] ?? '')) ?: null,
+                'address_complement' => trim((string) ($data['address_complement'] ?? '')) ?: null,
+                'address_neighborhood' => trim((string) ($data['address_neighborhood'] ?? '')) ?: null,
+                'address_city' => trim((string) ($data['address_city'] ?? '')) ?: null,
+                'address_state' => trim((string) ($data['address_state'] ?? '')) ?: null,
+                'address' => $line ?: null,
+            ]);
+        } catch (\PDOException $e) {
+            return $this->update($id, [
+                'name' => $data['name'] ?? '',
+                'phone' => $data['phone'] ?? '',
+                'email' => $data['email'] ?? '',
+                'address' => $line ?: ($data['address'] ?? ''),
+            ]);
+        }
+    }
     
     /**
      * Busca por nome ou telefone (aceita telefone com ou sem formatação).

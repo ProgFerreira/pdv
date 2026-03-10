@@ -12,16 +12,35 @@ class CustomerController {
     }
 
     public function create() {
+        $customer = [
+            'name' => '',
+            'phone' => '',
+            'email' => '',
+            'address' => '',
+            'cep' => '',
+            'address_street' => '',
+            'address_number' => '',
+            'address_complement' => '',
+            'address_neighborhood' => '',
+            'address_city' => '',
+            'address_state' => '',
+        ];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $customerModel = new Customer();
             $data = [
-                'name' => $_POST['name'],
-                'phone' => $_POST['phone'],
-                'email' => $_POST['email'],
-                'address' => $_POST['address']
+                'name' => $_POST['name'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'cep' => $_POST['cep'] ?? '',
+                'address_street' => $_POST['address_street'] ?? '',
+                'address_number' => $_POST['address_number'] ?? '',
+                'address_complement' => $_POST['address_complement'] ?? '',
+                'address_neighborhood' => $_POST['address_neighborhood'] ?? '',
+                'address_city' => $_POST['address_city'] ?? '',
+                'address_state' => $_POST['address_state'] ?? '',
             ];
-            
-            if ($customerModel->create($data)) {
+            $id = $customerModel->createWithAddress($data);
+            if ($id) {
                 header('Location: ' . BASE_URL . '?route=customer/index');
                 exit;
             }
@@ -31,24 +50,31 @@ class CustomerController {
     }
 
     public function edit() {
-        $id = $_GET['id'] ?? 0;
+        $id = (int) ($_GET['id'] ?? 0);
         $customerModel = new Customer();
         $customer = $customerModel->getById($id);
-        
+        if (!$customer) {
+            header('Location: ' . BASE_URL . '?route=customer/index');
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'name' => $_POST['name'],
-                'phone' => $_POST['phone'],
-                'email' => $_POST['email'],
-                'address' => $_POST['address']
+                'name' => $_POST['name'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'cep' => $_POST['cep'] ?? '',
+                'address_street' => $_POST['address_street'] ?? '',
+                'address_number' => $_POST['address_number'] ?? '',
+                'address_complement' => $_POST['address_complement'] ?? '',
+                'address_neighborhood' => $_POST['address_neighborhood'] ?? '',
+                'address_city' => $_POST['address_city'] ?? '',
+                'address_state' => $_POST['address_state'] ?? '',
             ];
-            
-            if ($customerModel->update($id, $data)) {
+            if ($customerModel->updateWithAddress($id, $data)) {
                 header('Location: ' . BASE_URL . '?route=customer/index');
                 exit;
             }
         }
-        
         $isEdit = true;
         require 'views/customers/form.php';
     }
