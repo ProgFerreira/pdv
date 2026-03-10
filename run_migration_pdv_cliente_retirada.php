@@ -7,7 +7,11 @@
  */
 date_default_timezone_set('America/Sao_Paulo');
 require_once __DIR__ . '/config/env.php';
-require_once __DIR__ . '/config/database.php';
+
+$dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'pdv';
+$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
 
 header('Content-Type: text/html; charset=utf-8');
 $isCli = (php_sapi_name() === 'cli');
@@ -19,6 +23,21 @@ function out($msg) {
     } else {
         echo nl2br(htmlspecialchars($msg)) . "<br>";
     }
+}
+
+try {
+    $pdo = new PDO(
+        "mysql:host=" . $dbHost . ";dbname=" . $dbName . ";charset=utf8mb4",
+        $dbUser,
+        $dbPass,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        ]
+    );
+} catch (PDOException $e) {
+    out("Erro de conexão: " . $e->getMessage());
+    exit(1);
 }
 
 out("Executando migrations PDV (cliente + retirada)...");
