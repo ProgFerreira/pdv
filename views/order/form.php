@@ -3,6 +3,10 @@
 require dirname(__DIR__) . '/layouts/header.php';
 ?>
 <div class="max-w-4xl mx-auto">
+    <header class="text-center py-4 mb-4 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
+        <p class="text-xl font-bold text-gray-900">GALETERIA ALIANÇA</p>
+        <p class="text-gray-700 mt-1"><i class="fas fa-phone-alt mr-1"></i> Telefone: <a href="tel:+5511994991010" class="font-semibold text-primary hover:underline">11 99499-1010</a></p>
+    </header>
     <h1 class="text-2xl font-bold text-gray-900 mb-6">Fazer pedido</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
