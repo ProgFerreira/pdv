@@ -84,6 +84,12 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
         <span>Venda cancelada com sucesso. Estoque foi estornado, valores de caixa/fiado ajustados e a quantidade de vendas atualizada. A venda aparece na lista como cancelada. Ação registrada em log.</span>
     </div>
 <?php endif; ?>
+<?php if (isset($_GET['success']) && $_GET['success'] === 'delivered'): ?>
+    <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
+        <i class="fas fa-truck"></i>
+        <span>Pedido marcado como entregue.</span>
+    </div>
+<?php endif; ?>
 
 <div class="card-standard">
     <div class="card-standard-header"><i class="fas fa-filter"></i> Filtros</div>
@@ -247,8 +253,11 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
             <tbody class="bg-white divide-y divide-gray-200">
                 <?php foreach ($sales as $s):
                     $saleCancelled = isset($s['status']) && $s['status'] === 'cancelled';
+                    $whatsappSent = !empty($s['whatsapp_sent_at']);
+                    $delivered = !empty($s['delivered_at']);
+                    $rowBg = $saleCancelled ? 'bg-red-50/50' : ($delivered ? 'bg-slate-100' : ($whatsappSent ? 'bg-green-50/70' : ''));
                 ?>
-                    <tr class="hover:bg-gray-50 transition-colors <?php echo $saleCancelled ? 'bg-red-50/50' : ''; ?>">
+                    <tr class="hover:opacity-95 transition-colors <?php echo $rowBg; ?>">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#
                             <?php echo $s['id']; ?>
                         </td>
@@ -319,6 +328,15 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                                         title="Abrir no PDV">
                                         <i class="fas fa-folder-open"></i>
                                     </a>
+                                    <?php if ($delivered): ?>
+                                        <span class="inline-flex items-center p-2 rounded bg-emerald-100 text-emerald-700" title="Pedido entregue"><i class="fas fa-truck"></i></span>
+                                    <?php else: ?>
+                                        <a href="?route=sale/markDelivered&id=<?php echo (int) $s['id']; ?>"
+                                            class="text-slate-600 hover:text-emerald-700 bg-slate-100 p-2 rounded hover:bg-emerald-100 transition-colors"
+                                            title="Marcar como entregue">
+                                            <i class="fas fa-truck"></i>
+                                        </a>
+                                    <?php endif; ?>
                                     <?php if (hasPermission('sale_cancel')): ?>
                                         <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/cancel&id=<?php echo (int) $s['id']; ?>"
                                             onclick="return confirm('Cancelar esta venda? O estoque será estornado, os valores de caixa/fiado ajustados e a venda ficará marcada como cancelada. Esta ação fica registrada em log.');"

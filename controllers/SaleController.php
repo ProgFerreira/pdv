@@ -44,6 +44,39 @@ class SaleController
         require 'views/sales/view.php';
     }
 
+    /**
+     * Marca a venda como "mensagem WhatsApp enviada" (chamado ao abrir o WhatsApp com o resumo).
+     */
+    public function markWhatsappSent()
+    {
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false]);
+            return;
+        }
+        $saleModel = new Sale();
+        $ok = $saleModel->markWhatsappSent($id);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $ok]);
+    }
+
+    /**
+     * Marca o pedido como entregue. Redireciona de volta para a listagem.
+     */
+    public function markDelivered()
+    {
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ' . BASE_URL . '?route=sale/index');
+            exit;
+        }
+        $saleModel = new Sale();
+        $saleModel->markDelivered($id);
+        header('Location: ' . BASE_URL . '?route=sale/index&success=delivered');
+        exit;
+    }
+
     public function open()
     {
         $id = $_GET['id'] ?? 0;

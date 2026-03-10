@@ -471,4 +471,24 @@ class Sale
             return false;
         }
     }
+
+    /**
+     * Marca que a mensagem de agradecimento/resumo foi enviada por WhatsApp.
+     */
+    public function markWhatsappSent(int $saleId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE sales SET whatsapp_sent_at = NOW() WHERE id = :id AND (COALESCE(status, 'completed') = 'completed')");
+        $stmt->execute(['id' => $saleId]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Marca o pedido como entregue.
+     */
+    public function markDelivered(int $saleId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE sales SET delivered_at = NOW() WHERE id = :id AND (COALESCE(status, 'completed') = 'completed')");
+        $stmt->execute(['id' => $saleId]);
+        return $stmt->rowCount() > 0;
+    }
 }
