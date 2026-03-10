@@ -149,5 +149,5 @@
         </header>
         <main class="flex-1 <?php echo !empty($is_pos_page) ? 'pos-main p-0 max-w-none w-full min-h-0 flex items-center justify-center' : 'main-content-90 px-4 sm:px-6 py-6'; ?>">
   <?php else: ?>
-        <main class="flex-1 main-content-90 px-4 sm:px-6 py-6">
+        <main class="flex-1 main-content-90 px-4 sm:px-6 <?php echo !empty($is_order_form_page) ? 'pt-2 pb-6' : 'py-6'; ?>">
   <?php endif; ?>

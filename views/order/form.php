@@ -1,13 +1,14 @@
 <?php
-// Página pública: pedido pelo link. Layout simples sem sidebar.
+// Página pública: pedido pelo link. Layout simples sem sidebar; menos espaço no topo.
+$is_order_form_page = true;
 require dirname(__DIR__) . '/layouts/header.php';
 ?>
-<div class="max-w-4xl mx-auto">
-    <header class="text-center py-4 mb-4 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
+<div class="max-w-4xl mx-auto pt-1">
+    <header class="text-center py-2 mb-3 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
         <?php $logoOrder = (defined('BASE_URL') ? BASE_URL : '') . 'public/assets/logo-alianca-galeteria.png'; ?>
-        <img src="<?php echo htmlspecialchars($logoOrder, ENT_QUOTES, 'UTF-8'); ?>" alt="Aliança Galeteria" class="mx-auto h-20 w-auto object-contain mb-3">
-        <p class="text-xl font-bold text-gray-900">GALETERIA ALIANÇA</p>
-        <p class="text-gray-700 mt-1"><i class="fas fa-phone-alt mr-1"></i> Telefone: <a href="tel:+5511932101000" class="font-semibold text-primary hover:underline">(11) 93210-1000</a></p>
+        <img src="<?php echo htmlspecialchars($logoOrder, ENT_QUOTES, 'UTF-8'); ?>" alt="Aliança Galeteria" class="mx-auto h-12 w-auto object-contain mb-1.5 max-w-[120px]">
+        <p class="text-lg font-bold text-gray-900">GALETERIA ALIANÇA</p>
+        <p class="text-gray-700 text-sm mt-0.5"><i class="fas fa-phone-alt mr-1"></i> Telefone: <a href="tel:+5511932101000" class="font-semibold text-primary hover:underline">(11) 93210-1000</a></p>
     </header>
     <h1 class="text-2xl font-bold text-gray-900 mb-6">Fazer pedido</h1>
 
