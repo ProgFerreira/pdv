@@ -103,28 +103,42 @@ class Customer {
 
     /**
      * Cadastro rápido do PDV: cria cliente com endereço em uma única operação.
-     * $data: name, phone, email (opcional), cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state
+     * Se a tabela não tiver as colunas de endereço (migration 008), faz fallback para create() com name, phone, email, address (linha montada).
      */
     public function createWithAddress(array $data): int|false {
         $line = self::buildDeliveryLine($data);
-        $stmt = $this->pdo->prepare("
-            INSERT INTO customers (name, phone, email, cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, address)
-            VALUES (:name, :phone, :email, :cep, :address_street, :address_number, :address_complement, :address_neighborhood, :address_city, :address_state, :address)
-        ");
-        $ok = $stmt->execute([
-            'name' => trim((string) ($data['name'] ?? '')),
-            'phone' => trim((string) ($data['phone'] ?? '')) ?: null,
-            'email' => trim((string) ($data['email'] ?? '')) ?: null,
-            'cep' => trim((string) ($data['cep'] ?? '')) ?: null,
-            'address_street' => trim((string) ($data['address_street'] ?? '')) ?: null,
-            'address_number' => trim((string) ($data['address_number'] ?? '')) ?: null,
-            'address_complement' => trim((string) ($data['address_complement'] ?? '')) ?: null,
-            'address_neighborhood' => trim((string) ($data['address_neighborhood'] ?? '')) ?: null,
-            'address_city' => trim((string) ($data['address_city'] ?? '')) ?: null,
-            'address_state' => trim((string) ($data['address_state'] ?? '')) ?: null,
-            'address' => $line ?: null,
-        ]);
-        return $ok ? (int) $this->pdo->lastInsertId() : false;
+        $name = trim((string) ($data['name'] ?? ''));
+        $phone = trim((string) ($data['phone'] ?? '')) ?: null;
+        $email = trim((string) ($data['email'] ?? '')) ?: null;
+
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO customers (name, phone, email, cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state, address)
+                VALUES (:name, :phone, :email, :cep, :address_street, :address_number, :address_complement, :address_neighborhood, :address_city, :address_state, :address)
+            ");
+            $ok = $stmt->execute([
+                'name' => $name,
+                'phone' => $phone,
+                'email' => $email,
+                'cep' => trim((string) ($data['cep'] ?? '')) ?: null,
+                'address_street' => trim((string) ($data['address_street'] ?? '')) ?: null,
+                'address_number' => trim((string) ($data['address_number'] ?? '')) ?: null,
+                'address_complement' => trim((string) ($data['address_complement'] ?? '')) ?: null,
+                'address_neighborhood' => trim((string) ($data['address_neighborhood'] ?? '')) ?: null,
+                'address_city' => trim((string) ($data['address_city'] ?? '')) ?: null,
+                'address_state' => trim((string) ($data['address_state'] ?? '')) ?: null,
+                'address' => $line ?: null,
+            ]);
+            return $ok ? (int) $this->pdo->lastInsertId() : false;
+        } catch (\PDOException $e) {
+            // Tabela sem colunas de endereço (migration 008 não executada): usa create simples
+            return $this->create([
+                'name' => $name,
+                'phone' => $phone,
+                'email' => $email,
+                'address' => $line ?: null,
+            ]);
+        }
     }
 
     /**

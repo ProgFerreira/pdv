@@ -140,7 +140,10 @@ class CustomerController {
         try {
             $id = $customerModel->createWithAddress($data);
         } catch (\Throwable $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar. Execute a migration 008_customer_address_delivery.sql se ainda não executou.']);
+            $logDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs';
+            if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+            @file_put_contents($logDir . '/error.log', date('Y-m-d H:i:s') . ' [storeFromPos] ' . $e->getMessage() . "\n", FILE_APPEND | LOCK_EX);
+            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar: ' . $e->getMessage()]);
             return;
         }
         if (!$id) {

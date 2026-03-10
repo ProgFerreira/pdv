@@ -42,16 +42,10 @@ class Sale
             if ($total < 0)
                 $total = 0;
 
-            // 2. Insert Sale (delivery_address = endereço de entrega; is_pickup = retirada no local)
-            $stmt = $this->pdo->prepare("
-                INSERT INTO sales (user_id, customer_id, delivery_address, is_pickup, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id) 
-                VALUES (:user_id, :customer_id, :delivery_address, :is_pickup, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
-            ");
-            $stmt->execute([
+            // 2. Insert Sale (delivery_address e is_pickup: se colunas não existirem, faz fallback)
+            $baseParams = [
                 'user_id' => $userId,
                 'customer_id' => $customerId,
-                'delivery_address' => $deliveryAddress ?: null,
-                'is_pickup' => $isPickup ? 1 : 0,
                 'cash_register_id' => $cashRegisterId,
                 'total' => $total,
                 'discount_amount' => $discountAmount,
@@ -59,8 +53,35 @@ class Sale
                 'amount_paid' => $amountPaid,
                 'change_amount' => $change,
                 'sector_id' => $sectorId
-            ]);
-            $saleId = $this->pdo->lastInsertId();
+            ];
+            $saleId = null;
+            try {
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO sales (user_id, customer_id, delivery_address, is_pickup, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id)
+                    VALUES (:user_id, :customer_id, :delivery_address, :is_pickup, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
+                ");
+                $stmt->execute(array_merge($baseParams, [
+                    'delivery_address' => $deliveryAddress ?: null,
+                    'is_pickup' => $isPickup ? 1 : 0,
+                ]));
+                $saleId = (int) $this->pdo->lastInsertId();
+            } catch (\PDOException $e) {
+                try {
+                    $stmt = $this->pdo->prepare("
+                        INSERT INTO sales (user_id, customer_id, delivery_address, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id)
+                        VALUES (:user_id, :customer_id, :delivery_address, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
+                    ");
+                    $stmt->execute(array_merge($baseParams, ['delivery_address' => $deliveryAddress ?: null]));
+                    $saleId = (int) $this->pdo->lastInsertId();
+                } catch (\PDOException $e2) {
+                    $stmt = $this->pdo->prepare("
+                        INSERT INTO sales (user_id, customer_id, cash_register_id, total, discount_amount, payment_method, amount_paid, change_amount, sector_id)
+                        VALUES (:user_id, :customer_id, :cash_register_id, :total, :discount_amount, :payment_method, :amount_paid, :change_amount, :sector_id)
+                    ");
+                    $stmt->execute($baseParams);
+                    $saleId = (int) $this->pdo->lastInsertId();
+                }
+            }
 
             // 3. New Integration: Generate Receivable (opcional: falha não invalida a venda)
             try {
