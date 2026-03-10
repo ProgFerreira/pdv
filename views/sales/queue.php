@@ -77,8 +77,9 @@ if ($sectorId !== null && $sectorId !== '') {
     $countPreparation = count($inPreparation);
     $countOutForDelivery = count($outForDelivery);
     $countDelivered = count($delivered);
+    $countTotal = $countPreparation + $countOutForDelivery + $countDelivered;
     ?>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div class="card-standard-metric p-4 border-l-warning">
         <h6 class="card-metric-label">Em preparação</h6>
         <div class="flex justify-between items-center gap-2">
@@ -98,6 +99,13 @@ if ($sectorId !== null && $sectorId !== '') {
         <div class="flex justify-between items-center gap-2">
           <span class="text-lg xl:text-xl font-black text-emerald-600"><?php echo $countDelivered; ?></span>
           <i class="fas fa-check-double text-base text-emerald-200 flex-shrink-0"></i>
+        </div>
+      </div>
+      <div class="card-standard-metric p-4 border-l-primary">
+        <h6 class="card-metric-label">Total do dia</h6>
+        <div class="flex justify-between items-center gap-2">
+          <span class="text-lg xl:text-xl font-black text-gray-800"><?php echo $countTotal; ?></span>
+          <i class="fas fa-clipboard-list text-base text-indigo-200 flex-shrink-0"></i>
         </div>
       </div>
     </div>
