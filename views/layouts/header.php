@@ -79,7 +79,7 @@
           <!-- Vendas (principal) -->
           <details class="sidebar-menu-group" open>
             <summary class="sidebar-menu-title"><i class="fas fa-cash-register mr-2"></i>Vendas</summary>
-            <div class="collapse nav-flex-column">
+            <div class="sidebar-submenu nav-flex-column">
               <?php if (hasPermission('pos')): ?><a href="<?php echo BASE_URL; ?>?route=pos/index" class="nav-link"><i class="fas fa-cash-register mr-2"></i>PDV</a><?php endif; ?>
               <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><?php endif; ?>
               <?php if (hasPermission('receivable')): ?><a href="<?php echo BASE_URL; ?>?route=receivable/index" class="nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a><?php endif; ?>
@@ -89,7 +89,7 @@
           <!-- Cadastros -->
           <details class="sidebar-menu-group">
             <summary class="sidebar-menu-title"><i class="fas fa-folder-open mr-2"></i>Cadastros</summary>
-            <div class="collapse nav-flex-column">
+            <div class="sidebar-submenu nav-flex-column">
               <?php if (hasPermission('customer')): ?><a href="<?php echo BASE_URL; ?>?route=customer/index" class="nav-link"><i class="fas fa-users mr-2"></i>Clientes</a><?php endif; ?>
               <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=product/index" class="nav-link"><i class="fas fa-box mr-2"></i>Produtos</a><?php endif; ?>
               <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=ingredient/index" class="nav-link"><i class="fas fa-flask mr-2"></i>Insumos (Ficha Técnica)</a><?php endif; ?>
@@ -104,7 +104,7 @@
           <!-- Relatórios -->
           <details class="sidebar-menu-group">
             <summary class="sidebar-menu-title"><i class="fas fa-chart-bar mr-2"></i>Relatórios</summary>
-            <div class="collapse nav-flex-column">
+            <div class="sidebar-submenu nav-flex-column">
               <?php if (hasPermission('report')): ?><a href="<?php echo BASE_URL; ?>?route=report/index" class="nav-link"><i class="fas fa-chart-bar mr-2"></i>Relatórios</a><?php endif; ?>
               <?php if (hasPermission('cash')): ?><a href="<?php echo BASE_URL; ?>?route=cash/history" class="nav-link"><i class="fas fa-chart-line mr-2"></i>Fluxo de Caixa</a><?php endif; ?>
             </div>
@@ -113,7 +113,7 @@
           <!-- Administrativo -->
           <details class="sidebar-menu-group">
             <summary class="sidebar-menu-title"><i class="fas fa-cog mr-2"></i>Administrativo</summary>
-            <div class="collapse nav-flex-column">
+            <div class="sidebar-submenu nav-flex-column">
               <a href="<?php echo BASE_URL; ?>?route=payable/index" class="nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Contas a Pagar</a>
               <?php if (hasPermission('investment_manage')): ?><a href="<?php echo BASE_URL; ?>?route=investment/index" class="nav-link"><i class="fas fa-coins mr-2"></i>Investimentos</a><?php endif; ?>
               <?php if (hasPermission('user')): ?><a href="<?php echo BASE_URL; ?>?route=user/index" class="nav-link"><i class="fas fa-user-cog mr-2"></i>Usuários</a><?php endif; ?>

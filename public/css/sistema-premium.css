@@ -497,23 +497,42 @@ body.layout-modern #sidebar .nav-link:hover i {
     color: var(--color-primary);
 }
 body.layout-modern #sidebar .nav-link.text-white-50,
-body.layout-modern #sidebar .collapse .nav-link {
+body.layout-modern #sidebar .sidebar-submenu .nav-link {
     color: var(--text-secondary) !important;
 }
-body.layout-modern #sidebar .collapse .nav-link:hover {
+body.layout-modern #sidebar .sidebar-submenu .nav-link:hover {
     color: var(--color-primary) !important;
     background: var(--color-secondary);
 }
-body.layout-modern #sidebar .collapse {
+body.layout-modern #sidebar .sidebar-submenu {
     margin-left: 0;
 }
-body.layout-modern #sidebar .collapse .nav-flex-column {
+body.layout-modern #sidebar .sidebar-submenu.nav-flex-column {
     border-left: 2px solid var(--color-gray-200);
     margin-left: 1.25rem;
     padding-left: 0.5rem;
 }
-body.layout-modern #sidebar .collapse .nav-link i {
+body.layout-modern #sidebar .sidebar-submenu .nav-link i {
     margin-right: 0.5rem;
+    color: var(--text-secondary);
+}
+/* Submenu: texto visível no sidebar escuro (quando não for layout-modern) */
+#sidebar .sidebar-submenu .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+#sidebar .sidebar-submenu .nav-link i {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+#sidebar .sidebar-submenu .nav-link:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1);
+}
+/* Submenu no layout moderno (sidebar branco): garantir texto escuro */
+body.layout-modern #sidebar .sidebar-submenu .nav-link {
+    color: var(--text-primary) !important;
+}
+body.layout-modern #sidebar .sidebar-submenu .nav-link i {
+    color: var(--text-secondary) !important;
 }
 body.layout-modern #sidebar .badge.bg-danger {
     background: var(--color-danger) !important;
@@ -564,7 +583,7 @@ body.layout-modern #sidebar .sidebar-menu-title:hover {
     background: var(--color-gray-100);
     color: var(--color-primary);
 }
-#sidebar .sidebar-menu-group .collapse {
+#sidebar .sidebar-menu-group .sidebar-submenu {
     padding-top: 0.15rem;
     padding-bottom: 0.25rem;
 }
