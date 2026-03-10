@@ -134,7 +134,9 @@ class ReceiptPrinterService
             $title = $this->normalizeText((string) ($payload['title'] ?? 'CUPOM NAO FISCAL'));
             $orderNumber = (string) ($payload['order_number'] ?? '');
             $customerName = $this->normalizeText((string) ($payload['customer_name'] ?? ''));
+            $customerPhone = $this->normalizeText((string) ($payload['customer_phone'] ?? ''));
             $deliveryAddress = $this->normalizeText((string) ($payload['delivery_address'] ?? ''));
+            $isPickup = !empty($payload['is_pickup']);
             $datetime = (string) ($payload['datetime'] ?? date('d/m/Y H:i'));
             $paymentMethod = $this->normalizeText((string) ($payload['payment_method'] ?? ''));
             $totalGeral = (float) ($payload['total'] ?? 0);
@@ -203,10 +205,15 @@ class ReceiptPrinterService
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             if ($customerName !== '') {
                 $printer->text($this->normalizeText('Cliente: ') . $customerName . "\n");
+                if ($customerPhone !== '') {
+                    $printer->text($this->normalizeText('Tel: ') . $customerPhone . "\n");
+                }
             } else {
                 $printer->text($this->normalizeText('Consumidor Final') . "\n");
             }
-            if ($deliveryAddress !== '') {
+            if ($isPickup) {
+                $printer->text($this->normalizeText('Retirada no local') . "\n");
+            } elseif ($deliveryAddress !== '') {
                 $printer->text($this->normalizeText('Entrega: ') . $deliveryAddress . "\n");
             }
             $printer->text("\n" . $notes . "\n");

@@ -78,7 +78,14 @@ require 'views/layouts/header.php';
                 <input type="hidden" id="selected-customer-id">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
-            <!-- Endereço de entrega: exibe se cliente tiver; senão botão para abrir modal -->
+            <!-- Retirada: quando marcado, não exige endereço -->
+            <div id="customer-retirada-wrap" class="w-full flex-shrink-0 flex items-center gap-2 text-xs">
+                <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" id="customer-retirada" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                    <span class="text-gray-600"><i class="fas fa-store text-emerald-500 mr-1"></i> Retirada no local</span>
+                </label>
+            </div>
+            <!-- Endereço de entrega: exibe se cliente tiver e não for retirada; senão botão para abrir modal -->
             <div id="customer-address-wrap" class="hidden w-full flex-shrink-0 flex items-center gap-2 text-xs">
                 <span class="text-gray-500 whitespace-nowrap"><i class="fas fa-map-marker-alt text-sky-500 mr-1"></i> Entrega:</span>
                 <span id="customer-address-text" class="flex-1 min-w-0 truncate text-gray-700"></span>

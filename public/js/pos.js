@@ -9,6 +9,8 @@ let posSelectedProduct = null;
 let posSelectedCustomer = null;
 /** Endereço de entrega atual (linha para cupom) */
 let posDeliveryAddress = '';
+/** Cliente retira no local (não precisa de endereço) */
+let posIsPickup = false;
 
 function escapeHtml(s) {
   if (s == null || s === "") return "";
@@ -101,6 +103,11 @@ function refreshCustomerAddressUI() {
   const noWrap = document.getElementById("customer-no-address-wrap");
   const textEl = document.getElementById("customer-address-text");
   if (!wrap || !noWrap || !textEl) return;
+  if (posIsPickup) {
+    wrap.classList.add("hidden");
+    noWrap.classList.add("hidden");
+    return;
+  }
   const line = posDeliveryAddress || (posSelectedCustomer ? buildDeliveryLine(posSelectedCustomer) : "");
   if (line) {
     wrap.classList.remove("hidden");
@@ -236,6 +243,16 @@ function saveAddressFromModal() {
       if (btn) btn.disabled = false;
     });
 }
+
+(function setupRetiradaCheckbox() {
+  const chk = document.getElementById("customer-retirada");
+  if (chk) {
+    chk.addEventListener("change", function () {
+      posIsPickup = this.checked;
+      refreshCustomerAddressUI();
+    });
+  }
+})();
 
 (function setupAddressModal() {
   const btnAdd = document.getElementById("btn-add-address");
@@ -884,7 +901,8 @@ function processCheckout() {
     change: change,
     customerId: customerId,
     customerName: customerName,
-    deliveryAddress: posDeliveryAddress || null,
+    isPickup: posIsPickup,
+    deliveryAddress: posIsPickup ? null : (posDeliveryAddress || null),
     discount: discount,
     giftCardId: document.getElementById("gift-card-id").value || null,
     csrf_token: csrfToken,

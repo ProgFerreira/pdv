@@ -65,7 +65,8 @@ class PosController
                 $customerId = null;
             }
             $customerName = isset($input['customerName']) ? trim((string) $input['customerName']) : '';
-            $deliveryAddress = isset($input['deliveryAddress']) ? trim((string) $input['deliveryAddress']) : null;
+            $isPickup = !empty($input['isPickup']);
+            $deliveryAddress = $isPickup ? null : (isset($input['deliveryAddress']) ? trim((string) $input['deliveryAddress']) : null);
             $giftCardId = $input['giftCardId'] ?? null;
 
             // Se não há cliente selecionado mas foi digitado um nome, cria o cliente e associa à venda
@@ -112,7 +113,7 @@ class PosController
                 exit;
             }
 
-            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress);
+            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress, $isPickup);
 
             if ($saleId) {
                 $audit = new AuditLog();
@@ -163,13 +164,16 @@ class PosController
             exit;
         }
 
-        // Garantir nome do cliente na notinha (getById já traz customer_name pelo JOIN; fallback se cliente foi removido)
-        if (!empty($sale['customer_id']) && empty($sale['customer_name'])) {
+        // Garantir nome e telefone do cliente na notinha (getById já traz pelo JOIN; fallback se cliente foi removido)
+        if (!empty($sale['customer_id']) && (empty($sale['customer_name']) || empty($sale['customer_phone']))) {
             global $pdo;
-            $stmt = $pdo->prepare("SELECT name FROM customers WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT name, phone FROM customers WHERE id = ?");
             $stmt->execute([$sale['customer_id']]);
             $cust = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $sale['customer_name'] = $cust['name'] ?? '';
+            if ($cust) {
+                if (empty($sale['customer_name'])) $sale['customer_name'] = $cust['name'] ?? '';
+                if (empty($sale['customer_phone'])) $sale['customer_phone'] = $cust['phone'] ?? '';
+            }
         }
 
         require 'views/pos/receipt_thermal.php';
