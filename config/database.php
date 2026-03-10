@@ -44,6 +44,8 @@ try {
         $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . str_replace('`', '``', DB_NAME) . "`");
     }
     $pdo->exec("USE `" . str_replace('`', '``', DB_NAME) . "`");
+    // Sessão MySQL em horário de Brasília (evita NOW()/CURDATE() em UTC na Hostinger)
+    $pdo->exec("SET time_zone = '-03:00'");
 } catch (PDOException $e) {
     if ($isProduction) {
         error_log('Database connection error: ' . $e->getMessage());
