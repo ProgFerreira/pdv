@@ -212,7 +212,7 @@ class ReceiptPrinterService
                 $printer->text($this->normalizeText('Consumidor Final') . "\n");
             }
             if ($isPickup) {
-                $printer->text($this->normalizeText('Retirada no local') . "\n");
+                $printer->text($this->normalizeText('Cliente retira') . "\n");
             } elseif ($deliveryAddress !== '') {
                 $printer->text($this->normalizeText('Entrega: ') . $deliveryAddress . "\n");
             }

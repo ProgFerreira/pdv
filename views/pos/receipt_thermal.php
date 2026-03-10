@@ -278,7 +278,7 @@ $csrfToken = function_exists('csrf_token') ? csrf_token() : '';
                 <p>Consumidor Final</p>
             <?php endif; ?>
             <?php if ($isPickup): ?>
-                <p class="text-xs font-medium">Retirada no local</p>
+                <p class="text-xs font-medium">Cliente retira</p>
             <?php elseif ($deliveryAddress !== ''): ?>
                 <p class="text-xs">Entrega: <?php echo htmlspecialchars($deliveryAddress); ?></p>
             <?php endif; ?>
