@@ -4,11 +4,13 @@ $is_order_form_page = true;
 require dirname(__DIR__) . '/layouts/header.php';
 ?>
 <div class="max-w-4xl mx-auto">
-    <header class="text-center pt-1 pb-2 mb-3 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
+    <header class="text-center py-1 mb-2 border-b border-gray-200 bg-gray-50 rounded-lg px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-0">
         <?php $logoOrder = (defined('BASE_URL') ? BASE_URL : '') . 'public/assets/logo-alianca-galeteria.png'; ?>
-        <img src="<?php echo htmlspecialchars($logoOrder, ENT_QUOTES, 'UTF-8'); ?>" alt="Aliança Galeteria" class="mx-auto h-12 w-auto object-contain mb-1.5 max-w-[120px]">
-        <p class="text-lg font-bold text-gray-900">GALETERIA ALIANÇA</p>
-        <p class="text-gray-700 text-sm mt-0.5"><i class="fas fa-phone-alt mr-1"></i> Telefone: <a href="tel:+5511932101000" class="font-semibold text-primary hover:underline">(11) 93210-1000</a></p>
+        <img src="<?php echo htmlspecialchars($logoOrder, ENT_QUOTES, 'UTF-8'); ?>" alt="Aliança Galeteria" class="h-8 w-auto object-contain max-w-[72px] flex-shrink-0">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-x-2 gap-y-0">
+            <p class="text-base font-bold text-gray-900 leading-tight">GALETERIA ALIANÇA</p>
+            <p class="text-gray-700 text-sm leading-tight"><i class="fas fa-phone-alt mr-1"></i> Telefone: <a href="tel:+5511932101000" class="font-semibold text-primary hover:underline">(11) 93210-1000</a></p>
+        </div>
     </header>
     <h1 class="text-2xl font-bold text-gray-900 mb-6">Fazer pedido</h1>
 
