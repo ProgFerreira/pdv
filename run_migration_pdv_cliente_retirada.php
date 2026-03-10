@@ -7,11 +7,7 @@
  */
 date_default_timezone_set('America/Sao_Paulo');
 require_once __DIR__ . '/config/env.php';
-
-$dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'pdv';
-$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
-$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
+require_once __DIR__ . '/config/database.php';
 
 header('Content-Type: text/html; charset=utf-8');
 $isCli = (php_sapi_name() === 'cli');
@@ -25,11 +21,12 @@ function out($msg) {
     }
 }
 
+// Usa a mesma conexão do projeto, mas com buffered query para evitar erro 2014 nas migrations
 try {
     $pdo = new PDO(
-        "mysql:host=" . $dbHost . ";dbname=" . $dbName . ";charset=utf8mb4",
-        $dbUser,
-        $dbPass,
+        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+        DB_USER,
+        DB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
