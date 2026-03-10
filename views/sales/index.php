@@ -90,6 +90,12 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
         <span>Pedido marcado como entregue.</span>
     </div>
 <?php endif; ?>
+<?php if (isset($_GET['success']) && $_GET['success'] === 'delivery_removed'): ?>
+    <div class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center gap-3">
+        <i class="fas fa-undo"></i>
+        <span>Entrega desmarcada.</span>
+    </div>
+<?php endif; ?>
 
 <div class="card-standard">
     <div class="card-standard-header"><i class="fas fa-filter"></i> Filtros</div>
@@ -255,7 +261,7 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                     $saleCancelled = isset($s['status']) && $s['status'] === 'cancelled';
                     $whatsappSent = !empty($s['whatsapp_sent_at']);
                     $delivered = !empty($s['delivered_at']);
-                    $rowBg = $saleCancelled ? 'bg-red-50/50' : ($delivered ? 'bg-slate-100' : ($whatsappSent ? 'bg-green-50/70' : ''));
+                    $rowBg = $saleCancelled ? 'bg-red-50/50' : ($delivered ? 'bg-green-50/80' : ($whatsappSent ? 'bg-green-50/70' : ''));
                 ?>
                     <tr class="hover:opacity-95 transition-colors <?php echo $rowBg; ?>">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#
@@ -329,7 +335,11 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                                         <i class="fas fa-folder-open"></i>
                                     </a>
                                     <?php if ($delivered): ?>
-                                        <span class="inline-flex items-center p-2 rounded bg-emerald-100 text-emerald-700" title="Pedido entregue"><i class="fas fa-truck"></i></span>
+                                        <a href="?route=sale/unmarkDelivered&id=<?php echo (int) $s['id']; ?>"
+                                            class="text-emerald-700 hover:text-emerald-900 bg-emerald-100 p-2 rounded hover:bg-emerald-200 transition-colors"
+                                            title="Desmarcar entrega (clique para retirar)">
+                                            <i class="fas fa-truck"></i>
+                                        </a>
                                     <?php else: ?>
                                         <a href="?route=sale/markDelivered&id=<?php echo (int) $s['id']; ?>"
                                             class="text-slate-600 hover:text-emerald-700 bg-slate-100 p-2 rounded hover:bg-emerald-100 transition-colors"

@@ -8,6 +8,25 @@ use App\Models\AuditLog;
 
 class SaleController
 {
+    /**
+     * Fila de pedidos: duas colunas (Em preparação | Entregue) para o operador dar baixa.
+     * Contabiliza tempo do pedido (gravação) até a entrega.
+     */
+    public function queue()
+    {
+        $saleModel = new Sale();
+        $sectorModel = new Sector();
+
+        $date = $_GET['date'] ?? date('Y-m-d');
+        $sectorId = $_GET['sector_id'] ?? null;
+
+        $inPreparation = $saleModel->getQueueInPreparation($date, $sectorId);
+        $delivered = $saleModel->getQueueDelivered($date, $sectorId);
+        $sectors = $sectorModel->getAll();
+
+        require 'views/sales/queue.php';
+    }
+
     public function index()
     {
         $saleModel = new Sale();
@@ -62,7 +81,7 @@ class SaleController
     }
 
     /**
-     * Marca o pedido como entregue. Redireciona de volta para a listagem.
+     * Marca o pedido como entregue. Redireciona para listagem ou fila (se return_to=queue).
      */
     public function markDelivered()
     {
@@ -73,7 +92,47 @@ class SaleController
         }
         $saleModel = new Sale();
         $saleModel->markDelivered($id);
+        $returnTo = $_GET['return_to'] ?? '';
+        if ($returnTo === 'queue') {
+            $q = ['route' => 'sale/queue', 'success' => 'delivered'];
+            if (!empty($_GET['date'])) {
+                $q['date'] = $_GET['date'];
+            }
+            if (isset($_GET['sector_id']) && $_GET['sector_id'] !== '') {
+                $q['sector_id'] = $_GET['sector_id'];
+            }
+            header('Location: ' . BASE_URL . '?' . http_build_query($q));
+            exit;
+        }
         header('Location: ' . BASE_URL . '?route=sale/index&success=delivered');
+        exit;
+    }
+
+    /**
+     * Remove a marca de entregue. Redireciona para listagem ou fila (se return_to=queue).
+     */
+    public function unmarkDelivered()
+    {
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ' . BASE_URL . '?route=sale/index');
+            exit;
+        }
+        $saleModel = new Sale();
+        $saleModel->unmarkDelivered($id);
+        $returnTo = $_GET['return_to'] ?? '';
+        if ($returnTo === 'queue') {
+            $q = ['route' => 'sale/queue', 'success' => 'delivery_removed'];
+            if (!empty($_GET['date'])) {
+                $q['date'] = $_GET['date'];
+            }
+            if (isset($_GET['sector_id']) && $_GET['sector_id'] !== '') {
+                $q['sector_id'] = $_GET['sector_id'];
+            }
+            header('Location: ' . BASE_URL . '?' . http_build_query($q));
+            exit;
+        }
+        header('Location: ' . BASE_URL . '?route=sale/index&success=delivery_removed');
         exit;
     }
 

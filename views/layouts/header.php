@@ -76,7 +76,7 @@
         <nav class="nav flex flex-col py-2">
           <?php if (hasPermission('dashboard')): ?><a href="<?php echo BASE_URL; ?>?route=dashboard/index" class="nav-link"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a><?php endif; ?>
           <?php if (hasPermission('pos')): ?><a href="<?php echo BASE_URL; ?>?route=pos/index" class="nav-link"><i class="fas fa-cash-register mr-2"></i>PDV</a><?php endif; ?>
-          <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><?php endif; ?>
+          <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><?php endif; ?>
           <?php if (hasPermission('receivable')): ?><a href="<?php echo BASE_URL; ?>?route=receivable/index" class="nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a><?php endif; ?>
           <a href="?route=payable/index" class="nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Contas a Pagar</a>
           <?php if (hasPermission('cash')): ?><a href="?route=cash/history" class="nav-link"><i class="fas fa-chart-line mr-2"></i>Fluxo de Caixa</a><?php endif; ?>

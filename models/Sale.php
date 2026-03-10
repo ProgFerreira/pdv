@@ -491,4 +491,90 @@ class Sale
         $stmt->execute(['id' => $saleId]);
         return $stmt->rowCount() > 0;
     }
+
+    /**
+     * Remove a marca de entregue (delivered_at = NULL).
+     */
+    public function unmarkDelivered(int $saleId): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE sales SET delivered_at = NULL WHERE id = :id");
+        $stmt->execute(['id' => $saleId]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Pedidos ainda não entregues (em preparação) para a fila do operador.
+     * Filtro: data (padrão hoje), setor. Ordenação: mais antigo primeiro.
+     *
+     * @param string|null $date Y-m-d (null = hoje)
+     * @param int|string|null $sectorId null = usar sessão; 'all' = todos (só admin)
+     * @return array
+     */
+    public function getQueueInPreparation(?string $date = null, $sectorId = null): array
+    {
+        $date = $date ?: date('Y-m-d');
+        $sql = "SELECT s.id, s.created_at, s.total, s.delivery_address, s.is_pickup,
+                       c.name as customer_name, c.phone as customer_phone,
+                       u.name as user_name, sec.name as sector_name
+                FROM sales s
+                LEFT JOIN customers c ON s.customer_id = c.id
+                LEFT JOIN users u ON s.user_id = u.id
+                LEFT JOIN sectors sec ON s.sector_id = sec.id
+                WHERE (COALESCE(s.status, 'completed') = 'completed')
+                  AND s.delivered_at IS NULL
+                  AND DATE(s.created_at) = :date";
+
+        $params = ['date' => $date];
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'admin') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $_SESSION['sector_id'];
+        } elseif ($sectorId !== null && $sectorId !== '' && $sectorId !== 'all') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $sectorId;
+        }
+
+        $sql .= " ORDER BY s.created_at ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Pedidos já entregues para a coluna "Entregue" da fila.
+     * Filtro: data do created_at (padrão hoje), setor. Ordenação: entregue mais recente primeiro.
+     *
+     * @param string|null $date Y-m-d (null = hoje)
+     * @param int|string|null $sectorId null = usar sessão; 'all' = todos (só admin)
+     * @return array
+     */
+    public function getQueueDelivered(?string $date = null, $sectorId = null): array
+    {
+        $date = $date ?: date('Y-m-d');
+        $sql = "SELECT s.id, s.created_at, s.delivered_at, s.total, s.delivery_address, s.is_pickup,
+                       c.name as customer_name, c.phone as customer_phone,
+                       u.name as user_name, sec.name as sector_name
+                FROM sales s
+                LEFT JOIN customers c ON s.customer_id = c.id
+                LEFT JOIN users u ON s.user_id = u.id
+                LEFT JOIN sectors sec ON s.sector_id = sec.id
+                WHERE (COALESCE(s.status, 'completed') = 'completed')
+                  AND s.delivered_at IS NOT NULL
+                  AND DATE(s.created_at) = :date";
+
+        $params = ['date' => $date];
+        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] !== 'admin') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $_SESSION['sector_id'];
+        } elseif ($sectorId !== null && $sectorId !== '' && $sectorId !== 'all') {
+            $sql .= " AND s.sector_id = :sectorId";
+            $params['sectorId'] = $sectorId;
+        }
+
+        $sql .= " ORDER BY s.delivered_at DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
