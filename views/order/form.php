@@ -3,8 +3,8 @@
 $is_order_form_page = true;
 require dirname(__DIR__) . '/layouts/header.php';
 ?>
-<div class="max-w-4xl mx-auto pt-1">
-    <header class="text-center py-2 mb-3 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
+<div class="max-w-4xl mx-auto">
+    <header class="text-center pt-1 pb-2 mb-3 border-b border-gray-200 bg-gray-50 rounded-lg px-4">
         <?php $logoOrder = (defined('BASE_URL') ? BASE_URL : '') . 'public/assets/logo-alianca-galeteria.png'; ?>
         <img src="<?php echo htmlspecialchars($logoOrder, ENT_QUOTES, 'UTF-8'); ?>" alt="Aliança Galeteria" class="mx-auto h-12 w-auto object-contain mb-1.5 max-w-[120px]">
         <p class="text-lg font-bold text-gray-900">GALETERIA ALIANÇA</p>
