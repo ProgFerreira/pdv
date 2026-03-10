@@ -75,24 +75,52 @@
         <?php endif; ?>
         <nav class="nav flex flex-col py-2">
           <?php if (hasPermission('dashboard')): ?><a href="<?php echo BASE_URL; ?>?route=dashboard/index" class="nav-link"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a><?php endif; ?>
-          <?php if (hasPermission('pos')): ?><a href="<?php echo BASE_URL; ?>?route=pos/index" class="nav-link"><i class="fas fa-cash-register mr-2"></i>PDV</a><?php endif; ?>
-          <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><?php endif; ?>
-          <?php if (hasPermission('receivable')): ?><a href="<?php echo BASE_URL; ?>?route=receivable/index" class="nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a><?php endif; ?>
-          <a href="?route=payable/index" class="nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Contas a Pagar</a>
-          <?php if (hasPermission('cash')): ?><a href="?route=cash/history" class="nav-link"><i class="fas fa-chart-line mr-2"></i>Fluxo de Caixa</a><?php endif; ?>
-          <?php if (hasPermission('investment_manage')): ?><a href="<?php echo BASE_URL; ?>?route=investment/index" class="nav-link"><i class="fas fa-coins mr-2"></i>Investimentos</a><?php endif; ?>
-          <?php if (hasPermission('customer')): ?><a href="<?php echo BASE_URL; ?>?route=customer/index" class="nav-link"><i class="fas fa-users mr-2"></i>Clientes</a><?php endif; ?>
-          <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=product/index" class="nav-link"><i class="fas fa-box mr-2"></i>Produtos</a><?php endif; ?>
-          <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=ingredient/index" class="nav-link"><i class="fas fa-flask mr-2"></i>Insumos (Ficha Técnica)</a><?php endif; ?>
-          <?php if (hasPermission('stock')): ?><a href="<?php echo BASE_URL; ?>?route=stock/index" class="nav-link"><i class="fas fa-warehouse mr-2"></i>Estoque</a><?php endif; ?>
-          <?php if (hasPermission('category')): ?><a href="<?php echo BASE_URL; ?>?route=category/index" class="nav-link"><i class="fas fa-tags mr-2"></i>Categorias</a><?php endif; ?>
-          <?php if (hasPermission('brand')): ?><a href="<?php echo BASE_URL; ?>?route=brand/index" class="nav-link"><i class="fas fa-copyright mr-2"></i>Marcas</a><?php endif; ?>
-          <?php if (hasPermission('giftcard')): ?><a href="<?php echo BASE_URL; ?>?route=giftcard/index" class="nav-link"><i class="fas fa-gift mr-2"></i>Vales Presente</a><?php endif; ?>
-          <?php if (hasPermission('report')): ?><a href="<?php echo BASE_URL; ?>?route=report/index" class="nav-link"><i class="fas fa-chart-bar mr-2"></i>Relatórios</a><?php endif; ?>
-          <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=supplier/index" class="nav-link"><i class="fas fa-truck mr-2"></i>Fornecedores</a><a href="<?php echo BASE_URL; ?>?route=import/products" class="nav-link"><i class="fas fa-file-import mr-2"></i>Importar Produtos</a><a href="<?php echo BASE_URL; ?>?route=label/index" class="nav-link"><i class="fas fa-tag mr-2"></i>Etiqueta 15x10</a><?php endif; ?>
-          <?php if (hasPermission('user')): ?><a href="<?php echo BASE_URL; ?>?route=user/index" class="nav-link"><i class="fas fa-user-cog mr-2"></i>Usuários</a><?php endif; ?>
-          <?php if (hasPermission('permission_manage')): ?><a href="<?php echo BASE_URL; ?>?route=permission/index" class="nav-link"><i class="fas fa-key mr-2"></i>Permissões</a><?php endif; ?>
-          <?php if (hasPermission('audit')): ?><a href="<?php echo BASE_URL; ?>?route=audit/index" class="nav-link"><i class="fas fa-history mr-2"></i>Histórico de ações</a><?php endif; ?>
+
+          <!-- Vendas (principal) -->
+          <details class="sidebar-menu-group" open>
+            <summary class="sidebar-menu-title"><i class="fas fa-cash-register mr-2"></i>Vendas</summary>
+            <div class="collapse nav-flex-column">
+              <?php if (hasPermission('pos')): ?><a href="<?php echo BASE_URL; ?>?route=pos/index" class="nav-link"><i class="fas fa-cash-register mr-2"></i>PDV</a><?php endif; ?>
+              <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><?php endif; ?>
+              <?php if (hasPermission('receivable')): ?><a href="<?php echo BASE_URL; ?>?route=receivable/index" class="nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a><?php endif; ?>
+            </div>
+          </details>
+
+          <!-- Cadastros -->
+          <details class="sidebar-menu-group">
+            <summary class="sidebar-menu-title"><i class="fas fa-folder-open mr-2"></i>Cadastros</summary>
+            <div class="collapse nav-flex-column">
+              <?php if (hasPermission('customer')): ?><a href="<?php echo BASE_URL; ?>?route=customer/index" class="nav-link"><i class="fas fa-users mr-2"></i>Clientes</a><?php endif; ?>
+              <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=product/index" class="nav-link"><i class="fas fa-box mr-2"></i>Produtos</a><?php endif; ?>
+              <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=ingredient/index" class="nav-link"><i class="fas fa-flask mr-2"></i>Insumos (Ficha Técnica)</a><?php endif; ?>
+              <?php if (hasPermission('stock')): ?><a href="<?php echo BASE_URL; ?>?route=stock/index" class="nav-link"><i class="fas fa-warehouse mr-2"></i>Estoque</a><?php endif; ?>
+              <?php if (hasPermission('category')): ?><a href="<?php echo BASE_URL; ?>?route=category/index" class="nav-link"><i class="fas fa-tags mr-2"></i>Categorias</a><?php endif; ?>
+              <?php if (hasPermission('brand')): ?><a href="<?php echo BASE_URL; ?>?route=brand/index" class="nav-link"><i class="fas fa-copyright mr-2"></i>Marcas</a><?php endif; ?>
+              <?php if (hasPermission('giftcard')): ?><a href="<?php echo BASE_URL; ?>?route=giftcard/index" class="nav-link"><i class="fas fa-gift mr-2"></i>Vales Presente</a><?php endif; ?>
+              <?php if (hasPermission('product')): ?><a href="<?php echo BASE_URL; ?>?route=supplier/index" class="nav-link"><i class="fas fa-truck mr-2"></i>Fornecedores</a><a href="<?php echo BASE_URL; ?>?route=import/products" class="nav-link"><i class="fas fa-file-import mr-2"></i>Importar Produtos</a><a href="<?php echo BASE_URL; ?>?route=label/index" class="nav-link"><i class="fas fa-tag mr-2"></i>Etiqueta 15x10</a><?php endif; ?>
+            </div>
+          </details>
+
+          <!-- Relatórios -->
+          <details class="sidebar-menu-group">
+            <summary class="sidebar-menu-title"><i class="fas fa-chart-bar mr-2"></i>Relatórios</summary>
+            <div class="collapse nav-flex-column">
+              <?php if (hasPermission('report')): ?><a href="<?php echo BASE_URL; ?>?route=report/index" class="nav-link"><i class="fas fa-chart-bar mr-2"></i>Relatórios</a><?php endif; ?>
+              <?php if (hasPermission('cash')): ?><a href="<?php echo BASE_URL; ?>?route=cash/history" class="nav-link"><i class="fas fa-chart-line mr-2"></i>Fluxo de Caixa</a><?php endif; ?>
+            </div>
+          </details>
+
+          <!-- Administrativo -->
+          <details class="sidebar-menu-group">
+            <summary class="sidebar-menu-title"><i class="fas fa-cog mr-2"></i>Administrativo</summary>
+            <div class="collapse nav-flex-column">
+              <a href="<?php echo BASE_URL; ?>?route=payable/index" class="nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Contas a Pagar</a>
+              <?php if (hasPermission('investment_manage')): ?><a href="<?php echo BASE_URL; ?>?route=investment/index" class="nav-link"><i class="fas fa-coins mr-2"></i>Investimentos</a><?php endif; ?>
+              <?php if (hasPermission('user')): ?><a href="<?php echo BASE_URL; ?>?route=user/index" class="nav-link"><i class="fas fa-user-cog mr-2"></i>Usuários</a><?php endif; ?>
+              <?php if (hasPermission('permission_manage')): ?><a href="<?php echo BASE_URL; ?>?route=permission/index" class="nav-link"><i class="fas fa-key mr-2"></i>Permissões</a><?php endif; ?>
+              <?php if (hasPermission('audit')): ?><a href="<?php echo BASE_URL; ?>?route=audit/index" class="nav-link"><i class="fas fa-history mr-2"></i>Histórico de ações</a><?php endif; ?>
+            </div>
+          </details>
         </nav>
         <?php if (hasPermission('cash')): $cashModelHeader = new \App\Models\CashRegister(); $openRegHeader = $cashModelHeader->getOpenRegister($_SESSION['user_id']); ?>
           <div class="px-3 py-2 border-t border-gray-600 space-y-1">

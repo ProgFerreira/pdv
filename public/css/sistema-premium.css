@@ -520,6 +520,55 @@ body.layout-modern #sidebar .badge.bg-danger {
     font-size: 0.7rem;
 }
 
+/* Grupos e submenus do sidebar (menu principal / Cadastros / Relatórios / Administrativo) */
+#sidebar .sidebar-menu-group {
+    margin-top: 0.25rem;
+}
+#sidebar .sidebar-menu-title {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    border-radius: var(--border-radius-sm);
+    margin: 0 0.5rem;
+    transition: var(--transition-fast);
+    color: rgba(255, 255, 255, 0.95);
+}
+#sidebar .sidebar-menu-title::-webkit-details-marker,
+#sidebar .sidebar-menu-title::marker {
+    display: none;
+    content: none;
+}
+#sidebar .sidebar-menu-title::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-left: auto;
+    font-size: 0.7rem;
+    opacity: 0.8;
+    transition: transform var(--transition-fast);
+}
+#sidebar .sidebar-menu-group[open] .sidebar-menu-title::after {
+    transform: rotate(180deg);
+}
+#sidebar .sidebar-menu-title:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+body.layout-modern #sidebar .sidebar-menu-title {
+    color: var(--text-primary);
+}
+body.layout-modern #sidebar .sidebar-menu-title:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+}
+#sidebar .sidebar-menu-group .collapse {
+    padding-top: 0.15rem;
+    padding-bottom: 0.25rem;
+}
+
 /* Scrollbar personalizada */
 #sidebar::-webkit-scrollbar {
     width: 6px;
