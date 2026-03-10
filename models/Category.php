@@ -24,6 +24,22 @@ class Category
         return $stmt->fetchAll();
     }
 
+    /**
+     * Lista categorias para página pública (ex.: abas do link de pedidos), sem usar sessão.
+     * @param int|null $sectorId Se null ou 0, retorna todas; senão filtra por sector_id.
+     */
+    public static function getAllForPublic(?int $sectorId = null): array
+    {
+        global $pdo;
+        if ($sectorId !== null && $sectorId > 0) {
+            $stmt = $pdo->prepare("SELECT * FROM categories WHERE sector_id = :sectorId ORDER BY name");
+            $stmt->execute(['sectorId' => $sectorId]);
+        } else {
+            $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
+        }
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public function create($data)
     {
         $sectorId = $_SESSION['sector_id'] ?? 1;

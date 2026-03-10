@@ -21,7 +21,7 @@ class PosController
             $editSale = $saleModel->getById($saleId);
         }
 
-        // Abas do PDV: Produtos (todos), Bebidas, Sobremesas (por nome de categoria)
+        // Abas do PDV: Produtos (todos), Bebidas, Sobremesas (por nome de categoria; aceita singular também)
         $posTabs = [
             ['label' => 'Produtos', 'category_id' => null],
             ['label' => 'Bebidas', 'category_id' => null],
@@ -30,11 +30,13 @@ class PosController
         $categoryModel = new Category();
         $categories = $categoryModel->getAll();
         foreach ($categories as $c) {
-            $name = $c['name'] ?? '';
-            if (strcasecmp($name, 'Bebidas') === 0) {
+            $name = trim((string) ($c['name'] ?? ''));
+            if ($name === '') continue;
+            $nameLower = mb_strtolower($name, 'UTF-8');
+            if ($nameLower === 'bebidas' || $nameLower === 'bebida') {
                 $posTabs[1]['category_id'] = (int) $c['id'];
             }
-            if (strcasecmp($name, 'Sobremesas') === 0) {
+            if ($nameLower === 'sobremesas' || $nameLower === 'sobremesa') {
                 $posTabs[2]['category_id'] = (int) $c['id'];
             }
         }
@@ -46,7 +48,10 @@ class PosController
     {
         $term = $_GET['term'] ?? '';
         $categoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
-        if ($categoryId !== null && $categoryId !== '') {
+        if (is_array($categoryId)) {
+            $categoryId = isset($categoryId[0]) ? $categoryId[0] : null;
+        }
+        if ($categoryId !== null && $categoryId !== '' && (string) $categoryId !== '0') {
             $categoryId = (int) $categoryId;
         } else {
             $categoryId = null;

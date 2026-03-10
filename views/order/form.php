@@ -8,9 +8,28 @@ require dirname(__DIR__) . '/layouts/header.php';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
             <h2 class="text-lg font-semibold text-gray-800 mb-3">Produtos</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <?php
+            $orderTabs = $orderTabs ?? [
+                ['label' => 'Produtos', 'category_id' => null],
+                ['label' => 'Bebidas', 'category_id' => null],
+                ['label' => 'Sobremesas', 'category_id' => null],
+            ];
+            ?>
+            <div class="order-tabs flex border-b border-gray-200 mb-3 gap-0" role="tablist">
+                <?php foreach ($orderTabs as $i => $tab): ?>
+                <?php
+                $catId = isset($tab['category_id']) && $tab['category_id'] !== null && $tab['category_id'] !== '' ? (int) $tab['category_id'] : '';
+                $active = $i === 0;
+                ?>
+                <button type="button" class="order-tab px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors <?php echo $active ? 'border-primary text-primary bg-white -mb-px' : 'border-transparent text-gray-500 hover:text-gray-700'; ?>" data-category-id="<?php echo $catId === '' ? '' : (int) $catId; ?>" role="tab" aria-selected="<?php echo $active ? 'true' : 'false'; ?>">
+                    <?php echo htmlspecialchars($tab['label'], ENT_QUOTES, 'UTF-8'); ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
+            <div id="order-product-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <?php foreach ($products as $p): ?>
-                <div class="border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 bg-white">
+                <?php $pCatId = isset($p['category_id']) && $p['category_id'] !== null && $p['category_id'] !== '' ? (int) $p['category_id'] : ''; ?>
+                <div class="order-product-card border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 bg-white" data-category-id="<?php echo $pCatId === '' ? '' : (int) $pCatId; ?>">
                     <div class="min-w-0 flex-1">
                         <p class="font-medium text-gray-900 truncate"><?php echo htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8'); ?></p>
                         <p class="text-sm text-gray-600">R$ <?php echo number_format((float) $p['price'], 2, ',', '.'); ?></p>
@@ -280,6 +299,37 @@ require dirname(__DIR__) . '/layouts/header.php';
             this.value = v;
         }
     });
+
+    // Abas por categoria: ao clicar, mostra apenas produtos da categoria
+    (function() {
+        var tabContainer = document.querySelector('.order-tabs');
+        var cards = document.querySelectorAll('.order-product-card');
+        if (!tabContainer || !cards.length) return;
+        var tabs = tabContainer.querySelectorAll('.order-tab');
+        function filterByCategory(categoryId) {
+            cards.forEach(function(card) {
+                var cardCat = card.getAttribute('data-category-id');
+                var show = (categoryId === '' || categoryId === null) ? true : (String(cardCat) === String(categoryId));
+                card.style.display = show ? '' : 'none';
+            });
+        }
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var catId = this.getAttribute('data-category-id');
+                if (catId === null) catId = '';
+                tabs.forEach(function(t) {
+                    t.classList.remove('border-primary', 'text-primary', 'bg-white', '-mb-px');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                this.classList.add('border-primary', 'text-primary', 'bg-white', '-mb-px');
+                this.classList.remove('border-transparent', 'text-gray-500');
+                this.setAttribute('aria-selected', 'true');
+                filterByCategory(catId);
+            });
+        });
+        filterByCategory('');
+    })();
 
     function buildDeliveryAddress() {
         var street = document.getElementById('address_street').value.trim();

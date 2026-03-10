@@ -7,6 +7,7 @@ use App\Models\Sale;
 use App\Models\Customer;
 use App\Models\CashRegister;
 use App\Models\AuditLog;
+use App\Models\Category;
 
 class OrderController
 {
@@ -22,8 +23,29 @@ class OrderController
             if (!empty($p['image'])) {
                 $p['image'] = $baseUrl . '/' . ltrim(str_replace('\\', '/', $p['image']), '/');
             }
+            $p['category_id'] = isset($p['category_id']) ? (int) $p['category_id'] : null;
         }
         unset($p);
+
+        // Abas por categoria: Produtos (todos), Bebidas, Sobremesas (por nome; aceita singular)
+        $orderTabs = [
+            ['label' => 'Produtos', 'category_id' => null],
+            ['label' => 'Bebidas', 'category_id' => null],
+            ['label' => 'Sobremesas', 'category_id' => null],
+        ];
+        $categories = Category::getAllForPublic($sectorId);
+        foreach ($categories as $c) {
+            $name = trim((string) ($c['name'] ?? ''));
+            if ($name === '') continue;
+            $nameLower = mb_strtolower($name, 'UTF-8');
+            if ($nameLower === 'bebidas' || $nameLower === 'bebida') {
+                $orderTabs[1]['category_id'] = (int) $c['id'];
+            }
+            if ($nameLower === 'sobremesas' || $nameLower === 'sobremesa') {
+                $orderTabs[2]['category_id'] = (int) $c['id'];
+            }
+        }
+
         require 'views/order/form.php';
     }
 

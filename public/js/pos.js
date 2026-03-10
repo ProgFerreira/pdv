@@ -434,14 +434,15 @@ document
     }, 300); // 300ms debounce
   });
 
-// Abas PDV: Produtos, Bebidas, Sobremesas
+// Abas PDV: Produtos, Bebidas, Sobremesas — ao clicar, passa category_id explicitamente
 (function () {
   const tabContainer = document.querySelector(".pos-tabs");
   if (!tabContainer) return;
   const tabs = tabContainer.querySelectorAll(".pos-tab");
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
-      const categoryId = this.getAttribute("data-category-id");
+      var raw = this.getAttribute("data-category-id");
+      var categoryId = (raw !== null && raw !== undefined && String(raw).trim() !== "") ? String(raw).trim() : "";
       tabs.forEach(function (t) {
         t.classList.remove("border-primary", "text-primary", "bg-white", "-mb-px");
         t.classList.add("border-transparent", "text-gray-500");
@@ -450,8 +451,8 @@ document
       this.classList.add("border-primary", "text-primary", "bg-white", "-mb-px");
       this.classList.remove("border-transparent", "text-gray-500");
       this.setAttribute("aria-selected", "true");
-      const term = (document.getElementById("product-search") || {}).value || "";
-      searchProducts(term);
+      var term = (document.getElementById("product-search") || {}).value || "";
+      searchProducts(term, categoryId);
     });
   });
 })();
@@ -518,16 +519,22 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-function searchProducts(term) {
+/**
+ * Busca produtos no PDV. categoryIdOpt: opcional; se não passado, lê da aba ativa no DOM.
+ */
+function searchProducts(term, categoryIdOpt) {
   const list = document.getElementById("product-list");
   if (!list) return;
 
-  // Categoria da aba ativa (Produtos = vazio, Bebidas/Sobremesas = id)
-  let categoryId = "";
-  const activeTab = document.querySelector(".pos-tab[aria-selected='true']") || document.querySelector(".pos-tab");
-  if (activeTab) {
-    const d = activeTab.getAttribute("data-category-id");
-    if (d !== null && d !== "") categoryId = d;
+  var categoryId = "";
+  if (categoryIdOpt !== undefined && categoryIdOpt !== null) {
+    categoryId = String(categoryIdOpt).trim();
+  } else {
+    var activeTab = document.querySelector(".pos-tab[aria-selected='true']") || document.querySelector(".pos-tab");
+    if (activeTab) {
+      var d = activeTab.getAttribute("data-category-id");
+      if (d !== null && d !== "") categoryId = String(d).trim();
+    }
   }
 
   // Skeleton loading enquanto busca

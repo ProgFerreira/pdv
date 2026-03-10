@@ -18,7 +18,7 @@ class CustomerOrder
     public static function getProductsForPublic(?int $sectorId = null): array
     {
         global $pdo;
-        $sql = "SELECT id, name, price, image FROM products WHERE active = 1";
+        $sql = "SELECT id, name, price, image, category_id FROM products WHERE active = 1";
         $params = [];
         if ($sectorId !== null && $sectorId > 0) {
             $sql .= " AND sector_id = :sector_id";
