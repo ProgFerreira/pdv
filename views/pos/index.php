@@ -78,6 +78,9 @@ require 'views/layouts/header.php';
                 <input type="hidden" id="selected-customer-id">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
+            <button type="button" id="btn-novo-cliente-pdv" class="flex-shrink-0 rounded-md border border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 text-xs font-semibold transition" title="Cadastrar novo cliente">
+                <i class="fas fa-user-plus mr-1"></i> Novo
+            </button>
             <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
                 <i class="fas fa-search text-indigo-500" aria-hidden="true"></i>
                 <input type="text" id="product-search" class="text-sm border-0 bg-transparent outline-none focus:ring-0 w-full" placeholder="Buscar produto... (/) " autofocus>
@@ -405,8 +408,11 @@ require 'views/layouts/header.php';
     </div>
 </div>
 
-<script>window.POS_CAN_DISCOUNT = <?php echo !empty($canDiscount) ? 'true' : 'false'; ?>;</script>
-<script src="public/js/pos.js"></script>
+<script>
+window.POS_CAN_DISCOUNT = <?php echo !empty($canDiscount) ? 'true' : 'false'; ?>;
+window.POS_BASE_URL = <?php echo json_encode(defined('BASE_URL') ? rtrim(BASE_URL, '/') : ''); ?>;
+</script>
+<script src="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>public/js/pos.js"></script>
 
 <?php if (isset($editSale) && $editSale): ?>
     <script>

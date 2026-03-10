@@ -12,6 +12,11 @@ let posDeliveryAddress = '';
 /** Cliente retira no local (não precisa de endereço) */
 let posIsPickup = false;
 
+function posUrl(route) {
+  var base = window.POS_BASE_URL || "";
+  return (base ? base + "/" : "") + "index.php?route=" + route;
+}
+
 function escapeHtml(s) {
   if (s == null || s === "") return "";
   const div = document.createElement("div");
@@ -55,7 +60,7 @@ document
 
     clearTimeout(customerTimeout);
     customerTimeout = setTimeout(() => {
-      fetch(`index.php?route=customer/search&term=${encodeURIComponent(term)}`)
+      fetch(posUrl("customer/search") + "&term=" + encodeURIComponent(term))
         .then((r) => r.json())
         .then((data) => {
           list.innerHTML = "";
@@ -202,7 +207,7 @@ function saveAddressFromModal() {
   if (btn) btn.disabled = true;
   const csrfMeta = document.querySelector('meta[name="csrf-token"]');
   const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : "";
-  fetch("index.php?route=customer/updateAddress", {
+  fetch(posUrl("customer/updateAddress"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -343,12 +348,22 @@ function saveNewCustomer() {
   };
   var btn = document.getElementById("btn-save-new-customer");
   if (btn) btn.disabled = true;
-  fetch("index.php?route=customer/storeFromPos", {
+  fetch(posUrl("customer/storeFromPos"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   })
-    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.ok) {
+        return r.text().then(function (txt) {
+          var err = new Error("HTTP " + r.status);
+          err.status = r.status;
+          err.body = txt;
+          throw err;
+        });
+      }
+      return r.json();
+    })
     .then(function (res) {
       if (res.success && res.customer) {
         selectCustomer(res.customer);
@@ -358,8 +373,14 @@ function saveNewCustomer() {
         alert(res.message || "Erro ao cadastrar cliente.");
       }
     })
-    .catch(function () {
-      alert("Erro de conexão ao cadastrar cliente.");
+    .catch(function (err) {
+      var msg = "Erro ao cadastrar cliente.";
+      if (err && err.body) {
+        if (err.body.length < 200) msg = err.body;
+        else if (err.status === 403) msg = "Acesso negado. Faça login novamente.";
+        else if (err.status === 404) msg = "Rota não encontrada. Verifique se a URL do sistema está correta.";
+      } else if (err && err.message) msg = err.message;
+      alert(msg);
     })
     .finally(function () {
       if (btn) btn.disabled = false;
@@ -368,8 +389,10 @@ function saveNewCustomer() {
 
 (function setupNewCustomerModal() {
   var btnSave = document.getElementById("btn-save-new-customer");
+  var btnNovo = document.getElementById("btn-novo-cliente-pdv");
   var newCep = document.getElementById("new-addr-cep");
   if (btnSave) btnSave.addEventListener("click", saveNewCustomer);
+  if (btnNovo) btnNovo.addEventListener("click", function () { openNewCustomerModal(""); });
   if (newCep) {
     newCep.addEventListener("blur", function () {
       var cep = this.value.replace(/\D/g, "");
@@ -486,7 +509,7 @@ function searchProducts(term) {
     list.innerHTML = skeleton;
   }
 
-  fetch(`index.php?route=pos/search&term=${encodeURIComponent(term)}`)
+  fetch(posUrl("pos/search") + "&term=" + encodeURIComponent(term))
     .then((r) => {
       if (!r.ok) throw new Error("Network response was not ok");
       return r.json();
@@ -786,7 +809,7 @@ function verifyGiftCard() {
   const code = document.getElementById("gift-card-code").value;
   if (!code) return;
 
-  fetch(`?route=giftcard/check&code=${code}`)
+  fetch(posUrl("giftcard/check") + "&code=" + encodeURIComponent(code))
     .then((r) => r.json())
     .then((data) => {
       const info = document.getElementById("gift-card-info");
@@ -908,7 +931,7 @@ function processCheckout() {
     csrf_token: csrfToken,
   };
 
-  fetch("index.php?route=pos/checkout", {
+  fetch(posUrl("pos/checkout"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -930,7 +953,7 @@ function processCheckout() {
 }
 
 function checkCashStatus() {
-  fetch("index.php?route=cash/status")
+  fetch(posUrl("cash/status"))
     .then((r) => r.json())
     .then((data) => {
       const btnAbrir = document.getElementById("pos-btn-abrir-caixa");
@@ -962,7 +985,7 @@ function openRegister() {
   const amount = document.getElementById("opening-amount").value;
   const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
 
-  fetch("index.php?route=cash/open", {
+  fetch(posUrl("cash/open"), {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "csrf_token=" + encodeURIComponent(csrf) + "&amount=" + encodeURIComponent(amount),
