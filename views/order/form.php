@@ -49,18 +49,46 @@ require dirname(__DIR__) . '/layouts/header.php';
                     <label for="guest_phone" class="block text-sm font-medium text-gray-700">Telefone *</label>
                     <input type="text" id="guest_phone" name="guest_phone" required placeholder="(00) 00000-0000" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
                 </div>
-                <div>
-                    <label for="guest_email" class="block text-sm font-medium text-gray-700">E-mail</label>
-                    <input type="email" id="guest_email" name="guest_email" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
-                </div>
 
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="is_pickup" name="is_pickup" value="1" class="rounded border-gray-300 text-primary focus:ring-primary">
                     <label for="is_pickup" class="text-sm font-medium text-gray-700">Retirada no local</label>
                 </div>
-                <div id="delivery-field">
-                    <label for="delivery_address" class="block text-sm font-medium text-gray-700">Endereço de entrega</label>
-                    <textarea id="delivery_address" name="delivery_address" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary" placeholder="Rua, número, bairro, cidade..."></textarea>
+                <div id="delivery-field" class="space-y-3">
+                    <div>
+                        <label for="cep" class="block text-sm font-medium text-gray-700">CEP *</label>
+                        <input type="text" id="cep" name="cep" maxlength="9" placeholder="00000-000" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary" autocomplete="postal-code">
+                        <p id="cep-error" class="mt-1 text-sm text-red-600 hidden">CEP não encontrado. Verifique e tente novamente.</p>
+                    </div>
+                    <div>
+                        <label for="address_street" class="block text-sm font-medium text-gray-700">Logradouro</label>
+                        <input type="text" id="address_street" readonly class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="address_number" class="block text-sm font-medium text-gray-700">Número *</label>
+                            <input type="text" id="address_number" name="address_number" placeholder="Somente número" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
+                        </div>
+                        <div>
+                            <label for="address_complement" class="block text-sm font-medium text-gray-700">Complemento</label>
+                            <input type="text" id="address_complement" name="address_complement" placeholder="Apto, bloco..." class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="address_neighborhood" class="block text-sm font-medium text-gray-700">Bairro</label>
+                        <input type="text" id="address_neighborhood" readonly class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="address_city" class="block text-sm font-medium text-gray-700">Cidade</label>
+                            <input type="text" id="address_city" readonly class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700">
+                        </div>
+                        <div>
+                            <label for="address_state" class="block text-sm font-medium text-gray-700">UF</label>
+                            <input type="text" id="address_state" readonly maxlength="2" class="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700">
+                        </div>
+                    </div>
+                    <input type="hidden" name="delivery_address" id="delivery_address" value="">
                 </div>
                 <div>
                     <label for="observation" class="block text-sm font-medium text-gray-700">Observação</label>
@@ -151,6 +179,66 @@ require dirname(__DIR__) . '/layouts/header.php';
         deliveryField.style.display = this.checked ? 'none' : 'block';
     });
 
+    // ViaCEP: autocomplete de endereço ao digitar CEP (somente números, 8 dígitos)
+    var cepInput = document.getElementById('cep');
+    var cepError = document.getElementById('cep-error');
+    cepInput.addEventListener('blur', function() {
+        var cep = (this.value || '').replace(/\D/g, '');
+        if (cep.length !== 8) {
+            if (this.value.trim() !== '') {
+                cepError.classList.remove('hidden');
+            } else {
+                cepError.classList.add('hidden');
+                document.getElementById('address_street').value = '';
+                document.getElementById('address_neighborhood').value = '';
+                document.getElementById('address_city').value = '';
+                document.getElementById('address_state').value = '';
+            }
+            return;
+        }
+        cepError.classList.add('hidden');
+        fetch('https://viacep.com.br/ws/' + cep + '/json/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.erro) {
+                    cepError.classList.remove('hidden');
+                    document.getElementById('address_street').value = '';
+                    document.getElementById('address_neighborhood').value = '';
+                    document.getElementById('address_city').value = '';
+                    document.getElementById('address_state').value = '';
+                } else {
+                    document.getElementById('address_street').value = data.logradouro || '';
+                    document.getElementById('address_neighborhood').value = data.bairro || '';
+                    document.getElementById('address_city').value = data.localidade || '';
+                    document.getElementById('address_state').value = data.uf || '';
+                }
+            })
+            .catch(function() {
+                cepError.classList.remove('hidden');
+            });
+    });
+    // Máscara CEP: 00000-000
+    cepInput.addEventListener('input', function() {
+        var v = this.value.replace(/\D/g, '');
+        if (v.length > 5) {
+            this.value = v.slice(0, 5) + '-' + v.slice(5, 8);
+        } else {
+            this.value = v;
+        }
+    });
+
+    function buildDeliveryAddress() {
+        var street = document.getElementById('address_street').value.trim();
+        var number = document.getElementById('address_number').value.trim();
+        var complement = document.getElementById('address_complement').value.trim();
+        var neighborhood = document.getElementById('address_neighborhood').value.trim();
+        var city = document.getElementById('address_city').value.trim();
+        var state = document.getElementById('address_state').value.trim();
+        var cep = document.getElementById('cep').value.trim();
+        var parts = [street, number, complement, neighborhood, city, state, cep].filter(Boolean);
+        return parts.join(', ');
+    }
+
     orderForm.addEventListener('submit', function(e) {
         e.preventDefault();
         if (cart.length === 0) {
@@ -158,6 +246,23 @@ require dirname(__DIR__) . '/layouts/header.php';
             formMessage.className = 'mt-3 text-red-600';
             formMessage.classList.remove('hidden');
             return;
+        }
+        if (!document.getElementById('is_pickup').checked) {
+            var cep = (document.getElementById('cep').value || '').replace(/\D/g, '');
+            var num = document.getElementById('address_number').value.trim();
+            if (cep.length !== 8) {
+                formMessage.textContent = 'Informe um CEP válido (8 dígitos).';
+                formMessage.className = 'mt-3 text-red-600';
+                formMessage.classList.remove('hidden');
+                return;
+            }
+            if (!num) {
+                formMessage.textContent = 'Informe o número do endereço.';
+                formMessage.className = 'mt-3 text-red-600';
+                formMessage.classList.remove('hidden');
+                return;
+            }
+            document.getElementById('delivery_address').value = buildDeliveryAddress();
         }
         formMessage.classList.add('hidden');
         submitBtn.disabled = true;
