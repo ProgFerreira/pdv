@@ -6,7 +6,6 @@ if ($displayName === '') {
 }
 $displayPhone = trim($order['customer_phone'] ?? $order['guest_phone'] ?? '');
 $isPending = ($order['status'] ?? '') === 'pending';
-$canAddItems = empty($order['sale_id']); // pedido ainda não convertido em venda
 $errorMsg = [
     'caixa_fechado' => 'Abra o caixa antes de converter o pedido em venda.',
     'order_invalid' => 'Pedido não encontrado ou já foi convertido/cancelado.',
@@ -75,13 +74,6 @@ $getError = $_GET['error'] ?? '';
         </table>
         <p class="mt-4 text-right font-bold text-gray-900">Total: R$ <?php echo number_format((float) $order['total'], 2, ',', '.'); ?></p>
 
-        <?php if ($canAddItems): ?>
-        <div class="mt-4 flex flex-wrap gap-3 items-center">
-            <a href="<?php echo htmlspecialchars(BASE_URL, ENT_QUOTES, 'UTF-8'); ?>?route=order/index" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-lg font-bold shadow no-underline border-2 border-emerald-600 bg-emerald-600 hover:bg-emerald-700 text-white" style="color: #fff !important;">
-                <i class="fas fa-plus-circle"></i> Adicionar itens
-            </a>
-        </div>
-        <?php endif; ?>
         <?php if ($isPending): ?>
         <form method="post" action="<?php echo BASE_URL; ?>?route=order/convertToSale" class="mt-6 pt-6 border-t border-gray-200">
             <?php echo csrf_field(); ?>
