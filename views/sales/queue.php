@@ -88,18 +88,18 @@ if ($sectorId !== null && $sectorId !== '') {
       </form>
     </div>
 
-    <!-- Duas colunas: Em preparação | Entregue -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-      <!-- Coluna 1: Em preparação -->
-      <div class="flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+    <!-- Kanban: duas colunas verticais -->
+    <div class="kanban-board flex flex-col lg:flex-row gap-4 lg:gap-6 w-full">
+      <!-- Coluna Kanban: Em preparação -->
+      <div class="kanban-column kanban-column-preparation flex flex-col flex-1 min-w-0 lg:min-w-[320px] rounded-2xl border-2 border-amber-300 bg-amber-50/50 shadow-lg overflow-hidden">
+        <div class="kanban-column-header px-4 py-3 bg-amber-500 text-white flex items-center justify-between shrink-0">
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i class="fas fa-hourglass-half"></i>
             Em preparação
-            <span class="ml-2 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-sm font-bold"><?php echo count($inPreparation); ?></span>
           </h2>
+          <span class="kanban-count px-3 py-1 rounded-full bg-white/25 text-sm font-black"><?php echo count($inPreparation); ?></span>
         </div>
-        <div class="flex-1 space-y-4 min-h-[200px]">
+        <div class="kanban-column-cards flex-1 overflow-y-auto p-3 space-y-3 min-h-[280px] max-h-[calc(100vh-320px)]">
           <?php
           $now = time();
           foreach ($inPreparation as $s):
@@ -109,59 +109,49 @@ if ($sectorId !== null && $sectorId !== '') {
               $customerName = trim((string)($s['customer_name'] ?? '')) ?: 'Cliente não informado';
               $markUrl = BASE_URL . '?' . http_build_query(array_merge(['route' => 'sale/markDelivered', 'id' => $s['id']], $returnParams));
           ?>
-            <div class="queue-card queue-card-preparation bg-white rounded-xl border-2 border-amber-200 shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-              <div class="p-4 sm:p-5">
-                <div class="flex justify-between items-start gap-2 mb-3">
-                  <div>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pedido #<?php echo (int) $s['id']; ?></span>
-                    <p class="text-base font-bold text-slate-800 mt-0.5"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></p>
-                  </div>
-                  <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-sm font-black whitespace-nowrap" title="Tempo desde a gravação do pedido">
+            <div class="kanban-card bg-white rounded-xl border-l-4 border-amber-500 shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+              <div class="p-4">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <span class="text-xs font-bold text-slate-400 uppercase">#<?php echo (int) $s['id']; ?></span>
+                  <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-black whitespace-nowrap" title="Tempo desde o pedido">
                     <i class="fas fa-clock mr-1"></i><?php echo $elapsedStr; ?>
                   </span>
                 </div>
-                <div class="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
-                  <?php if (!empty($s['customer_phone'])): ?>
-                    <span><i class="fas fa-phone-alt mr-1"></i><?php echo htmlspecialchars($s['customer_phone'], ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php endif; ?>
-                  <?php if (!empty($s['sector_name'])): ?>
-                    <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600"><?php echo htmlspecialchars($s['sector_name'], ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php endif; ?>
+                <p class="text-sm font-bold text-slate-800 mb-2 truncate" title="<?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></p>
+                <div class="flex flex-wrap gap-1 text-xs text-slate-500 mb-3">
+                  <?php if (!empty($s['customer_phone'])): ?><span><i class="fas fa-phone-alt mr-1"></i><?php echo htmlspecialchars($s['customer_phone'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+                  <?php if (!empty($s['sector_name'])): ?><span class="px-1.5 py-0.5 rounded bg-slate-100"><?php echo htmlspecialchars($s['sector_name'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                   <span><?php echo date('H:i', strtotime($s['created_at'])); ?></span>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-lg font-black text-slate-800">R$ <?php echo number_format((float) $s['total'], 2, ',', '.'); ?></span>
-                  <div class="flex items-center gap-2">
-                    <a href="<?php echo BASE_URL; ?>?route=sale/view&id=<?php echo (int) $s['id']; ?>" target="_blank" class="text-slate-500 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-colors" title="Ver pedido">
-                      <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="<?php echo htmlspecialchars($markUrl, ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm" title="Marcar como entregue">
-                      <i class="fas fa-truck"></i> Entregue
-                    </a>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                  <span class="text-base font-black text-slate-800">R$ <?php echo number_format((float) $s['total'], 2, ',', '.'); ?></span>
+                  <div class="flex items-center gap-1">
+                    <a href="<?php echo BASE_URL; ?>?route=sale/view&id=<?php echo (int) $s['id']; ?>" target="_blank" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" title="Ver pedido"><i class="fas fa-eye"></i></a>
+                    <a href="<?php echo htmlspecialchars($markUrl, ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-lg text-xs shadow transition-colors" title="Marcar como entregue"><i class="fas fa-truck"></i> Entregue</a>
                   </div>
                 </div>
               </div>
             </div>
           <?php endforeach; ?>
           <?php if (empty($inPreparation)): ?>
-            <div class="queue-card bg-white rounded-xl border-2 border-dashed border-slate-200 p-8 text-center text-slate-400">
-              <i class="fas fa-inbox text-4xl mb-2 opacity-50"></i>
-              <p class="font-medium">Nenhum pedido em preparação nesta data.</p>
+            <div class="kanban-card-empty flex flex-col items-center justify-center py-10 px-4 rounded-xl border-2 border-dashed border-amber-200 bg-white/80 text-slate-400">
+              <i class="fas fa-inbox text-3xl mb-2 opacity-50"></i>
+              <p class="text-sm font-medium text-center">Nenhum pedido em preparação</p>
             </div>
           <?php endif; ?>
         </div>
       </div>
 
-      <!-- Coluna 2: Entregue -->
-      <div class="flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+      <!-- Coluna Kanban: Entregue -->
+      <div class="kanban-column kanban-column-delivered flex flex-col flex-1 min-w-0 lg:min-w-[320px] rounded-2xl border-2 border-emerald-400 bg-emerald-50/50 shadow-lg overflow-hidden">
+        <div class="kanban-column-header px-4 py-3 bg-emerald-600 text-white flex items-center justify-between shrink-0">
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i class="fas fa-check-double"></i>
             Entregue
-            <span class="ml-2 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold"><?php echo count($delivered); ?></span>
           </h2>
+          <span class="kanban-count px-3 py-1 rounded-full bg-white/25 text-sm font-black"><?php echo count($delivered); ?></span>
         </div>
-        <div class="flex-1 space-y-4 min-h-[200px]">
+        <div class="kanban-column-cards flex-1 overflow-y-auto p-3 space-y-3 min-h-[280px] max-h-[calc(100vh-320px)]">
           <?php
           foreach ($delivered as $s):
               $created = strtotime($s['created_at']);
@@ -171,41 +161,31 @@ if ($sectorId !== null && $sectorId !== '') {
               $customerName = trim((string)($s['customer_name'] ?? '')) ?: 'Cliente não informado';
               $unmarkUrl = BASE_URL . '?' . http_build_query(array_merge(['route' => 'sale/unmarkDelivered', 'id' => $s['id']], $returnParams));
           ?>
-            <div class="queue-card queue-card-delivered bg-white rounded-xl border-2 border-emerald-200 shadow-md overflow-hidden">
-              <div class="p-4 sm:p-5">
-                <div class="flex justify-between items-start gap-2 mb-3">
-                  <div>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pedido #<?php echo (int) $s['id']; ?></span>
-                    <p class="text-base font-bold text-slate-800 mt-0.5"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></p>
-                  </div>
-                  <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-sm font-bold whitespace-nowrap" title="Tempo da gravação até a entrega">
-                    <i class="fas fa-stopwatch mr-1"></i><?php echo $totalStr; ?>
-                  </span>
+            <div class="kanban-card bg-white rounded-xl border-l-4 border-emerald-500 shadow-md overflow-hidden">
+              <div class="p-4">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                  <span class="text-xs font-bold text-slate-400 uppercase">#<?php echo (int) $s['id']; ?></span>
+                  <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold whitespace-nowrap" title="Tempo até a entrega"><i class="fas fa-stopwatch mr-1"></i><?php echo $totalStr; ?></span>
                 </div>
-                <div class="flex flex-wrap gap-2 text-xs text-slate-500 mb-4">
-                  <?php if (!empty($s['customer_phone'])): ?>
-                    <span><i class="fas fa-phone-alt mr-1"></i><?php echo htmlspecialchars($s['customer_phone'], ENT_QUOTES, 'UTF-8'); ?></span>
-                  <?php endif; ?>
+                <p class="text-sm font-bold text-slate-800 mb-2 truncate" title="<?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8'); ?></p>
+                <div class="flex flex-wrap gap-1 text-xs text-slate-500 mb-3">
+                  <?php if (!empty($s['customer_phone'])): ?><span><i class="fas fa-phone-alt mr-1"></i><?php echo htmlspecialchars($s['customer_phone'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                   <span>Entregue às <?php echo date('H:i', $deliveredTs); ?></span>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-lg font-black text-slate-800">R$ <?php echo number_format((float) $s['total'], 2, ',', '.'); ?></span>
-                  <div class="flex items-center gap-2">
-                    <a href="<?php echo BASE_URL; ?>?route=sale/view&id=<?php echo (int) $s['id']; ?>" target="_blank" class="text-slate-500 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-colors" title="Ver pedido">
-                      <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="<?php echo htmlspecialchars($unmarkUrl, ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-3 rounded-lg text-sm transition-colors" title="Desmarcar entrega">
-                      <i class="fas fa-undo"></i> Desfazer
-                    </a>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                  <span class="text-base font-black text-slate-800">R$ <?php echo number_format((float) $s['total'], 2, ',', '.'); ?></span>
+                  <div class="flex items-center gap-1">
+                    <a href="<?php echo BASE_URL; ?>?route=sale/view&id=<?php echo (int) $s['id']; ?>" target="_blank" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" title="Ver pedido"><i class="fas fa-eye"></i></a>
+                    <a href="<?php echo htmlspecialchars($unmarkUrl, ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex items-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-3 rounded-lg text-xs transition-colors" title="Desmarcar entrega"><i class="fas fa-undo"></i> Desfazer</a>
                   </div>
                 </div>
               </div>
             </div>
           <?php endforeach; ?>
           <?php if (empty($delivered)): ?>
-            <div class="queue-card bg-white rounded-xl border-2 border-dashed border-slate-200 p-8 text-center text-slate-400">
-              <i class="fas fa-check-double text-4xl mb-2 opacity-50"></i>
-              <p class="font-medium">Nenhum pedido entregue nesta data.</p>
+            <div class="kanban-card-empty flex flex-col items-center justify-center py-10 px-4 rounded-xl border-2 border-dashed border-emerald-200 bg-white/80 text-slate-400">
+              <i class="fas fa-check-double text-3xl mb-2 opacity-50"></i>
+              <p class="text-sm font-medium text-center">Nenhum pedido entregue</p>
             </div>
           <?php endif; ?>
         </div>
@@ -215,10 +195,15 @@ if ($sectorId !== null && $sectorId !== '') {
 </div>
 
 <style>
-  .queue-card-preparation { border-left: 4px solid #f59e0b; }
-  .queue-card-delivered  { border-left: 4px solid #10b981; }
-  @media (min-width: 1024px) {
-    .queue-page .grid { align-items: start; }
+  .kanban-board { display: flex; }
+  .kanban-column { flex: 1 1 0; }
+  .kanban-column-cards { scrollbar-width: thin; }
+  .kanban-column-cards::-webkit-scrollbar { width: 6px; }
+  .kanban-column-cards::-webkit-scrollbar-track { background: rgba(0,0,0,.05); border-radius: 3px; }
+  .kanban-column-cards::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 3px; }
+  @media (max-width: 1023px) {
+    .kanban-column { min-height: 280px; }
+    .kanban-column-cards { max-height: 400px; }
   }
 </style>
 <?php require 'views/layouts/footer.php'; ?>
