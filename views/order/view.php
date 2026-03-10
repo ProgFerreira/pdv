@@ -86,7 +86,7 @@ $getError = $_GET['error'] ?? '';
         <form method="post" action="<?php echo BASE_URL; ?>?route=order/convertToSale" class="mt-6 pt-6 border-t border-gray-200">
             <?php echo csrf_field(); ?>
             <input type="hidden" name="order_id" value="<?php echo (int) $order['id']; ?>">
-            <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-lg font-bold shadow border-2 border-green-600 bg-green-600 hover:bg-green-700 text-white transition-colors" style="background-color: #16a34a !important; border-color: #16a34a !important; color: #fff !important;">
+            <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-lg font-bold shadow border-2 border-blue-600 bg-blue-600 hover:bg-blue-700 text-white transition-colors" style="background-color: #2563eb !important; border-color: #2563eb !important; color: #fff !important;">
                 <i class="fas fa-cash-register"></i> Transformar em venda
             </button>
         </form>
