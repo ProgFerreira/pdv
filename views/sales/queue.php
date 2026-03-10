@@ -72,6 +72,36 @@ if ($sectorId !== null && $sectorId !== '') {
       </div>
     <?php endif; ?>
 
+    <!-- Cards de estatísticas: Em preparação | Entrega | Entregue -->
+    <?php
+    $countPreparation = count($inPreparation);
+    $countOutForDelivery = count($outForDelivery);
+    $countDelivered = count($delivered);
+    ?>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="card-standard-metric p-4 border-l-warning">
+        <h6 class="card-metric-label">Em preparação</h6>
+        <div class="flex justify-between items-center gap-2">
+          <span class="text-lg xl:text-xl font-black text-amber-600"><?php echo $countPreparation; ?></span>
+          <i class="fas fa-hourglass-half text-base text-amber-200 flex-shrink-0"></i>
+        </div>
+      </div>
+      <div class="card-standard-metric p-4 border-l-info">
+        <h6 class="card-metric-label">Saiu para entrega</h6>
+        <div class="flex justify-between items-center gap-2">
+          <span class="text-lg xl:text-xl font-black text-sky-600"><?php echo $countOutForDelivery; ?></span>
+          <i class="fas fa-truck-loading text-base text-sky-200 flex-shrink-0"></i>
+        </div>
+      </div>
+      <div class="card-standard-metric p-4 border-l-success">
+        <h6 class="card-metric-label">Entregue</h6>
+        <div class="flex justify-between items-center gap-2">
+          <span class="text-lg xl:text-xl font-black text-emerald-600"><?php echo $countDelivered; ?></span>
+          <i class="fas fa-check-double text-base text-emerald-200 flex-shrink-0"></i>
+        </div>
+      </div>
+    </div>
+
     <!-- Filtro data + setor -->
     <div class="mb-6 p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
       <form method="GET" action="<?php echo BASE_URL; ?>" class="flex flex-wrap items-end gap-4">
