@@ -46,7 +46,12 @@ set_exception_handler(function (Throwable $e) use ($isProduction) {
     }
 });
 
-// Verificar se a migration v12 (permissões/auditoria) foi executada
+// Rotas públicas que não exigem migration v12 (pedido pelo link)
+$routeEarly = $_GET['route'] ?? '';
+$isOrderFormPublic = ($routeEarly === 'order/form' || $routeEarly === 'order/submit');
+
+// Verificar se a migration v12 (permissões/auditoria) foi executada (pula para pedido público)
+if (!$isOrderFormPublic) {
 try {
     $stmt = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'permissions'");
     if (!$stmt || !$stmt->fetch()) {
@@ -78,6 +83,7 @@ try {
     echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Erro</title></head><body style="font-family:sans-serif;padding:2rem;">';
     echo '<h1>Erro ao verificar banco</h1><p>' . htmlspecialchars($e->getMessage()) . '</p></body></html>';
     exit;
+}
 }
 
 // Roteamento simples
