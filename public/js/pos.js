@@ -434,26 +434,29 @@ document
     }, 300); // 300ms debounce
   });
 
-// Abas PDV: Produtos, Bebidas, Sobremesas — ao clicar, passa category_id explicitamente
+// Abas PDV: Produtos, Bebidas, Sobremesas — ao clicar, filtra produtos por categoria
 (function () {
   const tabContainer = document.querySelector(".pos-tabs");
   if (!tabContainer) return;
-  const tabs = tabContainer.querySelectorAll(".pos-tab");
-  tabs.forEach(function (tab) {
-    tab.addEventListener("click", function () {
-      var raw = this.getAttribute("data-category-id");
-      var categoryId = (raw !== null && raw !== undefined && String(raw).trim() !== "") ? String(raw).trim() : "";
-      tabs.forEach(function (t) {
-        t.classList.remove("border-primary", "text-primary", "bg-white", "-mb-px");
-        t.classList.add("border-transparent", "text-gray-500");
-        t.setAttribute("aria-selected", "false");
-      });
-      this.classList.add("border-primary", "text-primary", "bg-white", "-mb-px");
-      this.classList.remove("border-transparent", "text-gray-500");
-      this.setAttribute("aria-selected", "true");
-      var term = (document.getElementById("product-search") || {}).value || "";
-      searchProducts(term, categoryId);
+  // Event delegation: garante que clique na aba (ou em filho) dispare o filtro
+  tabContainer.addEventListener("click", function (e) {
+    const tab = e.target && e.target.closest && e.target.closest(".pos-tab");
+    if (!tab) return;
+    var raw = tab.getAttribute("data-category-id");
+    var categoryId = (raw !== null && raw !== undefined && String(raw).trim() !== "" && String(raw).trim() !== "0")
+      ? String(raw).trim()
+      : "";
+    var tabs = tabContainer.querySelectorAll(".pos-tab");
+    tabs.forEach(function (t) {
+      t.classList.remove("border-primary", "text-primary", "bg-white", "-mb-px");
+      t.classList.add("border-transparent", "text-gray-500");
+      t.setAttribute("aria-selected", "false");
     });
+    tab.classList.add("border-primary", "text-primary", "bg-white", "-mb-px");
+    tab.classList.remove("border-transparent", "text-gray-500");
+    tab.setAttribute("aria-selected", "true");
+    var term = (document.getElementById("product-search") || {}).value || "";
+    searchProducts(term, categoryId);
   });
 })();
 
@@ -536,6 +539,7 @@ function searchProducts(term, categoryIdOpt) {
       if (d !== null && d !== "") categoryId = String(d).trim();
     }
   }
+  if (categoryId === "0") categoryId = "";
 
   // Skeleton loading enquanto busca
   if (term.length > 0) {
