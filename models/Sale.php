@@ -226,7 +226,7 @@ class Sale
     public function getAll($limit = 100, $offset = 0, $filters = [])
     {
         $sessionSectorId = $_SESSION['sector_id'] ?? 1;
-        $sql = "SELECT s.*, u.name as user_name, c.name as customer_name, sec.name as sector_name
+        $sql = "SELECT s.*, u.name as user_name, c.name as customer_name, c.phone as customer_phone, sec.name as sector_name
                 FROM sales s
                 LEFT JOIN users u ON s.user_id = u.id
                 LEFT JOIN customers c ON s.customer_id = c.id

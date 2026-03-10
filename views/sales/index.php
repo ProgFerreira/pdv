@@ -225,6 +225,9 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente
                     </th>
                     <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone
+                    </th>
+                    <th scope="col"
                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendedor
                     </th>
                     <th scope="col"
@@ -269,6 +272,9 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500 min-w-[120px]" title="Cliente">
                             <?php echo htmlspecialchars(trim((string)($s['customer_name'] ?? '')) ?: '-', ENT_QUOTES, 'UTF-8'); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                            <?php echo htmlspecialchars(trim((string)($s['customer_phone'] ?? '')) ?: '-', ENT_QUOTES, 'UTF-8'); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <?php echo $s['user_name'] ?? '-'; ?>

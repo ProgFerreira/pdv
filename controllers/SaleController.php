@@ -130,7 +130,7 @@ class SaleController
         fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         $headers = [
-            'ID', 'Data', 'Hora', 'Caixa', 'Cliente', 'Vendedor', 'Setor',
+            'ID', 'Data', 'Hora', 'Caixa', 'Cliente', 'Telefone', 'Vendedor', 'Setor',
             'Forma de Pagamento', 'Total (R$)'
         ];
         fputcsv($out, $headers, ';');
@@ -142,6 +142,7 @@ class SaleController
                 date('H:i', strtotime($s['created_at'] ?? 'now')),
                 $s['cash_register_id'] ?? '-',
                 trim((string)($s['customer_name'] ?? '')) ?: '-',
+                trim((string)($s['customer_phone'] ?? '')) ?: '-',
                 $s['user_name'] ?? '-',
                 $s['sector_name'] ?? 'Loja',
                 $s['payment_method'] ?? '',
