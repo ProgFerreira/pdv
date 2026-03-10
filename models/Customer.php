@@ -71,6 +71,25 @@ class Customer {
     }
 
     /**
+     * Busca cliente pelo telefone (somente dígitos; primeiro que bater).
+     * Usado no formulário público de pedido para preencher nome/endereço.
+     */
+    public function findByPhone(string $phone): ?array {
+        $digits = preg_replace('/\D/', '', $phone);
+        if (strlen($digits) < 8) {
+            return null;
+        }
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM customers
+            WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone,''), ' ', ''), '-', ''), '(', ''), ')', ''), '+', '') = :digits
+            LIMIT 1
+        ");
+        $stmt->execute(['digits' => $digits]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
      * Atualiza apenas o endereço do cliente (usado no PDV após preencher via CEP).
      * Aceita: cep, address_street, address_number, address_complement, address_neighborhood, address_city, address_state
      */

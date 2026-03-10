@@ -42,12 +42,13 @@ require dirname(__DIR__) . '/layouts/header.php';
                 <input type="hidden" name="items_json" id="items-json" value="[]">
 
                 <div>
-                    <label for="guest_name" class="block text-sm font-medium text-gray-700">Nome *</label>
-                    <input type="text" id="guest_name" name="guest_name" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
+                    <label for="guest_phone" class="block text-sm font-medium text-gray-700">Telefone *</label>
+                    <input type="text" id="guest_phone" name="guest_phone" required placeholder="(00) 00000-0000" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary" autocomplete="tel">
+                    <p id="phone-lookup-hint" class="mt-1 text-xs text-gray-500">Digite seu telefone para preencher nome e endereço automaticamente (se já for cliente).</p>
                 </div>
                 <div>
-                    <label for="guest_phone" class="block text-sm font-medium text-gray-700">Telefone *</label>
-                    <input type="text" id="guest_phone" name="guest_phone" required placeholder="(00) 00000-0000" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
+                    <label for="guest_name" class="block text-sm font-medium text-gray-700">Nome *</label>
+                    <input type="text" id="guest_name" name="guest_name" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div class="flex items-center gap-2">
@@ -177,6 +178,59 @@ require dirname(__DIR__) . '/layouts/header.php';
 
     document.getElementById('is_pickup').addEventListener('change', function() {
         deliveryField.style.display = this.checked ? 'none' : 'block';
+    });
+
+    // Busca cliente por telefone e preenche nome e endereço
+    var guestPhone = document.getElementById('guest_phone');
+    var phoneHint = document.getElementById('phone-lookup-hint');
+    var lookupBase = orderForm.action.split('?')[0] + '?route=order/lookupByPhone';
+    function maskPhone(v) {
+        v = (v || '').replace(/\D/g, '');
+        if (v.length > 10) {
+            return '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7, 11);
+        }
+        if (v.length > 6) {
+            return '(' + v.slice(0, 2) + ') ' + v.slice(2, 6) + '-' + v.slice(6);
+        }
+        if (v.length > 2) {
+            return '(' + v.slice(0, 2) + ') ' + v.slice(2);
+        }
+        return v;
+    }
+    guestPhone.addEventListener('input', function() {
+        this.value = maskPhone(this.value);
+    });
+    guestPhone.addEventListener('blur', function() {
+        var phone = (this.value || '').replace(/\D/g, '');
+        if (phone.length < 8) {
+            phoneHint.textContent = 'Digite seu telefone para preencher nome e endereço automaticamente (se já for cliente).';
+            phoneHint.className = 'mt-1 text-xs text-gray-500';
+            return;
+        }
+        fetch(lookupBase + '&phone=' + encodeURIComponent(this.value))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success && data.customer) {
+                    var c = data.customer;
+                    document.getElementById('guest_name').value = c.name || '';
+                    document.getElementById('cep').value = c.cep || '';
+                    document.getElementById('address_street').value = c.address_street || '';
+                    document.getElementById('address_number').value = c.address_number || '';
+                    document.getElementById('address_complement').value = c.address_complement || '';
+                    document.getElementById('address_neighborhood').value = c.address_neighborhood || '';
+                    document.getElementById('address_city').value = c.address_city || '';
+                    document.getElementById('address_state').value = c.address_state || '';
+                    phoneHint.textContent = 'Dados preenchidos com o cadastro do cliente.';
+                    phoneHint.className = 'mt-1 text-xs text-green-600';
+                } else {
+                    phoneHint.textContent = 'Cliente não encontrado. Preencha os dados manualmente.';
+                    phoneHint.className = 'mt-1 text-xs text-gray-500';
+                }
+            })
+            .catch(function() {
+                phoneHint.textContent = 'Digite seu telefone para preencher nome e endereço automaticamente (se já for cliente).';
+                phoneHint.className = 'mt-1 text-xs text-gray-500';
+            });
     });
 
     // ViaCEP: autocomplete de endereço ao digitar CEP (somente números, 8 dígitos)

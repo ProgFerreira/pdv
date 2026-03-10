@@ -28,6 +28,39 @@ class OrderController
     }
 
     /**
+     * GET público: busca cliente pelo telefone para preencher o formulário de pedido.
+     * Retorna JSON: { success, customer: { name, email, cep, address_street, ... } }
+     */
+    public function lookupByPhone()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $phone = trim((string) ($_GET['phone'] ?? ''));
+        if ($phone === '') {
+            echo json_encode(['success' => false, 'message' => 'Informe o telefone.']);
+            exit;
+        }
+        $customerModel = new Customer();
+        $customer = $customerModel->findByPhone($phone);
+        if (!$customer) {
+            echo json_encode(['success' => false, 'message' => 'Cliente não encontrado.']);
+            exit;
+        }
+        $data = [
+            'name' => $customer['name'] ?? '',
+            'email' => $customer['email'] ?? '',
+            'cep' => $customer['cep'] ?? '',
+            'address_street' => $customer['address_street'] ?? '',
+            'address_number' => $customer['address_number'] ?? '',
+            'address_complement' => $customer['address_complement'] ?? '',
+            'address_neighborhood' => $customer['address_neighborhood'] ?? '',
+            'address_city' => $customer['address_city'] ?? '',
+            'address_state' => $customer['address_state'] ?? '',
+        ];
+        echo json_encode(['success' => true, 'customer' => $data]);
+        exit;
+    }
+
+    /**
      * POST público: envia o pedido (itens + dados do cliente). Retorna JSON.
      */
     public function submit()

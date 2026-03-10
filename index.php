@@ -48,7 +48,7 @@ set_exception_handler(function (Throwable $e) use ($isProduction) {
 
 // Rotas públicas que não exigem migration v12 (pedido pelo link)
 $routeEarly = $_GET['route'] ?? '';
-$isOrderFormPublic = ($routeEarly === 'order/form' || $routeEarly === 'order/submit');
+$isOrderFormPublic = in_array($routeEarly, ['order/form', 'order/submit', 'order/lookupByPhone'], true);
 
 // Verificar se a migration v12 (permissões/auditoria) foi executada (pula para pedido público)
 if (!$isOrderFormPublic) {
@@ -94,7 +94,7 @@ $controllerName = ucfirst($parts[0]) . 'Controller';
 $actionName = $parts[1] ?? 'index';
 
 // Rotas públicas (sem login): Auth + pedido pelo link
-$publicRoutes = ['AuthController' => true, 'OrderController' => ['form', 'submit']];
+$publicRoutes = ['AuthController' => true, 'OrderController' => ['form', 'submit', 'lookupByPhone']];
 $isPublicRoute = isset($publicRoutes[$controllerName])
     && ($publicRoutes[$controllerName] === true || (is_array($publicRoutes[$controllerName]) && in_array($actionName, $publicRoutes[$controllerName], true)));
 
@@ -112,7 +112,7 @@ function isAdmin()
 // Controle de acesso por tela (permissões)
 $routeKey = $parts[0] . '/' . $actionName;
 $routesPermissions = require __DIR__ . '/config/routes_permissions.php';
-$skipPermissionCheck = in_array($routeKey, ['auth/login', 'auth/logout', 'auth/switchSector', 'order/form', 'order/submit'], true);
+$skipPermissionCheck = in_array($routeKey, ['auth/login', 'auth/logout', 'auth/switchSector', 'order/form', 'order/submit', 'order/lookupByPhone'], true);
 
 if (!$skipPermissionCheck && isset($_SESSION['user_id']) && isset($routesPermissions[$routeKey])) {
     $requiredPerm = $routesPermissions[$routeKey];
