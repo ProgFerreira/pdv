@@ -434,6 +434,28 @@ document
     }, 300); // 300ms debounce
   });
 
+// Abas PDV: Produtos, Bebidas, Sobremesas
+(function () {
+  const tabContainer = document.querySelector(".pos-tabs");
+  if (!tabContainer) return;
+  const tabs = tabContainer.querySelectorAll(".pos-tab");
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      const categoryId = this.getAttribute("data-category-id");
+      tabs.forEach(function (t) {
+        t.classList.remove("border-primary", "text-primary", "bg-white", "-mb-px");
+        t.classList.add("border-transparent", "text-gray-500");
+        t.setAttribute("aria-selected", "false");
+      });
+      this.classList.add("border-primary", "text-primary", "bg-white", "-mb-px");
+      this.classList.remove("border-transparent", "text-gray-500");
+      this.setAttribute("aria-selected", "true");
+      const term = (document.getElementById("product-search") || {}).value || "";
+      searchProducts(term);
+    });
+  });
+})();
+
 // Atalhos: / busca, Enter adiciona primeiro produto, F2 finaliza, Esc limpa/fecha
 document.addEventListener("keydown", function (e) {
   const productSearch = document.getElementById("product-search");
@@ -498,6 +520,15 @@ document.addEventListener("keydown", function (e) {
 
 function searchProducts(term) {
   const list = document.getElementById("product-list");
+  if (!list) return;
+
+  // Categoria da aba ativa (Produtos = vazio, Bebidas/Sobremesas = id)
+  let categoryId = "";
+  const activeTab = document.querySelector(".pos-tab[aria-selected='true']") || document.querySelector(".pos-tab");
+  if (activeTab) {
+    const d = activeTab.getAttribute("data-category-id");
+    if (d !== null && d !== "") categoryId = d;
+  }
 
   // Skeleton loading enquanto busca
   if (term.length > 0) {
@@ -509,7 +540,9 @@ function searchProducts(term) {
     list.innerHTML = skeleton;
   }
 
-  fetch(posUrl("pos/search") + "&term=" + encodeURIComponent(term))
+  let url = posUrl("pos/search") + "&term=" + encodeURIComponent(term);
+  if (categoryId !== "") url += "&category_id=" + encodeURIComponent(categoryId);
+  fetch(url)
     .then((r) => {
       if (!r.ok) throw new Error("Network response was not ok");
       return r.json();

@@ -127,7 +127,12 @@ class Product
         return $stmt->execute($params);
     }
 
-    public function search($term)
+    /**
+     * Busca produtos para o PDV (nome, EAN, código).
+     * @param string $term
+     * @param int|null $categoryId Filtro por categoria (ex.: abas Bebidas, Sobremesas).
+     */
+    public function search($term, $categoryId = null)
     {
         $sectorId = $_SESSION['sector_id'] ?? 1;
         $t = "%" . trim($term) . "%";
@@ -137,6 +142,10 @@ class Product
         if ($sectorId !== 'all') {
             $sql .= " AND sector_id = :sector_id";
             $params['sector_id'] = $sectorId;
+        }
+        if ($categoryId !== null && $categoryId !== '') {
+            $sql .= " AND category_id = :category_id";
+            $params['category_id'] = (int) $categoryId;
         }
 
         $sql .= " ORDER BY name LIMIT 50";

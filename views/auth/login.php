@@ -1,21 +1,31 @@
 <?php
-// Note: Header is NOT included here typically for login pages to avoid navbar, 
-// but our header.php has a check for session. If no session, no navbar.
-// However, the header.php opens <body> and <main>, so we should include it 
-// or replicate the necessary parts. Since header checks session, let's include it 
-// but the container structure might be different for a full-screen login.
-// Let's assume header.php handles the <html><head> part mainly.
-require 'views/layouts/header.php'; 
+$pageTitle = 'Galeteria - Acesso';
+require 'views/layouts/header.php';
+
+// Foto da galeteria: exibir se existir em public/assets/ (logo-galeteria.jpg ou logo-galeteria.png)
+$assetsDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets';
+$logoJpg = $assetsDir . DIRECTORY_SEPARATOR . 'logo-galeteria.jpg';
+$logoPng = $assetsDir . DIRECTORY_SEPARATOR . 'logo-galeteria.png';
+$logoUrl = null;
+if (is_file($logoJpg)) {
+    $logoUrl = (defined('BASE_URL') ? BASE_URL : '') . 'public/assets/logo-galeteria.jpg';
+} elseif (is_file($logoPng)) {
+    $logoUrl = (defined('BASE_URL') ? BASE_URL : '') . 'public/assets/logo-galeteria.png';
+}
 ?>
 
 <div class="min-h-[80vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <i class="fas fa-cross text-6xl text-primary mb-4"></i>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Acesso ao Sistema
-        </h2>
+        <?php if ($logoUrl): ?>
+            <img src="<?php echo htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Galeteria" class="mx-auto rounded-xl shadow-lg object-cover w-32 h-32 sm:w-40 sm:h-40 border-2 border-gray-200">
+        <?php else: ?>
+            <i class="fas fa-store text-6xl text-primary mb-4"></i>
+        <?php endif; ?>
+        <h1 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Galeteria
+        </h1>
         <p class="mt-2 text-center text-sm text-gray-600">
-            PDV Artigos Religiosos
+            Acesso ao Sistema
         </p>
     </div>
 

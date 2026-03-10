@@ -55,6 +55,9 @@ require 'views/layouts/header.php';
 #pos-btn-abrir-caixa { background-color: #dc2626 !important; color: #fff !important; }
 #pos-btn-abrir-caixa:hover { background-color: #b91c1c !important; }
 #pos-caixa-aberto-label { background-color: #16a34a !important; color: #fff !important; }
+/* Abas Produtos / Bebidas / Sobremesas */
+.pos-tabs .pos-tab { outline: none; }
+.pos-tabs .pos-tab:focus-visible { box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); }
 </style>
 <!-- PDV: 3 colunas ocupam 90% da tela (90vw x 90vh) -->
 <div class="pos-container grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
@@ -104,6 +107,23 @@ require 'views/layouts/header.php';
                     <i class="fas fa-map-marker-alt"></i> Informar endereço de entrega
                 </button>
             </div>
+        </div>
+        <!-- Abas: Produtos, Bebidas, Sobremesas -->
+        <div class="pos-tabs flex-shrink-0 flex border-b border-gray-200 bg-gray-50 px-2 gap-0" role="tablist">
+            <?php
+            $posTabs = $posTabs ?? [
+                ['label' => 'Produtos', 'category_id' => null],
+                ['label' => 'Bebidas', 'category_id' => null],
+                ['label' => 'Sobremesas', 'category_id' => null],
+            ];
+            foreach ($posTabs as $i => $tab):
+                $catId = isset($tab['category_id']) && $tab['category_id'] !== null && $tab['category_id'] !== '' ? (int) $tab['category_id'] : '';
+                $active = $i === 0;
+            ?>
+            <button type="button" class="pos-tab px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap <?php echo $active ? 'border-primary text-primary bg-white -mb-px' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'; ?>" data-category-id="<?php echo $catId === '' ? '' : (int) $catId; ?>" role="tab" aria-selected="<?php echo $active ? 'true' : 'false'; ?>">
+                <?php echo htmlspecialchars($tab['label'], ENT_QUOTES, 'UTF-8'); ?>
+            </button>
+            <?php endforeach; ?>
         </div>
         <div id="product-list" class="flex-1 min-h-0 overflow-y-auto p-1.5">
             <div class="pos-list-placeholder text-center text-gray-400 py-6 text-xs">Digite para buscar produtos...</div>

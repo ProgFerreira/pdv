@@ -7,7 +7,7 @@
   <?php if (isset($_SESSION['user_id']) && function_exists('csrf_token')): ?>
   <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
   <?php endif; ?>
-  <title>PDV</title>
+  <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') : 'PDV'; ?></title>
 
   <!-- CSS buildado (Tailwind + tema); sem CDN para consistência e menor peso -->
   <link href="<?php echo BASE_URL; ?>public/css/tailwind.css" rel="stylesheet">

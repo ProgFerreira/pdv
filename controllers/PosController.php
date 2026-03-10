@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Sale;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\CashRegister;
 use App\Models\AuditLog;
 
@@ -20,14 +21,38 @@ class PosController
             $editSale = $saleModel->getById($saleId);
         }
 
+        // Abas do PDV: Produtos (todos), Bebidas, Sobremesas (por nome de categoria)
+        $posTabs = [
+            ['label' => 'Produtos', 'category_id' => null],
+            ['label' => 'Bebidas', 'category_id' => null],
+            ['label' => 'Sobremesas', 'category_id' => null],
+        ];
+        $categoryModel = new Category();
+        $categories = $categoryModel->getAll();
+        foreach ($categories as $c) {
+            $name = $c['name'] ?? '';
+            if (strcasecmp($name, 'Bebidas') === 0) {
+                $posTabs[1]['category_id'] = (int) $c['id'];
+            }
+            if (strcasecmp($name, 'Sobremesas') === 0) {
+                $posTabs[2]['category_id'] = (int) $c['id'];
+            }
+        }
+
         require 'views/pos/index.php';
     }
 
     public function search()
     {
         $term = $_GET['term'] ?? '';
+        $categoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
+        if ($categoryId !== null && $categoryId !== '') {
+            $categoryId = (int) $categoryId;
+        } else {
+            $categoryId = null;
+        }
         $productModel = new Product();
-        $products = $productModel->search($term);
+        $products = $productModel->search($term, $categoryId);
 
         $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
         $products = array_map(function ($p) use ($base) {
