@@ -60,45 +60,46 @@ require 'views/layouts/header.php';
 <div class="pos-container grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
     <!-- Coluna 1: Produtos (busca + cards pequenos) -->
     <div class="pos-col-products flex flex-col min-h-0 flex-1 min-w-0 overflow-hidden bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="pos-search-row p-2 flex-shrink-0 flex items-center gap-2 flex-wrap">
-            <!-- Botão Abrir caixa (vermelho quando fechado) / Caixa aberto (verde) -->
-            <button type="button" id="pos-btn-abrir-caixa" class="hidden flex flex-shrink-0 items-center gap-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 text-sm shadow transition"
+        <!-- Linha 1: Caixa + Campo Cliente + Campo Busca Produto (só as caixas de texto na mesma linha) -->
+        <div class="pos-search-row p-2 flex-shrink-0 flex items-center gap-2 flex-nowrap">
+            <button type="button" id="pos-btn-abrir-caixa" class="hidden flex-shrink-0 items-center gap-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 text-sm shadow transition"
                 onclick="document.getElementById('openCashModal').classList.remove('hidden'); document.getElementById('opening-amount').focus();"
                 title="Abrir caixa e informar valor inicial">
                 <i class="fas fa-cash-register"></i>
                 <span>Abrir caixa</span>
             </button>
-            <span id="pos-caixa-aberto-label" class="hidden flex flex-shrink-0 items-center gap-2 rounded-lg bg-green-600 text-white font-bold py-2 px-4 text-sm shadow">
+            <span id="pos-caixa-aberto-label" class="hidden flex-shrink-0 items-center gap-2 rounded-lg bg-green-600 text-white font-bold py-2 px-4 text-sm shadow">
                 <i class="fas fa-check-circle"></i>
                 <span>Caixa aberto.</span>
             </span>
-            <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
+            <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0 relative">
                 <i class="fas fa-user text-gray-400" aria-hidden="true"></i>
-                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0" placeholder="Telefone ou nome do cliente" title="Digite o telefone ou nome para buscar; se não existir, cadastre novo">
+                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0 w-full" placeholder="Telefone ou nome do cliente" title="Digite o telefone ou nome para buscar; se não existir, cadastre novo">
                 <input type="hidden" id="selected-customer-id">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
-            <!-- Retirada: quando marcado, não exige endereço -->
-            <div id="customer-retirada-wrap" class="w-full flex-shrink-0 flex items-center gap-2 text-xs">
-                <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
+                <i class="fas fa-search text-indigo-500" aria-hidden="true"></i>
+                <input type="text" id="product-search" class="text-sm border-0 bg-transparent outline-none focus:ring-0 w-full" placeholder="Buscar produto... (/) " autofocus>
+            </div>
+        </div>
+        <!-- Linha 2: Retirada + Endereço de entrega (separado das caixas de busca) -->
+        <div class="px-2 pb-2 flex-shrink-0 flex items-center gap-3 flex-wrap border-b border-gray-100">
+            <div id="customer-retirada-wrap" class="flex items-center gap-2 text-xs flex-shrink-0">
+                <label class="inline-flex items-center gap-2 cursor-pointer select-none py-1">
                     <input type="checkbox" id="customer-retirada" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                     <span class="text-gray-600"><i class="fas fa-store text-emerald-500 mr-1"></i> Retirada no local</span>
                 </label>
             </div>
-            <!-- Endereço de entrega: exibe se cliente tiver e não for retirada; senão botão para abrir modal -->
-            <div id="customer-address-wrap" class="hidden w-full flex-shrink-0 flex items-center gap-2 text-xs">
+            <div id="customer-address-wrap" class="hidden flex-1 min-w-0 flex items-center gap-2 text-xs">
                 <span class="text-gray-500 whitespace-nowrap"><i class="fas fa-map-marker-alt text-sky-500 mr-1"></i> Entrega:</span>
                 <span id="customer-address-text" class="flex-1 min-w-0 truncate text-gray-700"></span>
                 <button type="button" id="btn-edit-address" class="flex-shrink-0 text-sky-600 hover:text-sky-800 font-medium" title="Alterar endereço de entrega">Editar</button>
             </div>
-            <div id="customer-no-address-wrap" class="hidden w-full flex-shrink-0">
-                <button type="button" id="btn-add-address" class="text-xs text-sky-600 hover:text-sky-800 font-medium flex items-center gap-1" title="Informar endereço de entrega para imprimir no cupom">
+            <div id="customer-no-address-wrap" class="hidden flex-shrink-0">
+                <button type="button" id="btn-add-address" class="text-xs text-sky-600 hover:text-sky-800 font-medium flex items-center gap-1 whitespace-nowrap" title="Informar endereço de entrega para imprimir no cupom">
                     <i class="fas fa-map-marker-alt"></i> Informar endereço de entrega
                 </button>
-            </div>
-            <div class="pos-field-wrap border-2 border-transparent rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0">
-                <i class="fas fa-search text-indigo-500" aria-hidden="true"></i>
-                <input type="text" id="product-search" class="text-sm border-0 bg-transparent outline-none focus:ring-0" placeholder="Buscar produto... (/) " autofocus>
             </div>
         </div>
         <div id="product-list" class="flex-1 min-h-0 overflow-y-auto p-1.5">
