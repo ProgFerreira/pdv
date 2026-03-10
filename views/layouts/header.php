@@ -81,7 +81,7 @@
             <summary class="sidebar-menu-title"><i class="fas fa-cash-register mr-2"></i>Vendas</summary>
             <div class="sidebar-submenu nav-flex-column">
               <?php if (hasPermission('pos')): ?><a href="<?php echo BASE_URL; ?>?route=pos/index" class="nav-link"><i class="fas fa-cash-register mr-2"></i>PDV</a><?php endif; ?>
-              <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><?php endif; ?>
+              <?php if (hasPermission('sale_view')): ?><a href="<?php echo BASE_URL; ?>?route=sale/index" class="nav-link"><i class="fas fa-shopping-cart mr-2"></i>Vendas</a><a href="<?php echo BASE_URL; ?>?route=sale/queue" class="nav-link"><i class="fas fa-clipboard-list mr-2"></i>Fila de Pedidos</a><a href="<?php echo BASE_URL; ?>?route=order/index" class="nav-link"><i class="fas fa-link mr-2"></i>Pedidos pelo link</a><?php endif; ?>
             </div>
           </details>
 

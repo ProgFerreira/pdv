@@ -87,8 +87,12 @@ $parts = explode('/', $route);
 $controllerName = ucfirst($parts[0]) . 'Controller';
 $actionName = $parts[1] ?? 'index';
 
-// Proteção de rotas (exceto login)
-if (!isset($_SESSION['user_id']) && $controllerName !== 'AuthController') {
+// Rotas públicas (sem login): Auth + pedido pelo link
+$publicRoutes = ['AuthController' => true, 'OrderController' => ['form', 'submit']];
+$isPublicRoute = isset($publicRoutes[$controllerName])
+    && ($publicRoutes[$controllerName] === true || (is_array($publicRoutes[$controllerName]) && in_array($actionName, $publicRoutes[$controllerName], true)));
+
+if (!isset($_SESSION['user_id']) && !$isPublicRoute) {
     header('Location: ' . BASE_URL . '?route=auth/login');
     exit;
 }
@@ -102,7 +106,7 @@ function isAdmin()
 // Controle de acesso por tela (permissões)
 $routeKey = $parts[0] . '/' . $actionName;
 $routesPermissions = require __DIR__ . '/config/routes_permissions.php';
-$skipPermissionCheck = in_array($routeKey, ['auth/login', 'auth/logout', 'auth/switchSector'], true);
+$skipPermissionCheck = in_array($routeKey, ['auth/login', 'auth/logout', 'auth/switchSector', 'order/form', 'order/submit'], true);
 
 if (!$skipPermissionCheck && isset($_SESSION['user_id']) && isset($routesPermissions[$routeKey])) {
     $requiredPerm = $routesPermissions[$routeKey];

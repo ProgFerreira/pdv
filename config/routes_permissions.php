@@ -27,6 +27,9 @@ return [
     'sale/markOutForDelivery' => 'sale_view',
     'sale/unmarkOutForDelivery' => 'sale_view',
 
+    'order/index' => 'sale_view',
+    'order/view' => 'sale_view',
+    'order/convertToSale' => 'sale_view',
 
     'customer/index' => 'customer',
     'customer/create' => 'customer',
