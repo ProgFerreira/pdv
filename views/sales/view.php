@@ -187,9 +187,14 @@ $isCancelled = isset($sale['status']) && $sale['status'] === 'cancelled';
 </div>
 
 <?php
-// Monta texto do pedido para WhatsApp (resumo)
+// Monta texto do pedido para WhatsApp: agradecimento + resumo
+$customerName = trim((string)($sale['customer_name'] ?? '')) ?: 'Cliente';
 $whatsappLines = [
-    '📋 *Pedido #' . (int)$sale['id'] . '*',
+    'Olá, ' . $customerName . '! 🙏',
+    '',
+    'Agradecemos pelo seu pedido! É um prazer atendê-lo(a).',
+    '',
+    '📋 *Resumo do Pedido #' . (int)$sale['id'] . '*',
     'Data: ' . date('d/m/Y H:i', strtotime($sale['created_at'])),
     'Cliente: ' . (trim((string)($sale['customer_name'] ?? '')) ?: 'Não informado'),
     '',
