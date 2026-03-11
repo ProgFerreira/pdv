@@ -1,0 +1,27 @@
+-- Notas Fiscais de Compras: armazenamento de NFs com fornecedor, data, upload (imagem/PDF), status, valor, data pagamento e quem pagou
+CREATE TABLE IF NOT EXISTS notas_fiscais_compras (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    supplier_id INT NULL COMMENT 'FK suppliers (opcional)',
+    fornecedor_nome VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Nome do fornecedor (ou do cadastro)',
+    telefone VARCHAR(50) NULL,
+    data_emissao DATE NOT NULL COMMENT 'Data da nota fiscal',
+    arquivo_path VARCHAR(500) NULL COMMENT 'Caminho do arquivo (imagem ou PDF) no servidor',
+    arquivo_nome_original VARCHAR(255) NULL COMMENT 'Nome original do arquivo',
+    status ENUM('PENDENTE','PAGO','CANCELADO') NOT NULL DEFAULT 'PENDENTE',
+    valor DECIMAL(14,2) NOT NULL DEFAULT 0.00,
+    data_pagamento DATE NULL,
+    pago_por_user_id INT NULL COMMENT 'Quem registrou/efetuou o pagamento (FK users)',
+    observacoes TEXT NULL,
+    created_by INT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    INDEX idx_supplier (supplier_id),
+    INDEX idx_data_emissao (data_emissao),
+    INDEX idx_status (status),
+    INDEX idx_data_pagamento (data_pagamento),
+    INDEX idx_deleted (deleted_at),
+    CONSTRAINT fk_nfc_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL,
+    CONSTRAINT fk_nfc_pago_por FOREIGN KEY (pago_por_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_nfc_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

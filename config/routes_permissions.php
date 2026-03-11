@@ -148,6 +148,15 @@ return [
     'payable/pay' => 'cash',
     'payable/cancel' => 'cash',
 
+    'purchase_invoice/index' => 'cash',
+    'purchase_invoice/create' => 'cash',
+    'purchase_invoice/store' => 'cash',
+    'purchase_invoice/show' => 'cash',
+    'purchase_invoice/edit' => 'cash',
+    'purchase_invoice/update' => 'cash',
+    'purchase_invoice/delete' => 'cash',
+    'purchase_invoice/download' => 'cash',
+
     'receivable/index' => 'receivable',
     'receivable/store' => 'receivable',
     'receivable/pay' => 'receivable',
