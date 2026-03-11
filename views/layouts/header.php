@@ -114,7 +114,7 @@
             <summary class="sidebar-menu-title"><i class="fas fa-cog mr-2"></i>Administrativo</summary>
             <div class="sidebar-submenu nav-flex-column">
               <a href="<?php echo BASE_URL; ?>?route=payable/index" class="nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Contas a Pagar</a>
-              <?php if (hasPermission('cash')): ?><a href="<?php echo BASE_URL; ?>?route=purchase_invoice/index" class="nav-link"><i class="fas fa-file-invoice mr-2"></i>Notas Fiscais de Compras</a><?php endif; ?>
+              <?php if (hasPermission('cash')): ?><a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/index" class="nav-link"><i class="fas fa-file-invoice mr-2"></i>Notas Fiscais de Compras</a><?php endif; ?>
               <?php if (hasPermission('receivable')): ?><a href="<?php echo BASE_URL; ?>?route=receivable/index" class="nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a><?php endif; ?>
               <?php if (hasPermission('investment_manage')): ?><a href="<?php echo BASE_URL; ?>?route=investment/index" class="nav-link"><i class="fas fa-coins mr-2"></i>Investimentos</a><?php endif; ?>
               <?php if (hasPermission('user')): ?><a href="<?php echo BASE_URL; ?>?route=user/index" class="nav-link"><i class="fas fa-user-cog mr-2"></i>Usuários</a><?php endif; ?>

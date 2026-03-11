@@ -1,7 +1,7 @@
 <?php
 $isEdit = isset($item) && !empty($item['id']);
 $title = $isEdit ? 'Editar Nota Fiscal de Compra' : 'Nova Nota Fiscal de Compra';
-$action = $isEdit ? '?route=purchase_invoice/update' : '?route=purchase_invoice/store';
+$action = $isEdit ? '?route=purchaseInvoice/update' : '?route=purchaseInvoice/store';
 $fornecedorNome = $isEdit ? ($item['fornecedor_nome'] ?? '') : '';
 $telefone = $isEdit ? ($item['telefone'] ?? '') : '';
 $dataEmissao = $isEdit ? ($item['data_emissao'] ?? date('Y-m-d')) : date('Y-m-d');
@@ -111,7 +111,7 @@ $supplierId = $isEdit ? ($item['supplier_id'] ?? '') : '';
                     <button type="submit" class="btn btn-primary rounded-xl font-bold">
                         <i class="fas fa-save mr-2"></i><?php echo $isEdit ? 'Salvar alterações' : 'Cadastrar'; ?>
                     </button>
-                    <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/index" class="btn btn-ghost rounded-xl">Cancelar</a>
+                    <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/index" class="btn btn-ghost rounded-xl">Cancelar</a>
                 </div>
             </form>
         </div>

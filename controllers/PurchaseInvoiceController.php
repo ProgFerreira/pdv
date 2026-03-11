@@ -102,19 +102,19 @@ class PurchaseInvoiceController
     public function store(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/index');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/index');
             exit;
         }
         $data = $this->parsePostData(false);
         if (empty($data['fornecedor_nome'])) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/create&error=fornecedor');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/create&error=fornecedor');
             exit;
         }
         try {
             $id = $this->model->create($data);
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/show&id=' . $id . '&success=created');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/show&id=' . $id . '&success=created');
         } catch (\Throwable $e) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/create&error=1');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/create&error=1');
         }
         exit;
     }
@@ -124,7 +124,7 @@ class PurchaseInvoiceController
         $id = (int) ($_GET['id'] ?? 0);
         $item = $this->model->getById($id);
         if (!$item) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/index');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/index');
             exit;
         }
         require 'views/purchase_invoice/show.php';
@@ -135,7 +135,7 @@ class PurchaseInvoiceController
         $id = (int) ($_GET['id'] ?? 0);
         $item = $this->model->getById($id);
         if (!$item) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/index');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/index');
             exit;
         }
         $suppliers = (new Supplier())->getAll();
@@ -146,20 +146,20 @@ class PurchaseInvoiceController
     public function update(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/index');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/index');
             exit;
         }
         $id = (int) ($_POST['id'] ?? 0);
         $item = $this->model->getById($id);
         if (!$item) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/index');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/index');
             exit;
         }
         $data = $this->parsePostData(true);
         $data['data_emissao'] = $_POST['data_emissao'] ?? $item['data_emissao'];
         $data['fornecedor_nome'] = trim($_POST['fornecedor_nome'] ?? '') ?: $item['fornecedor_nome'];
         if (empty($data['fornecedor_nome'])) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/edit&id=' . $id . '&error=fornecedor');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/edit&id=' . $id . '&error=fornecedor');
             exit;
         }
         $upload = $this->handleUpload('arquivo');
@@ -169,9 +169,9 @@ class PurchaseInvoiceController
         }
         try {
             $this->model->update($id, $data);
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/show&id=' . $id . '&success=updated');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/show&id=' . $id . '&success=updated');
         } catch (\Throwable $e) {
-            header('Location: ' . BASE_URL . '?route=purchase_invoice/edit&id=' . $id . '&error=1');
+            header('Location: ' . BASE_URL . '?route=purchaseInvoice/edit&id=' . $id . '&error=1');
         }
         exit;
     }
@@ -180,7 +180,7 @@ class PurchaseInvoiceController
     {
         $id = (int) ($_GET['id'] ?? 0);
         $this->model->delete($id);
-        header('Location: ' . BASE_URL . '?route=purchase_invoice/index&success=deleted');
+        header('Location: ' . BASE_URL . '?route=purchaseInvoice/index&success=deleted');
         exit;
     }
 

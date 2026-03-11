@@ -18,9 +18,9 @@ $statusClass = ['PENDENTE' => 'badge-warning', 'PAGO' => 'badge-success', 'CANCE
             <p class="text-sm text-gray-500"><?php echo e($fornecedor); ?> — <?php echo date('d/m/Y', strtotime($item['data_emissao'])); ?></p>
         </div>
         <div class="flex gap-2">
-            <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/edit&id=<?php echo (int) $item['id']; ?>"
+            <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/edit&id=<?php echo (int) $item['id']; ?>"
                 class="btn btn-primary rounded-xl font-bold"><i class="fas fa-edit mr-2"></i>Editar</a>
-            <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/index" class="btn btn-ghost rounded-xl">Voltar</a>
+            <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/index" class="btn btn-ghost rounded-xl">Voltar</a>
         </div>
     </div>
 
@@ -73,7 +73,7 @@ $statusClass = ['PENDENTE' => 'badge-warning', 'PAGO' => 'badge-success', 'CANCE
             <div class="card-standard-header"><i class="fas fa-file"></i> Comprovante / Anexo</div>
             <div class="card-standard-body">
                 <p class="text-sm text-gray-600 mb-3"><?php echo e($item['arquivo_nome_original'] ?? basename($item['arquivo_path'])); ?></p>
-                <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/download&id=<?php echo (int) $item['id']; ?>"
+                <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/download&id=<?php echo (int) $item['id']; ?>"
                     target="_blank" class="btn btn-primary rounded-xl">
                     <i class="fas fa-external-link-alt mr-2"></i>Abrir arquivo
                 </a>

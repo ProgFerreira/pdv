@@ -26,7 +26,7 @@
             <h1 class="text-2xl font-black text-gray-800">Notas Fiscais de Compras</h1>
             <p class="text-sm text-gray-400">Armazene e consulte NFs de compras: fornecedor, data, valor, status e comprovante (imagem/PDF).</p>
         </div>
-        <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/create"
+        <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/create"
             class="inline-flex items-center gap-2 btn btn-primary rounded-xl shadow-md font-bold">
             <i class="fas fa-plus"></i> Nova Nota Fiscal
         </a>
@@ -37,7 +37,7 @@
         <div class="card-standard-header"><i class="fas fa-filter"></i> Filtros</div>
         <div class="card-standard-body">
             <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end" method="get">
-                <input type="hidden" name="route" value="purchase_invoice/index">
+                <input type="hidden" name="route" value="purchaseInvoice/index">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select name="status" class="w-full border border-gray-300 p-2 rounded-lg bg-white text-sm">
@@ -127,14 +127,14 @@
                                 <td class="text-right">
                                     <div class="flex justify-end gap-1">
                                         <?php if (!empty($row['arquivo_path'])): ?>
-                                            <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/download&id=<?php echo (int) $row['id']; ?>"
+                                            <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/download&id=<?php echo (int) $row['id']; ?>"
                                                 target="_blank" class="btn btn-ghost btn-xs" title="Ver arquivo"><i class="fas fa-file-pdf"></i></a>
                                         <?php endif; ?>
-                                        <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/show&id=<?php echo (int) $row['id']; ?>"
+                                        <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/show&id=<?php echo (int) $row['id']; ?>"
                                             class="btn btn-ghost btn-xs" title="Ver"><i class="fas fa-eye"></i></a>
-                                        <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/edit&id=<?php echo (int) $row['id']; ?>"
+                                        <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/edit&id=<?php echo (int) $row['id']; ?>"
                                             class="btn btn-ghost btn-xs" title="Editar"><i class="fas fa-edit"></i></a>
-                                        <a href="<?php echo BASE_URL; ?>?route=purchase_invoice/delete&id=<?php echo (int) $row['id']; ?>"
+                                        <a href="<?php echo BASE_URL; ?>?route=purchaseInvoice/delete&id=<?php echo (int) $row['id']; ?>"
                                             onclick="return confirm('Excluir esta nota fiscal?');"
                                             class="btn btn-ghost btn-xs text-red-500" title="Excluir"><i class="fas fa-trash"></i></a>
                                     </div>
