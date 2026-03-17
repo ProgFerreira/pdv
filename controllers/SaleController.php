@@ -245,6 +245,39 @@ class SaleController
     }
 
     /**
+     * Exclui permanentemente a venda e seus itens (se não estiver cancelada, cancela antes).
+     */
+    public function delete()
+    {
+        if (!hasPermission('sale_cancel')) {
+            header('Location: ' . BASE_URL . '?route=dashboard/index&error=unauthorized');
+            exit;
+        }
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $saleModel = new Sale();
+        $sale = $saleModel->getById($id);
+
+        if (!$sale) {
+            header('Location: ' . BASE_URL . '?route=sale/index');
+            exit;
+        }
+
+        if ($saleModel->delete($id, (int) $_SESSION['user_id'])) {
+            $audit = new AuditLog();
+            $audit->log('sale_delete', 'sale', $id, [
+                'total' => $sale['total'],
+                'payment_method' => $sale['payment_method'] ?? '',
+            ]);
+            header('Location: ' . BASE_URL . '?route=sale/index&success=deleted');
+            exit;
+        }
+
+        header('Location: ' . BASE_URL . '?route=sale/index&error=delete_failed');
+        exit;
+    }
+
+    /**
      * Exporta a listagem de vendas (com os filtros atuais) para CSV/Excel.
      * UTF-8 com BOM para o Excel abrir corretamente com acentos.
      */

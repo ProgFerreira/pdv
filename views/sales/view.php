@@ -10,10 +10,19 @@ $isCancelled = isset($sale['status']) && $sale['status'] === 'cancelled';
                 <span class="px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-700">Cancelada</span>
             <?php endif; ?>
         </div>
-        <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/index"
-            class="inline-flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded shadow transition-colors">
-            <i class="fas fa-arrow-left"></i>Voltar
-        </a>
+        <div class="flex items-center gap-2">
+            <?php if (hasPermission('sale_cancel')): ?>
+                <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/delete&id=<?php echo (int) $sale['id']; ?>"
+                    onclick="return confirm('Excluir esta venda permanentemente? <?php echo $isCancelled ? 'O registro e os itens serão removidos.' : 'Se ainda não estiver cancelada, será cancelada (estorno) e em seguida removida.'; ?> Esta ação não pode ser desfeita.');"
+                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow transition-colors">
+                    <i class="fas fa-trash-alt"></i>Excluir venda
+                </a>
+            <?php endif; ?>
+            <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/index"
+                class="inline-flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded shadow transition-colors">
+                <i class="fas fa-arrow-left"></i>Voltar
+            </a>
+        </div>
     </div>
 </div>
 

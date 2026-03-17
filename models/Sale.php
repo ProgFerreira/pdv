@@ -501,6 +501,44 @@ class Sale
     }
 
     /**
+     * Exclui permanentemente uma venda e seus itens.
+     * Se a venda não estiver cancelada, cancela antes (estorno de estoque, fiado, vale etc.).
+     * Em seguida desvincula contas_receber, customer_orders, gift_cards e gift_card_logs e remove sale_items e sales.
+     */
+    public function delete(int $saleId, int $userId): bool
+    {
+        $sale = $this->getById($saleId);
+        if (!$sale) {
+            return false;
+        }
+
+        if (!isset($sale['status']) || $sale['status'] !== 'cancelled') {
+            if (!$this->cancel($saleId, $userId)) {
+                return false;
+            }
+        }
+
+        try {
+            $this->pdo->beginTransaction();
+
+            $this->pdo->prepare("UPDATE contas_receber SET pdv_venda_id = NULL WHERE pdv_venda_id = ?")->execute([$saleId]);
+            $this->pdo->prepare("UPDATE customer_orders SET sale_id = NULL WHERE sale_id = ?")->execute([$saleId]);
+            $this->pdo->prepare("UPDATE gift_cards SET sale_id = NULL WHERE sale_id = ?")->execute([$saleId]);
+            $this->pdo->prepare("DELETE FROM gift_card_logs WHERE sale_id = ?")->execute([$saleId]);
+            $this->pdo->prepare("DELETE FROM sale_items WHERE sale_id = ?")->execute([$saleId]);
+            $this->pdo->prepare("DELETE FROM sales WHERE id = ?")->execute([$saleId]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return false;
+        }
+    }
+
+    /**
      * Marca que a mensagem de agradecimento/resumo foi enviada por WhatsApp.
      */
     public function markWhatsappSent(int $saleId): bool

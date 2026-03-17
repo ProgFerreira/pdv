@@ -21,6 +21,7 @@ return [
     'sale/queue' => 'sale_view',
     'sale/open' => 'sale_view',
     'sale/cancel' => 'sale_cancel',
+    'sale/delete' => 'sale_cancel',
     'sale/markWhatsappSent' => 'sale_view',
     'sale/markDelivered' => 'sale_view',
     'sale/unmarkDelivered' => 'sale_view',

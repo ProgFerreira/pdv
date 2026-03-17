@@ -85,6 +85,18 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
         <span>Venda cancelada com sucesso. Estoque foi estornado, valores de caixa/fiado ajustados e a quantidade de vendas atualizada. A venda aparece na lista como cancelada. Ação registrada em log.</span>
     </div>
 <?php endif; ?>
+<?php if (isset($_GET['success']) && $_GET['success'] === 'deleted'): ?>
+    <div class="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 flex items-center gap-3">
+        <i class="fas fa-check-circle"></i>
+        <span>Venda excluída permanentemente. Itens da venda e registro foram removidos. Ação registrada em log.</span>
+    </div>
+<?php endif; ?>
+<?php if (isset($_GET['error']) && $_GET['error'] === 'delete_failed'): ?>
+    <div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 flex items-center gap-3">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Não foi possível excluir a venda. Tente novamente.</span>
+    </div>
+<?php endif; ?>
 <?php if (isset($_GET['success']) && $_GET['success'] === 'delivered'): ?>
     <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
         <i class="fas fa-truck"></i>
@@ -365,7 +377,21 @@ $marginPct = $revenue > 0 ? ((float)($totals['profit'] ?? 0) / $revenue) * 100 :
                                             title="Cancelar venda">
                                             <i class="fas fa-times-circle"></i>
                                         </a>
+                                        <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/delete&id=<?php echo (int) $s['id']; ?>"
+                                            onclick="return confirm('Excluir esta venda permanentemente? Se ainda não estiver cancelada, será cancelada (estorno de estoque e valores) e em seguida o registro e os itens serão removidos. Esta ação não pode ser desfeita.');"
+                                            class="text-red-800 hover:text-white bg-red-100 hover:bg-red-600 p-2 rounded hover:bg-red-600 transition-colors border border-red-300"
+                                            title="Excluir venda">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
                                     <?php endif; ?>
+                                <?php endif; ?>
+                                <?php if ($saleCancelled && hasPermission('sale_cancel')): ?>
+                                    <a href="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>?route=sale/delete&id=<?php echo (int) $s['id']; ?>"
+                                        onclick="return confirm('Excluir esta venda permanentemente? O registro e os itens serão removidos. Esta ação não pode ser desfeita.');"
+                                        class="text-red-800 hover:text-white bg-red-100 hover:bg-red-600 p-2 rounded transition-colors border border-red-300"
+                                        title="Excluir venda">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
                                 <?php endif; ?>
                             </div>
                         </td>
