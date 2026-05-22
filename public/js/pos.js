@@ -316,17 +316,24 @@ function renderSaleTabs() {
   updateExcluirCaixaButton();
 }
 
+let posAddingSession = false;
+
 function addPosSession() {
+  if (posAddingSession) return;
   if (posSessions.length >= POS_MAX_SESSIONS) {
     alert('Limite de ' + POS_MAX_SESSIONS + ' vendas em aberto.');
     return;
   }
+  posAddingSession = true;
   saveSessionFromUI();
   const num = posSessions.length + 1;
   posSessions.push(createEmptyPosSession(num));
   activeSessionIndex = posSessions.length - 1;
   loadSessionToUI(activeSessionIndex);
   persistPosSessions();
+  setTimeout(function () {
+    posAddingSession = false;
+  }, 400);
 }
 
 function getCartTotals() {
@@ -1122,11 +1129,13 @@ function removeFromCart(index) {
 // Modal Logic (Vanilla JS for Tailwind)
 function setupCartPanelListeners() {
   const btnNovaVenda = document.getElementById('pos-btn-nova-venda');
-  if (btnNovaVenda) {
+  if (btnNovaVenda && !btnNovaVenda.dataset.bound) {
+    btnNovaVenda.dataset.bound = '1';
     btnNovaVenda.addEventListener('click', addPosSession);
   }
   const btnExcluir = document.getElementById('pos-btn-excluir-caixa');
-  if (btnExcluir) {
+  if (btnExcluir && !btnExcluir.dataset.bound) {
+    btnExcluir.dataset.bound = '1';
     btnExcluir.addEventListener('click', function () {
       removePosSession(activeSessionIndex);
     });

@@ -162,7 +162,7 @@ require 'views/layouts/header.php';
             <div id="pos-sale-tabs" class="pos-sale-tabs" role="tablist" aria-label="Vendas em andamento">
                 <button type="button" class="pos-sale-tab pos-sale-tab--active" data-session-index="0" role="tab" aria-selected="true">Caixa 1</button>
             </div>
-            <button type="button" id="pos-btn-nova-venda" class="pos-sale-tab pos-sale-tab-new flex-shrink-0" title="Abrir outra venda em paralelo (Caixa 2, 3…)" onclick="typeof addPosSession==='function'&&addPosSession()">
+            <button type="button" id="pos-btn-nova-venda" class="pos-sale-tab pos-sale-tab-new flex-shrink-0" title="Abrir outra venda em paralelo (Caixa 2, 3…)">
                 + Novo
             </button>
         </div>
