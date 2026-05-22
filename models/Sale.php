@@ -12,7 +12,7 @@ class Sale
         $this->pdo = $pdo;
     }
 
-    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null, $deliveryAddress = null, $isPickup = false, $observation = null)
+    public function create($userId, $cart, $paymentMethod, $amountPaid, $change, $customerId = null, $cashRegisterId = null, $discountAmount = 0, $giftCardId = null, $deliveryAddress = null, $isPickup = false, $observation = null, $surchargeAmount = 0, $taxAmount = 0)
     {
         $sectorId = $_SESSION['sector_id'] ?? 1;
 
@@ -37,10 +37,12 @@ class Sale
                 $subtotal += $item['price'] * $item['quantity'];
             }
 
-            // Apply Discount
-            $total = $subtotal - $discountAmount;
-            if ($total < 0)
+            $surchargeAmount = max(0, (float) $surchargeAmount);
+            $taxAmount = max(0, (float) $taxAmount);
+            $total = $subtotal - $discountAmount + $surchargeAmount + $taxAmount;
+            if ($total < 0) {
                 $total = 0;
+            }
 
             // 2. Insert Sale (delivery_address e is_pickup: se colunas não existirem, faz fallback)
             $baseParams = [

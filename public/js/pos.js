@@ -1,6 +1,7 @@
 let cart = [];
 let searchTimeout;
 let customerTimeout;
+let cartCustomerTimeout;
 /** Lista da última busca (para painel de detalhe) */
 let posLastList = [];
 /** Produto atualmente selecionado no painel */
@@ -11,6 +12,239 @@ let posSelectedCustomer = null;
 let posDeliveryAddress = '';
 /** Cliente retira no local (não precisa de endereço) */
 let posIsPickup = false;
+
+/** Vendas paralelas no PDV (abas Caixa 1, Caixa 2, …) */
+let posSessions = [];
+let activeSessionIndex = 0;
+const POS_SESSIONS_STORAGE_KEY = 'pdv_pos_sessions_v1';
+const POS_MAX_SESSIONS = 12;
+const POS_TAX_PERCENT = 10;
+
+function createEmptyPosSession(labelNum) {
+  return {
+    id: 's' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    label: 'Caixa ' + labelNum,
+    cart: [],
+    customerId: null,
+    customerName: '',
+    customerPhone: '',
+    selectedCustomer: null,
+    deliveryAddress: '',
+    isPickup: false,
+    discount: 0,
+    surcharge: 0,
+    taxEnabled: true,
+    channel: 'balcao',
+    observation: '',
+  };
+}
+
+function getActiveSession() {
+  return posSessions[activeSessionIndex] || posSessions[0];
+}
+
+function saveSessionFromUI() {
+  const s = getActiveSession();
+  if (!s) return;
+  s.cart = cart.slice();
+  const nameEl = document.getElementById('pos-cart-customer-name');
+  const phoneEl = document.getElementById('pos-cart-customer-phone');
+  const idEl = document.getElementById('selected-customer-id');
+  const channelEl = document.getElementById('pos-sale-channel');
+  const obsEl = document.getElementById('order-observation');
+  const discEl = document.getElementById('cart-discount');
+  const surEl = document.getElementById('cart-surcharge');
+  const taxEl = document.getElementById('cart-tax-enabled');
+  s.customerName = nameEl ? nameEl.value.trim() : '';
+  s.customerPhone = phoneEl ? phoneEl.value.trim() : '';
+  s.customerId = idEl && idEl.value ? parseInt(idEl.value, 10) : null;
+  s.selectedCustomer = posSelectedCustomer;
+  s.deliveryAddress = posDeliveryAddress;
+  s.isPickup = posIsPickup;
+  s.channel = channelEl ? channelEl.value : 'balcao';
+  s.observation = obsEl ? obsEl.value.trim() : '';
+  s.discount = discEl ? parseFloat(discEl.value) || 0 : 0;
+  s.surcharge = surEl ? parseFloat(surEl.value) || 0 : 0;
+  s.taxEnabled = taxEl ? taxEl.checked : false;
+}
+
+function loadSessionToUI(index) {
+  const s = posSessions[index];
+  if (!s) return;
+  cart = s.cart.slice();
+  posSelectedCustomer = s.selectedCustomer || null;
+  posDeliveryAddress = s.deliveryAddress || '';
+  posIsPickup = !!s.isPickup;
+  const nameEl = document.getElementById('pos-cart-customer-name');
+  const phoneEl = document.getElementById('pos-cart-customer-phone');
+  const idEl = document.getElementById('selected-customer-id');
+  const channelEl = document.getElementById('pos-sale-channel');
+  const obsEl = document.getElementById('order-observation');
+  const discEl = document.getElementById('cart-discount');
+  const surEl = document.getElementById('cart-surcharge');
+  const taxEl = document.getElementById('cart-tax-enabled');
+  const topSearch = document.getElementById('customer-search');
+  if (nameEl) nameEl.value = s.customerName || '';
+  if (phoneEl) phoneEl.value = s.customerPhone || '';
+  if (idEl) idEl.value = s.customerId ? String(s.customerId) : '';
+  if (topSearch) topSearch.value = s.customerName || '';
+  if (channelEl) channelEl.value = s.channel || 'balcao';
+  if (obsEl) obsEl.value = s.observation || '';
+  if (discEl) discEl.value = (s.discount || 0).toFixed(2);
+  if (surEl) surEl.value = (s.surcharge || 0).toFixed(2);
+  if (taxEl) taxEl.checked = s.taxEnabled !== false;
+  const retiradaChk = document.getElementById('customer-retirada');
+  if (retiradaChk) retiradaChk.checked = posIsPickup;
+  if (channelEl) {
+    posIsPickup = channelEl.value === 'retirada';
+    if (retiradaChk) retiradaChk.checked = posIsPickup;
+  }
+  refreshCustomerAddressUI();
+  renderSaleTabs();
+  renderCart();
+}
+
+function persistPosSessions() {
+  try {
+    const payload = {
+      activeIndex: activeSessionIndex,
+      sessions: posSessions.map(function (s) {
+        return {
+          id: s.id,
+          label: s.label,
+          cart: s.cart,
+          customerId: s.customerId,
+          customerName: s.customerName,
+          customerPhone: s.customerPhone,
+          deliveryAddress: s.deliveryAddress,
+          isPickup: s.isPickup,
+          discount: s.discount,
+          surcharge: s.surcharge,
+          taxEnabled: s.taxEnabled,
+          channel: s.channel,
+          observation: s.observation,
+        };
+      }),
+    };
+    sessionStorage.setItem(POS_SESSIONS_STORAGE_KEY, JSON.stringify(payload));
+  } catch (e) { /* ignore */ }
+}
+
+function loadPosSessionsFromStorage() {
+  try {
+    const raw = sessionStorage.getItem(POS_SESSIONS_STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data.sessions || !data.sessions.length) return false;
+    posSessions = data.sessions.map(function (s, i) {
+      const sess = createEmptyPosSession(i + 1);
+      sess.id = s.id || sess.id;
+      sess.label = s.label || sess.label;
+      sess.cart = Array.isArray(s.cart) ? s.cart : [];
+      sess.customerId = s.customerId || null;
+      sess.customerName = s.customerName || '';
+      sess.customerPhone = s.customerPhone || '';
+      sess.deliveryAddress = s.deliveryAddress || '';
+      sess.isPickup = !!s.isPickup;
+      sess.discount = parseFloat(s.discount) || 0;
+      sess.surcharge = parseFloat(s.surcharge) || 0;
+      sess.taxEnabled = s.taxEnabled !== false;
+      sess.channel = s.channel || 'balcao';
+      sess.observation = s.observation || '';
+      return sess;
+    });
+    activeSessionIndex = Math.min(
+      Math.max(0, parseInt(data.activeIndex, 10) || 0),
+      posSessions.length - 1,
+    );
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function initPosSessions() {
+  if (!loadPosSessionsFromStorage()) {
+    posSessions = [createEmptyPosSession(1)];
+    activeSessionIndex = 0;
+  }
+  loadSessionToUI(activeSessionIndex);
+}
+
+function renderSaleTabs() {
+  const wrap = document.getElementById('pos-sale-tabs');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  posSessions.forEach(function (s, i) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className =
+      'pos-sale-tab' + (i === activeSessionIndex ? ' pos-sale-tab--active' : '');
+    btn.textContent = s.label;
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', i === activeSessionIndex ? 'true' : 'false');
+    btn.addEventListener('click', function () {
+      if (i === activeSessionIndex) return;
+      saveSessionFromUI();
+      activeSessionIndex = i;
+      loadSessionToUI(i);
+      persistPosSessions();
+    });
+    wrap.appendChild(btn);
+  });
+  if (posSessions.length < POS_MAX_SESSIONS) {
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'pos-sale-tab pos-sale-tab-new';
+    addBtn.textContent = '+ Novo';
+    addBtn.setAttribute('aria-label', 'Nova venda');
+    addBtn.addEventListener('click', addPosSession);
+    wrap.appendChild(addBtn);
+  }
+  const titleSpan = document.querySelector('#pos-sale-title span');
+  if (titleSpan && getActiveSession()) {
+    titleSpan.textContent = getActiveSession().label;
+  }
+}
+
+function addPosSession() {
+  if (posSessions.length >= POS_MAX_SESSIONS) {
+    alert('Limite de ' + POS_MAX_SESSIONS + ' vendas em aberto.');
+    return;
+  }
+  saveSessionFromUI();
+  const num = posSessions.length + 1;
+  posSessions.push(createEmptyPosSession(num));
+  activeSessionIndex = posSessions.length - 1;
+  loadSessionToUI(activeSessionIndex);
+  persistPosSessions();
+}
+
+function getCartTotals() {
+  let subtotal = 0;
+  let totalProfit = 0;
+  let count = 0;
+  cart.forEach(function (item) {
+    const line = item.price * item.quantity;
+    subtotal += line;
+    count += item.quantity;
+    const cost = parseFloat(item.cost) || 0;
+    totalProfit += (item.price - cost) * item.quantity;
+  });
+  const discEl = document.getElementById('cart-discount');
+  const surEl = document.getElementById('cart-surcharge');
+  const taxChk = document.getElementById('cart-tax-enabled');
+  const discount = window.POS_CAN_DISCOUNT && discEl
+    ? parseFloat(discEl.value) || 0
+    : 0;
+  const surcharge = surEl ? parseFloat(surEl.value) || 0 : 0;
+  const taxEnabled = taxChk ? taxChk.checked : false;
+  const baseForTax = Math.max(0, subtotal - discount + surcharge);
+  const taxAmount = taxEnabled ? baseForTax * (POS_TAX_PERCENT / 100) : 0;
+  let total = baseForTax + taxAmount;
+  if (total < 0) total = 0;
+  return { subtotal, discount, surcharge, taxAmount, total, totalProfit, count, taxEnabled };
+}
 
 function posUrl(route) {
   var base = window.POS_BASE_URL || "";
@@ -26,9 +260,11 @@ function escapeHtml(s) {
 
 // Load all products on init
 document.addEventListener("DOMContentLoaded", () => {
+  initPosSessions();
   searchProducts("");
   document.getElementById("product-search").focus();
   checkCashStatus();
+  setupCartPanelListeners();
 
   // Botão "Adicionar" do painel de produto selecionado
   const addBtn = document.getElementById("product-detail-add-btn");
@@ -130,13 +366,27 @@ function refreshCustomerAddressUI() {
 function selectCustomer(c) {
   const id = typeof c === "object" ? c.id : c;
   const name = typeof c === "object" ? c.name : (arguments[1] || "");
-  document.getElementById("selected-customer-id").value = id;
-  document.getElementById("customer-search").value = name;
-  document.getElementById("customer-search").classList.add("is-valid");
-  document.getElementById("customer-list").style.display = "none";
+  const phone = typeof c === "object" ? (c.phone || "") : "";
+  const idEl = document.getElementById("selected-customer-id");
+  if (idEl) idEl.value = id;
+  const topSearch = document.getElementById("customer-search");
+  const cartName = document.getElementById("pos-cart-customer-name");
+  const cartPhone = document.getElementById("pos-cart-customer-phone");
+  if (topSearch) {
+    topSearch.value = name;
+    topSearch.classList.add("is-valid");
+  }
+  if (cartName) cartName.value = name;
+  if (cartPhone) cartPhone.value = phone;
+  const list = document.getElementById("customer-list");
+  const cartList = document.getElementById("pos-cart-customer-list");
+  if (list) list.style.display = "none";
+  if (cartList) cartList.classList.add("hidden");
   posSelectedCustomer = typeof c === "object" ? c : null;
   posDeliveryAddress = posSelectedCustomer ? buildDeliveryLine(posSelectedCustomer) : "";
   refreshCustomerAddressUI();
+  saveSessionFromUI();
+  persistPosSessions();
 }
 
 // Endereço de entrega: abrir modal para informar/editar
@@ -367,7 +617,6 @@ function saveNewCustomer() {
     .then(function (res) {
       if (res.success && res.customer) {
         selectCustomer(res.customer);
-        document.getElementById("customer-search").value = res.customer.name;
         closeNewCustomerModal();
       } else {
         alert(res.message || "Erro ao cadastrar cliente.");
@@ -684,51 +933,62 @@ function addToCart(id, name, price, stock, isGiftCard = 0, cost = 0, qtyOverride
 
 function renderCart() {
   const tbody = document.getElementById("cart-table-body");
+  const emptyEl = document.getElementById("pos-cart-empty");
+  const tableEl = document.getElementById("pos-cart-table");
+  const countEl = document.getElementById("cart-count");
+  if (!tbody) return;
   tbody.innerHTML = "";
-  let total = 0;
-  let totalProfit = 0;
-  let count = 0;
 
   cart.forEach((item, index) => {
     const subtotal = item.price * item.quantity;
-    const cost = parseFloat(item.cost) || 0;
-    const profit = (item.price - cost) * item.quantity;
-    total += subtotal;
-    totalProfit += profit;
-    count += item.quantity;
-
-    const profitClass = profit >= 0 ? "text-green-600" : "text-red-600";
-    const profitText = "R$ " + profit.toFixed(2).replace(".", ",");
-
     tbody.innerHTML += `
         <tr class="hover:bg-gray-50">
-            <td class="px-3 py-2 text-truncate max-w-[150px] truncate" title="${item.name}">${item.name}</td>
-            <td class="px-3 py-2 whitespace-nowrap">
-                <div class="flex items-center justify-center border rounded-md">
-                    <button class="px-2 py-1 hover:bg-gray-100" onclick="updateQty(${index}, -1)">-</button>
-                    <span class="px-2 font-medium">${item.quantity}</span>
-                    <button class="px-2 py-1 hover:bg-gray-100" onclick="updateQty(${index}, 1)">+</button>
+            <td class="px-2 py-1.5 truncate max-w-[120px]" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</td>
+            <td class="px-1 py-1.5 whitespace-nowrap">
+                <div class="flex items-center justify-center border rounded-md text-[10px]">
+                    <button type="button" class="px-1.5 py-0.5 hover:bg-gray-100" onclick="updateQty(${index}, -1)">-</button>
+                    <span class="px-1 font-medium">${item.quantity}</span>
+                    <button type="button" class="px-1.5 py-0.5 hover:bg-gray-100" onclick="updateQty(${index}, 1)">+</button>
                 </div>
             </td>
-            <td class="px-3 py-2 text-right font-medium text-gray-700">R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
-            <td class="px-3 py-2 text-right font-medium ${profitClass}">${profitText}</td>
-            <td class="px-3 py-2 text-right">
-                <button class="text-red-400 hover:text-red-600 transition-colors" onclick="removeFromCart(${index})">
+            <td class="px-2 py-1.5 text-right font-medium text-gray-700">R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
+            <td class="px-1 py-1.5 text-right">
+                <button type="button" class="text-red-400 hover:text-red-600" onclick="removeFromCart(${index})" aria-label="Remover">
                     <i class="fas fa-times"></i>
                 </button>
             </td>
         </tr>`;
   });
 
-  document.getElementById("cart-total").innerText = total
-    .toFixed(2)
-    .replace(".", ",");
+  const totals = getCartTotals();
+  const fmt = (n) => "R$ " + n.toFixed(2).replace(".", ",");
+  const subEl = document.getElementById("cart-subtotal");
+  const taxAmtEl = document.getElementById("cart-tax-amount");
+  const totalEl = document.getElementById("cart-total");
   const profitEl = document.getElementById("cart-profit");
-  if (profitEl) {
-    profitEl.textContent = "R$ " + totalProfit.toFixed(2).replace(".", ",");
-    profitEl.className = "text-sm font-semibold " + (totalProfit >= 0 ? "text-green-600" : "text-red-600");
+  if (subEl) subEl.textContent = fmt(totals.subtotal);
+  if (taxAmtEl) taxAmtEl.textContent = fmt(totals.taxAmount);
+  if (totalEl) totalEl.innerText = totals.total.toFixed(2).replace(".", ",");
+  if (profitEl) profitEl.textContent = fmt(totals.totalProfit);
+  if (countEl) {
+    if (totals.count > 0) {
+      countEl.classList.remove("hidden");
+      countEl.innerText = totals.count + " itens";
+    } else {
+      countEl.classList.add("hidden");
+    }
   }
-  document.getElementById("cart-count").innerText = count + " itens";
+  if (emptyEl && tableEl) {
+    if (cart.length === 0) {
+      emptyEl.classList.remove("hidden");
+      tableEl.classList.add("hidden");
+    } else {
+      emptyEl.classList.add("hidden");
+      tableEl.classList.remove("hidden");
+    }
+  }
+  saveSessionFromUI();
+  persistPosSessions();
 }
 
 function updateQty(index, change) {
@@ -750,18 +1010,104 @@ function removeFromCart(index) {
 }
 
 // Modal Logic (Vanilla JS for Tailwind)
+function setupCartPanelListeners() {
+  const disc = document.getElementById("cart-discount");
+  const sur = document.getElementById("cart-surcharge");
+  const tax = document.getElementById("cart-tax-enabled");
+  const channel = document.getElementById("pos-sale-channel");
+  const cartName = document.getElementById("pos-cart-customer-name");
+  const obs = document.getElementById("order-observation");
+  [disc, sur, tax, obs].forEach(function (el) {
+    if (el) {
+      el.addEventListener("input", renderCart);
+      el.addEventListener("change", renderCart);
+    }
+  });
+  if (channel) {
+    channel.addEventListener("change", function () {
+      posIsPickup = channel.value === "retirada";
+      const retiradaChk = document.getElementById("customer-retirada");
+      if (retiradaChk) retiradaChk.checked = posIsPickup;
+      refreshCustomerAddressUI();
+      saveSessionFromUI();
+      persistPosSessions();
+    });
+  }
+  if (cartName) {
+    cartName.addEventListener("input", function () {
+      const top = document.getElementById("customer-search");
+      if (top) top.value = this.value;
+      bindCartCustomerSearch(this);
+    });
+  }
+  const btnCartNovo = document.getElementById("btn-novo-cliente-cart");
+  if (btnCartNovo) {
+    btnCartNovo.addEventListener("click", function () {
+      openNewCustomerModal(
+        (document.getElementById("pos-cart-customer-name") || {}).value || "",
+      );
+    });
+  }
+}
+
+function bindCartCustomerSearch(inputEl) {
+  const term = inputEl.value;
+  const list = document.getElementById("pos-cart-customer-list");
+  if (!list) return;
+  if (term.length < 2) {
+    list.classList.add("hidden");
+    return;
+  }
+  clearTimeout(cartCustomerTimeout);
+  cartCustomerTimeout = setTimeout(function () {
+    fetch(posUrl("customer/search") + "&term=" + encodeURIComponent(term))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        list.innerHTML = "";
+        list.classList.remove("hidden");
+        if (data.length > 0) {
+          data.forEach(function (c) {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className =
+              "block w-full text-left px-3 py-2 hover:bg-gray-100 border-b border-gray-100 last:border-0";
+            item.innerHTML =
+              "<strong>" +
+              escapeHtml(c.name) +
+              "</strong> <small class=\"text-gray-500\">| " +
+              escapeHtml(c.phone || "") +
+              "</small>";
+            item.onclick = function () { selectCustomer(c); };
+            list.appendChild(item);
+          });
+        } else {
+          const addItem = document.createElement("button");
+          addItem.type = "button";
+          addItem.className =
+            "block w-full text-left px-3 py-2 hover:bg-emerald-50 text-emerald-700 font-medium";
+          addItem.innerHTML =
+            "<i class=\"fas fa-plus-circle mr-2\"></i> Cadastrar novo cliente";
+          addItem.onclick = function () { openNewCustomerModal(term); };
+          list.appendChild(addItem);
+        }
+      });
+  }, 300);
+}
+
 function openPaymentModal() {
   if (cart.length === 0) {
     alert("Carrinho vazio!");
     return;
   }
-  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totals = getCartTotals();
+  const total = totals.total;
   document.getElementById("modal-total").value =
     "R$ " + total.toFixed(2).replace(".", ",");
-  // Store original total in dataset for easier recalc
   document.getElementById("modal-total").dataset.original = total;
+  document.getElementById("modal-total").dataset.subtotal = totals.subtotal;
 
-  document.getElementById("discount-value").value = "";
+  const modalDisc = document.getElementById("discount-value");
+  if (modalDisc) modalDisc.value = totals.discount > 0 ? totals.discount.toFixed(2) : "";
   document.getElementById("amount-paid").value = total.toFixed(2);
   document.getElementById("change-value").value = "R$ 0,00";
 
@@ -778,18 +1124,17 @@ function openPaymentModal() {
 }
 
 function updateTotalWithDiscount() {
-  const originalTotal =
-    parseFloat(document.getElementById("modal-total").dataset.original) || 0;
-  const discount =
-    parseFloat(document.getElementById("discount-value").value) || 0;
-
-  let newTotal = originalTotal - discount;
-  if (newTotal < 0) newTotal = 0;
-
+  const discInput = document.getElementById("discount-value");
+  const cartDisc = document.getElementById("cart-discount");
+  if (cartDisc && discInput) {
+    cartDisc.value = (parseFloat(discInput.value) || 0).toFixed(2);
+  }
+  const totals = getCartTotals();
+  const newTotal = totals.total;
   document.getElementById("modal-total").value =
     "R$ " + newTotal.toFixed(2).replace(".", ",");
+  document.getElementById("modal-total").dataset.original = newTotal;
 
-  // Auto update paid amount to match new total
   const method = document.getElementById("payment-method").value;
   if (method !== "A Prazo") {
     document.getElementById("amount-paid").value = newTotal.toFixed(2);
@@ -826,12 +1171,7 @@ function toggleChangeField() {
   document.getElementById("gift-card-row").style.display =
     method === "Vale Presente" ? "block" : "none";
 
-  const originalTotal =
-    parseFloat(document.getElementById("modal-total").dataset.original) || 0;
-  const discount =
-    parseFloat(document.getElementById("discount-value").value) || 0;
-  let total = originalTotal - discount;
-  if (total < 0) total = 0;
+  let total = getCartTotals().total;
 
   if (!isMoney && method !== "A Prazo" && method !== "Vale Presente") {
     document.getElementById("change-row").style.display = "none";
@@ -880,12 +1220,7 @@ function verifyGiftCard() {
 }
 
 function calculateChange() {
-  const originalTotal =
-    parseFloat(document.getElementById("modal-total").dataset.original) || 0;
-  const discount =
-    parseFloat(document.getElementById("discount-value").value) || 0;
-  let total = originalTotal - discount;
-  if (total < 0) total = 0;
+  let total = getCartTotals().total;
 
   const paid = parseFloat(document.getElementById("amount-paid").value) || 0;
   const change = paid - total;
@@ -904,20 +1239,23 @@ function calculateChange() {
 }
 
 function processCheckout() {
-  const originalTotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  saveSessionFromUI();
+  const totals = getCartTotals();
+  const originalTotal = totals.subtotal;
   const discount = window.POS_CAN_DISCOUNT
-    ? parseFloat(document.getElementById("discount-value").value) || 0
+    ? parseFloat(document.getElementById("discount-value").value) ||
+      totals.discount ||
+      0
     : 0;
-  let total = originalTotal - discount;
+  const surcharge = totals.surcharge;
+  const taxAmount = totals.taxAmount;
+  let total = totals.total;
   if (total < 0) total = 0;
 
   const method = document.getElementById("payment-method").value;
   let paid = parseFloat(document.getElementById("amount-paid").value) || 0;
-  const customerId =
-    document.getElementById("selected-customer-id").value || null;
+  const idEl = document.getElementById("selected-customer-id");
+  const customerId = idEl && idEl.value ? idEl.value : null;
 
   if (
     method === "Vale Presente" &&
@@ -956,13 +1294,19 @@ function processCheckout() {
     return;
   }
 
-  const customerNameEl = document.getElementById("customer-search");
-  const customerName = customerNameEl ? customerNameEl.value.trim() : "";
+  const cartNameEl = document.getElementById("pos-cart-customer-name");
+  const cartPhoneEl = document.getElementById("pos-cart-customer-phone");
+  const customerName = cartNameEl
+    ? cartNameEl.value.trim()
+    : (document.getElementById("customer-search") || {}).value.trim();
+  const customerPhone = cartPhoneEl ? cartPhoneEl.value.trim() : "";
 
   const csrfMeta = document.querySelector('meta[name="csrf-token"]');
   const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : "";
   const obsEl = document.getElementById("order-observation");
   const observation = obsEl ? (obsEl.value || "").trim() : "";
+  const channelEl = document.getElementById("pos-sale-channel");
+  const saleChannel = channelEl ? channelEl.value : "balcao";
   const data = {
     cart: cart,
     paymentMethod: method,
@@ -970,9 +1314,13 @@ function processCheckout() {
     change: change,
     customerId: customerId,
     customerName: customerName,
-    isPickup: posIsPickup,
-    deliveryAddress: posIsPickup ? null : (posDeliveryAddress || null),
+    customerPhone: customerPhone || null,
+    isPickup: posIsPickup || saleChannel === "retirada",
+    deliveryAddress: posIsPickup || saleChannel === "retirada" ? null : (posDeliveryAddress || null),
     discount: discount,
+    surcharge: surcharge,
+    taxAmount: taxAmount,
+    saleChannel: saleChannel,
     giftCardId: document.getElementById("gift-card-id").value || null,
     observation: observation || null,
     csrf_token: csrfToken,
@@ -988,7 +1336,21 @@ function processCheckout() {
     .then((r) => r.json())
     .then((res) => {
       if (res.success) {
-        window.location.href = `index.php?route=pos/receipt&id=${res.saleId}`;
+        if (posSessions.length > 1) {
+          posSessions.splice(activeSessionIndex, 1);
+          activeSessionIndex = Math.min(activeSessionIndex, posSessions.length - 1);
+          posSessions.forEach(function (s, i) {
+            s.label = "Caixa " + (i + 1);
+          });
+          loadSessionToUI(activeSessionIndex);
+          persistPosSessions();
+          window.location.href = `index.php?route=pos/receipt&id=${res.saleId}`;
+        } else {
+          posSessions = [createEmptyPosSession(1)];
+          activeSessionIndex = 0;
+          sessionStorage.removeItem(POS_SESSIONS_STORAGE_KEY);
+          window.location.href = `index.php?route=pos/receipt&id=${res.saleId}`;
+        }
       } else {
         alert("Erro: " + res.message);
       }

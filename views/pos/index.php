@@ -58,6 +58,23 @@ require 'views/layouts/header.php';
 /* Abas Produtos / Bebidas / Sobremesas */
 .pos-tabs .pos-tab { outline: none; }
 .pos-tabs .pos-tab:focus-visible { box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); }
+/* Abas de vendas paralelas (Caixa 1, Caixa 2, + Novo) */
+.pos-sale-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 8px 0; align-items: center; }
+.pos-sale-tab { padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--color-gray-200, #e2e8f0); background: #fff; color: var(--color-gray-800, #1e293b); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.pos-sale-tab:hover:not(.pos-sale-tab--active) { background: var(--color-gray-50, #f8fafc); }
+.pos-sale-tab--active { background: var(--color-primary, #4f46e5); color: #fff; border-color: var(--color-primary, #4f46e5); }
+.pos-sale-tab-new { border-style: dashed; border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); background: #fff; }
+.pos-sale-tab-new:hover { background: var(--color-secondary, #eef2ff); }
+.pos-cart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; color: #94a3b8; text-align: center; min-height: 120px; }
+.pos-cart-empty i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
+.pos-cart-summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; margin-bottom: 0.35rem; }
+.pos-cart-summary-row input[type="number"] { width: 5rem; text-align: right; font-size: 0.8125rem; padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; }
+.pos-cart-customer-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem; }
+.pos-cart-field-wrap { position: relative; margin-bottom: 0.5rem; }
+.pos-cart-field-wrap .fa-user, .pos-cart-field-wrap .fa-phone { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.875rem; pointer-events: none; }
+.pos-cart-field-wrap input { width: 100%; padding: 0.5rem 0.5rem 0.5rem 2rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.8125rem; }
+.pos-cart-field-wrap input:focus { outline: none; border-color: var(--color-primary, #4f46e5); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+#pos-cart-customer-list { position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; z-index: 40; }
 </style>
 <!-- PDV: 3 colunas ocupam 90% da tela (90vw x 90vh) -->
 <div class="pos-container grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
@@ -77,8 +94,7 @@ require 'views/layouts/header.php';
             </span>
             <div class="pos-field-wrap border border-gray-200 rounded-md bg-gray-50 focus-within:bg-white focus-within:border-indigo-400 transition-colors flex-1 min-w-0 relative">
                 <i class="fas fa-user text-gray-400" aria-hidden="true"></i>
-                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0 w-full" placeholder="Telefone ou nome do cliente" title="Digite o telefone ou nome para buscar; se não existir, cadastre novo">
-                <input type="hidden" id="selected-customer-id">
+                <input type="text" id="customer-search" class="text-sm border-0 bg-transparent focus:ring-0 w-full" placeholder="Telefone ou nome do cliente" title="Busca rápida (também no painel do carrinho)" autocomplete="off">
                 <div id="customer-list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 hidden max-h-48 overflow-y-auto text-sm"></div>
             </div>
             <button type="button" id="btn-novo-cliente-pdv" class="flex-shrink-0 rounded-md border border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 text-xs font-semibold transition" title="Cadastrar novo cliente">
@@ -130,37 +146,86 @@ require 'views/layouts/header.php';
         </div>
     </div>
 
-    <!-- Coluna 2: Carrinho + Total + Finalizar -->
+    <!-- Coluna 2: Abas de venda + Carrinho + Cliente + Totais -->
     <div class="flex flex-col min-h-0 min-w-0 overflow-hidden bg-white rounded-lg shadow-sm border border-gray-200 pos-col-cart">
-        <div class="p-2 bg-gray-50 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
-            <h5 class="font-bold text-gray-700 text-sm flex items-center gap-1"><i class="fas fa-shopping-cart text-indigo-600"></i> Carrinho</h5>
-            <span id="cart-count" class="bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">0 itens</span>
+        <div id="pos-sale-tabs" class="pos-sale-tabs flex-shrink-0" role="tablist" aria-label="Vendas em andamento"></div>
+        <div class="px-3 py-2 border-b border-gray-100 flex-shrink-0 flex items-center justify-between gap-2">
+            <h5 id="pos-sale-title" class="font-bold text-gray-800 text-base flex items-center gap-2 m-0">
+                <i class="fas fa-shopping-cart text-primary"></i> <span>Caixa 1</span>
+            </h5>
+            <span id="cart-count" class="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded hidden">0 itens</span>
         </div>
-        <div class="pos-cart-table-wrap flex-1 min-h-0 overflow-y-auto">
-            <table class="w-full text-left text-xs">
+        <div class="px-3 pb-2 flex-shrink-0">
+            <select id="pos-sale-channel" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-800 bg-white focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-30" title="Canal da venda">
+                <option value="balcao">Balcão</option>
+                <option value="entrega">Entrega</option>
+                <option value="retirada">Retirada</option>
+            </select>
+        </div>
+        <div class="px-3 pb-2 flex-shrink-0 border-b border-gray-100">
+            <p class="pos-cart-customer-label">Cliente (opcional)</p>
+            <div class="pos-cart-field-wrap">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                <input type="text" id="pos-cart-customer-name" placeholder="Buscar ou digitar nome..." autocomplete="off">
+                <input type="hidden" id="selected-customer-id">
+                <div id="pos-cart-customer-list" class="bg-white border border-gray-200 rounded-lg shadow-xl hidden max-h-40 overflow-y-auto text-sm"></div>
+            </div>
+            <div class="pos-cart-field-wrap mb-0">
+                <i class="fas fa-phone" aria-hidden="true"></i>
+                <input type="text" id="pos-cart-customer-phone" placeholder="Telefone (opcional)" autocomplete="tel">
+            </div>
+            <button type="button" id="btn-novo-cliente-cart" class="mt-1 text-xs text-emerald-600 hover:text-emerald-800 font-semibold">
+                <i class="fas fa-user-plus mr-1"></i> Novo cliente
+            </button>
+        </div>
+        <div class="pos-cart-table-wrap flex-1 min-h-0 overflow-y-auto relative">
+            <div id="pos-cart-empty" class="pos-cart-empty">
+                <i class="fas fa-shopping-cart"></i>
+                <p class="font-medium text-gray-500">Carrinho vazio</p>
+                <p class="text-xs">Clique nos produtos para adicionar</p>
+            </div>
+            <table class="w-full text-left text-xs hidden" id="pos-cart-table">
                 <thead class="bg-gray-50 text-gray-500 uppercase sticky top-0">
-                    <tr><th class="px-2 py-1">Item</th><th class="px-1 py-1 text-center">Qtd</th><th class="px-2 py-1 text-right">Subtotal</th><th class="px-2 py-1 text-right">Lucro</th><th class="w-6"></th></tr>
+                    <tr><th class="px-2 py-1">Item</th><th class="px-1 py-1 text-center">Qtd</th><th class="px-2 py-1 text-right">Subtotal</th><th class="w-6"></th></tr>
                 </thead>
                 <tbody id="cart-table-body" class="divide-y divide-gray-100"></tbody>
             </table>
         </div>
-        <!-- Observação do pedido (ex: mandar sem farofa) -->
         <div class="px-2 py-1.5 border-t border-gray-100 flex-shrink-0">
-            <label for="order-observation" class="block text-xs font-medium text-gray-500 mb-0.5"><i class="fas fa-sticky-note text-amber-500 mr-1"></i> Observação do pedido</label>
-            <input type="text" id="order-observation" class="w-full text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: mandar sem farofa, ponto da carne, etc." maxlength="500">
+            <label for="order-observation" class="block text-xs font-medium text-gray-500 mb-0.5"><i class="fas fa-sticky-note text-amber-500 mr-1"></i> Observação</label>
+            <input type="text" id="order-observation" class="w-full text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ex: sem farofa, ponto da carne..." maxlength="500">
         </div>
-        <!-- Total + Finalizar logo abaixo do carrinho -->
-        <div class="p-3 border-t border-gray-200 flex-shrink-0 bg-gray-50">
-            <div class="flex justify-between items-center mb-1">
-                <span class="text-gray-600 text-sm font-medium">Lucro total</span>
-                <span id="cart-profit" class="text-sm font-semibold text-green-600">R$ 0,00</span>
+        <div class="p-3 border-t border-gray-200 flex-shrink-0 bg-gray-50 space-y-1">
+            <div class="pos-cart-summary-row">
+                <span class="text-gray-600">Subtotal</span>
+                <span id="cart-subtotal" class="font-semibold text-gray-800">R$ 0,00</span>
             </div>
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-gray-600 text-sm font-medium">Total</span>
-                <span class="text-xl font-bold text-gray-800">R$ <span id="cart-total">0,00</span></span>
+            <?php if (!empty($canDiscount)): ?>
+            <div class="pos-cart-summary-row">
+                <span class="text-gray-600">Desconto</span>
+                <input type="number" id="cart-discount" value="0" min="0" step="0.01" placeholder="0,00" title="Desconto em reais">
             </div>
-            <button onclick="openPaymentModal()" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow transition flex justify-center items-center gap-1">
-                <i class="fas fa-check-circle"></i> Finalizar Venda (F2)
+            <?php else: ?>
+            <input type="hidden" id="cart-discount" value="0">
+            <?php endif; ?>
+            <div class="pos-cart-summary-row">
+                <span class="text-gray-600">Acréscimo</span>
+                <input type="number" id="cart-surcharge" value="0" min="0" step="0.01" placeholder="0,00" title="Acréscimo em reais">
+            </div>
+            <div class="pos-cart-summary-row">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-gray-600">
+                    <input type="checkbox" id="cart-tax-enabled" class="rounded border-gray-300 text-primary focus:ring-primary" checked>
+                    <span>Taxa (10%)</span>
+                </label>
+                <span id="cart-tax-amount" class="font-semibold text-gray-800">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200 mt-2">
+                <span class="text-gray-700 font-bold">Total</span>
+                <span class="text-xl font-bold text-gray-900">R$ <span id="cart-total">0,00</span></span>
+            </div>
+            <span id="cart-profit" class="hidden" aria-hidden="true">R$ 0,00</span>
+            <button type="button" onclick="openPaymentModal()" class="btn btn-primary w-full mt-2 py-2.5 text-sm font-bold shadow">
+                <i class="fas fa-check-circle mr-1"></i> Finalizar Venda (F2)
             </button>
         </div>
     </div>
@@ -467,10 +532,12 @@ window.POS_BASE_URL = <?php echo json_encode(defined('BASE_URL') ? rtrim(BASE_UR
                 document.getElementById('customer-search').classList.add('is-valid');
             <?php endif; ?>
 
-            // Render the cart
+            if (typeof posSessions !== 'undefined' && posSessions[0]) {
+                posSessions[0].cart = cart.slice();
+            }
             renderCart();
+            if (typeof persistPosSessions === 'function') persistPosSessions();
 
-            // Show notification
             alert('Venda #<?php echo $editSale['id']; ?> carregada para edição!');
         });
     </script>

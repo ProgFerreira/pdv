@@ -90,11 +90,14 @@ class PosController
             $amountPaid = $input['amountPaid'] ?? 0;
             $change = $input['change'] ?? 0;
             $discount = (float) ($input['discount'] ?? 0);
+            $surcharge = (float) ($input['surcharge'] ?? 0);
+            $taxAmount = (float) ($input['taxAmount'] ?? 0);
             $customerId = isset($input['customerId']) ? (int) $input['customerId'] : null;
             if ($customerId === 0) {
                 $customerId = null;
             }
             $customerName = isset($input['customerName']) ? trim((string) $input['customerName']) : '';
+            $customerPhone = isset($input['customerPhone']) ? trim((string) $input['customerPhone']) : '';
             $isPickup = !empty($input['isPickup']);
             $deliveryAddress = $isPickup ? null : (isset($input['deliveryAddress']) ? trim((string) $input['deliveryAddress']) : null);
             $giftCardId = $input['giftCardId'] ?? null;
@@ -109,7 +112,7 @@ class PosController
                     $customerModel = new \App\Models\Customer();
                     $newId = $customerModel->create([
                         'name' => $customerName,
-                        'phone' => null,
+                        'phone' => $customerPhone !== '' ? $customerPhone : null,
                         'email' => null,
                         'address' => null,
                     ]);
@@ -147,7 +150,7 @@ class PosController
                 exit;
             }
 
-            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress, $isPickup, $observation);
+            $saleId = $saleModel->create($_SESSION['user_id'], $cart, $paymentMethod, $amountPaid, $change, $customerId, $cashRegisterId, $discount, $giftCardId, $deliveryAddress, $isPickup, $observation, $surcharge, $taxAmount);
 
             if ($saleId) {
                 $audit = new AuditLog();

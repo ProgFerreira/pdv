@@ -3,10 +3,18 @@
  * Configuração do Banco de Dados.
  * Variáveis vêm do .env (via config/env.php). Usa $_ENV primeiro (Hostinger e outros hosts).
  */
-$dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
-$dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'u256572549_pdv';
-$dbUser = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'u256572549_pdv_admin';
-$dbPass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '3N*JOc$5W#o';
+$envVal = static function (string $key, string $default = ''): string {
+    if (array_key_exists($key, $_ENV)) {
+        return (string) $_ENV[$key];
+    }
+    $v = getenv($key);
+    return $v !== false ? (string) $v : $default;
+};
+
+$dbHost = $envVal('DB_HOST', 'localhost');
+$dbName = $envVal('DB_NAME', 'u256572549_pdv');
+$dbUser = $envVal('DB_USER', 'u256572549_pdv_admin');
+$dbPass = $envVal('DB_PASS', '3N*JOc$5W#o');
 
 define('DB_HOST', $dbHost);
 define('DB_NAME', $dbName);
@@ -30,7 +38,7 @@ if ($appUrl === '' || strpos($appUrl, 'localhost') !== false) {
 $appUrl = rtrim($appUrl, '/') . '/';
 define('BASE_URL', $appUrl);
 
-$isProduction = ($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'development') === 'production';
+$isProduction = $envVal('APP_ENV', 'development') === 'production';
 
 try {
     $pdo = new PDO(
@@ -39,8 +47,9 @@ try {
         DB_PASS,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
     );
-    // Em produção (ex: Hostinger) o banco já existe; sem permissão CREATE DATABASE
-    if (!$isProduction) {
+    // Só cria banco em MySQL local (WAMP); remoto/Hostinger já existe e não permite CREATE
+    $isLocalMysql = in_array(strtolower(DB_HOST), ['localhost', '127.0.0.1', '::1'], true);
+    if (!$isProduction && $isLocalMysql) {
         $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . str_replace('`', '``', DB_NAME) . "`");
     }
     $pdo->exec("USE `" . str_replace('`', '``', DB_NAME) . "`");
