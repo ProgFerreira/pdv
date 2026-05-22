@@ -70,7 +70,7 @@ require 'views/layouts/header.php';
 /* Abas Produtos / Bebidas / Sobremesas */
 .pos-tabs .pos-tab { outline: none; }
 .pos-tabs .pos-tab:focus-visible { box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); }
-/* Abas de vendas paralelas (Caixa 1, Caixa 2, + Novo) */
+/* Abas de vendas paralelas (Caixa 1, Caixa 2, + Abrir novo) */
 .pos-sale-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px 0; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; min-height: 44px; }
 .pos-sale-tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 1; min-width: 0; }
 .pos-sale-tab { padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--color-gray-200, #e2e8f0); background: #fff; color: var(--color-gray-800, #1e293b); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
@@ -179,8 +179,8 @@ require 'views/layouts/header.php';
             <div id="pos-sale-tabs" class="pos-sale-tabs" role="tablist" aria-label="Vendas em andamento">
                 <button type="button" class="pos-sale-tab pos-sale-tab--active" data-session-index="0" role="tab" aria-selected="true">Caixa 1</button>
             </div>
-            <button type="button" id="pos-btn-nova-venda" class="pos-sale-tab pos-sale-tab-new flex-shrink-0" title="Abrir outra venda em paralelo (Caixa 2, 3…)">
-                + Novo
+            <button type="button" id="pos-btn-nova-venda" class="pos-sale-tab pos-sale-tab-new flex-shrink-0 whitespace-nowrap" title="Abrir outra venda em paralelo (Caixa 2, Caixa 3…)">
+                + Abrir novo
             </button>
         </div>
         <div class="px-3 py-2 border-b border-gray-100 flex-shrink-0 flex items-center justify-between gap-2">

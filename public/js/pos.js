@@ -310,7 +310,7 @@ function renderSaleTabs() {
     addBtn.title =
       posSessions.length >= POS_MAX_SESSIONS
         ? 'Limite de ' + POS_MAX_SESSIONS + ' vendas em aberto'
-        : 'Abrir outra venda em paralelo (Caixa 2, 3…)';
+        : 'Abrir novo caixa de venda em paralelo (Caixa 2, Caixa 3…)';
     addBtn.style.opacity = addBtn.disabled ? '0.5' : '1';
   }
   const titleSpan = document.querySelector('#pos-sale-title span');
