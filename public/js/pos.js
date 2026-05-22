@@ -183,26 +183,122 @@ function initPosSessions() {
   }
 }
 
+function sessionHasContent(s) {
+  if (!s) return false;
+  return (
+    (s.cart && s.cart.length > 0) ||
+    !!(s.customerName && String(s.customerName).trim()) ||
+    !!(s.customerPhone && String(s.customerPhone).trim()) ||
+    !!(s.observation && String(s.observation).trim()) ||
+    (parseFloat(s.discount) || 0) > 0 ||
+    (parseFloat(s.surcharge) || 0) > 0
+  );
+}
+
+function renumberPosSessionLabels() {
+  posSessions.forEach(function (s, i) {
+    s.label = 'Caixa ' + (i + 1);
+  });
+}
+
+function updateExcluirCaixaButton() {
+  const btn = document.getElementById('pos-btn-excluir-caixa');
+  if (!btn) return;
+  const multi = posSessions.length > 1;
+  const hasContent = sessionHasContent(getActiveSession());
+  if (multi) {
+    btn.classList.remove('hidden');
+    btn.innerHTML =
+      '<i class="fas fa-trash-alt mr-1"></i> Excluir ' +
+      escapeHtml(getActiveSession().label || 'caixa');
+    btn.title = 'Descartar esta venda em aberto (' + (getActiveSession().label || '') + ')';
+  } else if (hasContent) {
+    btn.classList.remove('hidden');
+    btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> Limpar caixa';
+    btn.title = 'Esvaziar carrinho e dados desta venda';
+  } else {
+    btn.classList.add('hidden');
+  }
+}
+
+function removePosSession(index) {
+  if (index === undefined || index === null) {
+    index = activeSessionIndex;
+  }
+  index = parseInt(index, 10);
+  if (isNaN(index) || index < 0 || index >= posSessions.length) return;
+
+  saveSessionFromUI();
+  const s = posSessions[index];
+  const label = s.label || 'Caixa ' + (index + 1);
+  const hasContent = sessionHasContent(s);
+
+  if (hasContent) {
+    const msg =
+      posSessions.length > 1
+        ? 'Excluir "' + label + '"? Os itens e dados desta venda serão descartados.'
+        : 'Limpar "' + label + '"? O carrinho e os dados desta venda serão apagados.';
+    if (!confirm(msg)) return;
+  }
+
+  if (posSessions.length > 1) {
+    posSessions.splice(index, 1);
+    if (activeSessionIndex >= posSessions.length) {
+      activeSessionIndex = posSessions.length - 1;
+    } else if (index < activeSessionIndex) {
+      activeSessionIndex -= 1;
+    }
+    renumberPosSessionLabels();
+  } else {
+    posSessions[0] = createEmptyPosSession(1);
+    activeSessionIndex = 0;
+  }
+
+  loadSessionToUI(activeSessionIndex);
+  persistPosSessions();
+}
+
 function renderSaleTabs() {
   const wrap = document.getElementById('pos-sale-tabs');
   if (!wrap) return;
   wrap.innerHTML = '';
+  const showClose = posSessions.length > 1;
   posSessions.forEach(function (s, i) {
+    const tabWrap = document.createElement('div');
+    tabWrap.className =
+      'pos-sale-tab-wrap' +
+      (i === activeSessionIndex ? ' pos-sale-tab-wrap--active' : '');
+
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className =
-      'pos-sale-tab' + (i === activeSessionIndex ? ' pos-sale-tab--active' : '');
+    btn.className = 'pos-sale-tab';
     btn.textContent = s.label;
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', i === activeSessionIndex ? 'true' : 'false');
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (e) {
+      if (e.target.closest('.pos-sale-tab-close')) return;
       if (i === activeSessionIndex) return;
       saveSessionFromUI();
       activeSessionIndex = i;
       loadSessionToUI(i);
       persistPosSessions();
     });
-    wrap.appendChild(btn);
+    tabWrap.appendChild(btn);
+
+    if (showClose) {
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'pos-sale-tab-close';
+      closeBtn.setAttribute('aria-label', 'Excluir ' + s.label);
+      closeBtn.innerHTML = '&times;';
+      closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        removePosSession(i);
+      });
+      tabWrap.appendChild(closeBtn);
+    }
+
+    wrap.appendChild(tabWrap);
   });
   const addBtn = document.getElementById('pos-btn-nova-venda');
   if (addBtn) {
@@ -217,6 +313,7 @@ function renderSaleTabs() {
   if (titleSpan && getActiveSession()) {
     titleSpan.textContent = getActiveSession().label;
   }
+  updateExcluirCaixaButton();
 }
 
 function addPosSession() {
@@ -1001,6 +1098,7 @@ function renderCart() {
   }
   saveSessionFromUI();
   persistPosSessions();
+  updateExcluirCaixaButton();
 }
 
 function updateQty(index, change) {
@@ -1026,6 +1124,12 @@ function setupCartPanelListeners() {
   const btnNovaVenda = document.getElementById('pos-btn-nova-venda');
   if (btnNovaVenda) {
     btnNovaVenda.addEventListener('click', addPosSession);
+  }
+  const btnExcluir = document.getElementById('pos-btn-excluir-caixa');
+  if (btnExcluir) {
+    btnExcluir.addEventListener('click', function () {
+      removePosSession(activeSessionIndex);
+    });
   }
   const disc = document.getElementById("cart-discount");
   const sur = document.getElementById("cart-surcharge");

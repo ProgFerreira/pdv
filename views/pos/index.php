@@ -66,6 +66,15 @@ require 'views/layouts/header.php';
 .pos-sale-tab--active { background: var(--color-primary, #4f46e5); color: #fff; border-color: var(--color-primary, #4f46e5); }
 .pos-sale-tab-new { border-style: dashed; border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); background: #fff; }
 .pos-sale-tab-new:hover { background: var(--color-secondary, #eef2ff); }
+.pos-sale-tab-wrap { display: inline-flex; align-items: stretch; border-radius: 8px 8px 0 0; overflow: hidden; border: 1px solid var(--color-gray-200, #e2e8f0); }
+.pos-sale-tab-wrap.pos-sale-tab-wrap--active { border-color: var(--color-primary, #4f46e5); }
+.pos-sale-tab-wrap--active .pos-sale-tab { background: var(--color-primary, #4f46e5); color: #fff; border: none; }
+.pos-sale-tab-wrap .pos-sale-tab { border: none; border-radius: 0; }
+.pos-sale-tab-close { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; padding: 0 4px; border: none; border-left: 1px solid rgba(0,0,0,0.08); background: #fff; color: #94a3b8; font-size: 1rem; line-height: 1; cursor: pointer; }
+.pos-sale-tab-wrap--active .pos-sale-tab-close { background: var(--color-primary-hover, #4338ca); color: #fff; border-left-color: rgba(255,255,255,0.25); }
+.pos-sale-tab-close:hover { background: #fee2e2; color: #dc2626; }
+.pos-sale-tab-wrap--active .pos-sale-tab-close:hover { background: #b91c1c; color: #fff; }
+#pos-btn-excluir-caixa { font-size: 0.75rem; }
 .pos-cart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; color: #94a3b8; text-align: center; min-height: 120px; }
 .pos-cart-empty i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
 .pos-cart-summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8125rem; margin-bottom: 0.35rem; }
@@ -158,10 +167,15 @@ require 'views/layouts/header.php';
             </button>
         </div>
         <div class="px-3 py-2 border-b border-gray-100 flex-shrink-0 flex items-center justify-between gap-2">
-            <h5 id="pos-sale-title" class="font-bold text-gray-800 text-base flex items-center gap-2 m-0">
+            <h5 id="pos-sale-title" class="font-bold text-gray-800 text-base flex items-center gap-2 m-0 min-w-0">
                 <i class="fas fa-shopping-cart text-primary"></i> <span>Caixa 1</span>
             </h5>
-            <span id="cart-count" class="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded hidden">0 itens</span>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button type="button" id="pos-btn-excluir-caixa" class="hidden btn btn-ghost text-red-600 hover:bg-red-50 border border-red-200 rounded-lg px-2 py-1 font-semibold" title="Descartar esta venda em aberto">
+                    <i class="fas fa-trash-alt mr-1"></i> Excluir caixa
+                </button>
+                <span id="cart-count" class="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded hidden">0 itens</span>
+            </div>
         </div>
         <div class="px-3 pb-2 flex-shrink-0">
             <select id="pos-sale-channel" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-800 bg-white focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-30" title="Canal da venda">
