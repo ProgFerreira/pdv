@@ -59,7 +59,8 @@ require 'views/layouts/header.php';
 .pos-tabs .pos-tab { outline: none; }
 .pos-tabs .pos-tab:focus-visible { box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5); }
 /* Abas de vendas paralelas (Caixa 1, Caixa 2, + Novo) */
-.pos-sale-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 8px 0; align-items: center; }
+.pos-sale-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px 0; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; min-height: 44px; }
+.pos-sale-tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 1; min-width: 0; }
 .pos-sale-tab { padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--color-gray-200, #e2e8f0); background: #fff; color: var(--color-gray-800, #1e293b); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
 .pos-sale-tab:hover:not(.pos-sale-tab--active) { background: var(--color-gray-50, #f8fafc); }
 .pos-sale-tab--active { background: var(--color-primary, #4f46e5); color: #fff; border-color: var(--color-primary, #4f46e5); }
@@ -148,7 +149,14 @@ require 'views/layouts/header.php';
 
     <!-- Coluna 2: Abas de venda + Carrinho + Cliente + Totais -->
     <div class="flex flex-col min-h-0 min-w-0 overflow-hidden bg-white rounded-lg shadow-sm border border-gray-200 pos-col-cart">
-        <div id="pos-sale-tabs" class="pos-sale-tabs flex-shrink-0" role="tablist" aria-label="Vendas em andamento"></div>
+        <div class="pos-sale-header">
+            <div id="pos-sale-tabs" class="pos-sale-tabs" role="tablist" aria-label="Vendas em andamento">
+                <button type="button" class="pos-sale-tab pos-sale-tab--active" data-session-index="0" role="tab" aria-selected="true">Caixa 1</button>
+            </div>
+            <button type="button" id="pos-btn-nova-venda" class="pos-sale-tab pos-sale-tab-new flex-shrink-0" title="Abrir outra venda em paralelo (Caixa 2, 3…)" onclick="typeof addPosSession==='function'&&addPosSession()">
+                + Novo
+            </button>
+        </div>
         <div class="px-3 py-2 border-b border-gray-100 flex-shrink-0 flex items-center justify-between gap-2">
             <h5 id="pos-sale-title" class="font-bold text-gray-800 text-base flex items-center gap-2 m-0">
                 <i class="fas fa-shopping-cart text-primary"></i> <span>Caixa 1</span>
@@ -502,7 +510,7 @@ require 'views/layouts/header.php';
 window.POS_CAN_DISCOUNT = <?php echo !empty($canDiscount) ? 'true' : 'false'; ?>;
 window.POS_BASE_URL = <?php echo json_encode(defined('BASE_URL') ? rtrim(BASE_URL, '/') : ''); ?>;
 </script>
-<script src="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>public/js/pos.js"></script>
+<script src="<?php echo htmlspecialchars(BASE_URL ?? '', ENT_QUOTES, 'UTF-8'); ?>public/js/pos.js?v=<?php echo (int) @filemtime(__DIR__ . '/../../public/js/pos.js'); ?>"></script>
 
 <?php if (isset($editSale) && $editSale): ?>
     <script>

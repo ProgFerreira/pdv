@@ -164,11 +164,23 @@ function loadPosSessionsFromStorage() {
 }
 
 function initPosSessions() {
-  if (!loadPosSessionsFromStorage()) {
+  try {
+    if (!loadPosSessionsFromStorage()) {
+      posSessions = [createEmptyPosSession(1)];
+      activeSessionIndex = 0;
+    }
+    if (!posSessions.length) {
+      posSessions = [createEmptyPosSession(1)];
+      activeSessionIndex = 0;
+    }
+    loadSessionToUI(activeSessionIndex);
+  } catch (e) {
+    console.error('initPosSessions', e);
     posSessions = [createEmptyPosSession(1)];
     activeSessionIndex = 0;
+    cart = posSessions[0].cart;
+    renderSaleTabs();
   }
-  loadSessionToUI(activeSessionIndex);
 }
 
 function renderSaleTabs() {
@@ -192,14 +204,14 @@ function renderSaleTabs() {
     });
     wrap.appendChild(btn);
   });
-  if (posSessions.length < POS_MAX_SESSIONS) {
-    const addBtn = document.createElement('button');
-    addBtn.type = 'button';
-    addBtn.className = 'pos-sale-tab pos-sale-tab-new';
-    addBtn.textContent = '+ Novo';
-    addBtn.setAttribute('aria-label', 'Nova venda');
-    addBtn.addEventListener('click', addPosSession);
-    wrap.appendChild(addBtn);
+  const addBtn = document.getElementById('pos-btn-nova-venda');
+  if (addBtn) {
+    addBtn.disabled = posSessions.length >= POS_MAX_SESSIONS;
+    addBtn.title =
+      posSessions.length >= POS_MAX_SESSIONS
+        ? 'Limite de ' + POS_MAX_SESSIONS + ' vendas em aberto'
+        : 'Abrir outra venda em paralelo (Caixa 2, 3…)';
+    addBtn.style.opacity = addBtn.disabled ? '0.5' : '1';
   }
   const titleSpan = document.querySelector('#pos-sale-title span');
   if (titleSpan && getActiveSession()) {
@@ -1011,6 +1023,10 @@ function removeFromCart(index) {
 
 // Modal Logic (Vanilla JS for Tailwind)
 function setupCartPanelListeners() {
+  const btnNovaVenda = document.getElementById('pos-btn-nova-venda');
+  if (btnNovaVenda) {
+    btnNovaVenda.addEventListener('click', addPosSession);
+  }
   const disc = document.getElementById("cart-discount");
   const sur = document.getElementById("cart-surcharge");
   const tax = document.getElementById("cart-tax-enabled");
