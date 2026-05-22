@@ -49,13 +49,17 @@ function saveSessionFromUI() {
   s.cart = cart.slice();
   const nameEl = document.getElementById('pos-cart-customer-name');
   const phoneEl = document.getElementById('pos-cart-customer-phone');
+  const topSearch = document.getElementById('customer-search');
   const idEl = document.getElementById('selected-customer-id');
   const channelEl = document.getElementById('pos-sale-channel');
   const obsEl = document.getElementById('order-observation');
   const discEl = document.getElementById('cart-discount');
   const surEl = document.getElementById('cart-surcharge');
   const taxEl = document.getElementById('cart-tax-enabled');
-  s.customerName = nameEl ? nameEl.value.trim() : '';
+  if (topSearch && nameEl && topSearch.value.trim()) {
+    nameEl.value = topSearch.value.trim();
+  }
+  s.customerName = nameEl ? nameEl.value.trim() : (topSearch ? topSearch.value.trim() : '');
   s.customerPhone = phoneEl ? phoneEl.value.trim() : '';
   s.customerId = idEl && idEl.value ? parseInt(idEl.value, 10) : null;
   s.selectedCustomer = posSelectedCustomer;
@@ -1059,17 +1063,17 @@ function renderCart() {
     const subtotal = item.price * item.quantity;
     tbody.innerHTML += `
         <tr class="hover:bg-gray-50">
-            <td class="px-2 py-1.5 truncate max-w-[120px]" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</td>
-            <td class="px-1 py-1.5 whitespace-nowrap">
-                <div class="flex items-center justify-center border rounded-md text-[10px]">
-                    <button type="button" class="px-1.5 py-0.5 hover:bg-gray-100" onclick="updateQty(${index}, -1)">-</button>
-                    <span class="px-1 font-medium">${item.quantity}</span>
-                    <button type="button" class="px-1.5 py-0.5 hover:bg-gray-100" onclick="updateQty(${index}, 1)">+</button>
+            <td class="pos-cart-col-item px-3 py-2 font-medium text-gray-800" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</td>
+            <td class="pos-cart-col-qty px-2 py-2 whitespace-nowrap">
+                <div class="flex items-center justify-center border border-gray-200 rounded-md bg-white">
+                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded-l-md" onclick="updateQty(${index}, -1)">-</button>
+                    <span class="px-2 font-semibold min-w-[1.25rem] text-center">${item.quantity}</span>
+                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded-r-md" onclick="updateQty(${index}, 1)">+</button>
                 </div>
             </td>
-            <td class="px-2 py-1.5 text-right font-medium text-gray-700">R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
-            <td class="px-1 py-1.5 text-right">
-                <button type="button" class="text-red-400 hover:text-red-600" onclick="removeFromCart(${index})" aria-label="Remover">
+            <td class="pos-cart-col-sub px-3 py-2 font-semibold text-gray-800">R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
+            <td class="pos-cart-col-del px-1 py-2 text-right">
+                <button type="button" class="text-red-400 hover:text-red-600 p-1" onclick="removeFromCart(${index})" aria-label="Remover">
                     <i class="fas fa-times"></i>
                 </button>
             </td>

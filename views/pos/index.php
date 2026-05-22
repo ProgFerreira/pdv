@@ -21,15 +21,27 @@ require 'views/layouts/header.php';
   #product-list .product-card h3 { -webkit-line-clamp: 1; line-clamp: 1; font-size: 0.75rem; text-align: center; }
   #product-list .pos-card-img img { width: 100%; height: 100%; object-fit: cover; }
 }
-/* Colunas: mais espaço para produtos, carrinho e fechamento mais estreitos */
+/* Colunas: carrinho mais largo para ver itens completos; produtos ocupam o restante */
 @media (min-width: 1024px) {
-  .pos-container.grid { grid-template-columns: 1fr 290px !important; gap: 8px; }
-  .pos-col-cart { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 0; }
-  .pos-col-cart .pos-cart-table-wrap { max-height: 45vh; overflow-y: auto; flex-shrink: 0; }
-  .pos-col-cart table { font-size: 10px; table-layout: fixed; }
-  .pos-col-cart td:first-child { max-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pos-container.grid { grid-template-columns: minmax(0, 1fr) minmax(400px, 44%) !important; gap: 10px; }
+  .pos-col-cart { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 0; min-width: 400px; }
+  .pos-col-cart .pos-cart-table-wrap { flex: 1 1 auto; min-height: 120px; max-height: none; overflow-y: auto; }
+  .pos-col-cart table { font-size: 0.8125rem; table-layout: auto; width: 100%; }
+  .pos-col-cart th.pos-cart-col-item,
+  .pos-col-cart td.pos-cart-col-item { min-width: 9rem; max-width: none; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.3; }
+  .pos-col-cart th.pos-cart-col-qty,
+  .pos-col-cart td.pos-cart-col-qty { width: 5.5rem; white-space: nowrap; }
+  .pos-col-cart th.pos-cart-col-sub,
+  .pos-col-cart td.pos-cart-col-sub { width: 5.5rem; white-space: nowrap; text-align: right; }
+  .pos-col-cart th.pos-cart-col-del,
+  .pos-col-cart td.pos-cart-col-del { width: 2rem; }
+  #product-list { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
-/* Lista de produtos: 5 colunas, cards mais estreitos */
+@media (min-width: 1400px) {
+  .pos-container.grid { grid-template-columns: minmax(0, 1fr) minmax(440px, 46%) !important; }
+  #product-list { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+}
+/* Lista de produtos (mobile/tablet) */
 #product-list { display: grid !important; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-content: start; }
 #product-list .product-card { min-width: 0; }
 #product-list .product-card > div { min-height: 210px; display: flex; flex-direction: column; align-items: center; overflow: hidden; padding-bottom: 12px; box-sizing: border-box; }
@@ -85,6 +97,11 @@ require 'views/layouts/header.php';
 .pos-cart-field-wrap input { width: 100%; padding: 0.5rem 0.5rem 0.5rem 2rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.8125rem; }
 .pos-cart-field-wrap input:focus { outline: none; border-color: var(--color-primary, #4f46e5); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
 #pos-cart-customer-list { position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; z-index: 40; }
+/* Cliente no topo da tela — bloco duplicado no carrinho fica oculto (campos permanecem no DOM) */
+.pos-cart-customer-block { display: none !important; }
+.pos-col-cart .pos-cart-table-wrap { background: #fafbfc; }
+.pos-col-cart #pos-cart-table tbody tr { background: #fff; }
+.pos-col-cart #pos-cart-table tbody tr + tr { border-top: 1px solid #f1f5f9; }
 </style>
 <!-- PDV: 3 colunas ocupam 90% da tela (90vw x 90vh) -->
 <div class="pos-container grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden min-h-0">
@@ -184,7 +201,7 @@ require 'views/layouts/header.php';
                 <option value="retirada">Retirada</option>
             </select>
         </div>
-        <div class="px-3 pb-2 flex-shrink-0 border-b border-gray-100">
+        <div class="pos-cart-customer-block px-3 pb-2 flex-shrink-0 border-b border-gray-100" aria-hidden="true">
             <p class="pos-cart-customer-label">Cliente (opcional)</p>
             <div class="pos-cart-field-wrap">
                 <i class="fas fa-user" aria-hidden="true"></i>
@@ -206,9 +223,14 @@ require 'views/layouts/header.php';
                 <p class="font-medium text-gray-500">Carrinho vazio</p>
                 <p class="text-xs">Clique nos produtos para adicionar</p>
             </div>
-            <table class="w-full text-left text-xs hidden" id="pos-cart-table">
-                <thead class="bg-gray-50 text-gray-500 uppercase sticky top-0">
-                    <tr><th class="px-2 py-1">Item</th><th class="px-1 py-1 text-center">Qtd</th><th class="px-2 py-1 text-right">Subtotal</th><th class="w-6"></th></tr>
+            <table class="w-full text-left hidden" id="pos-cart-table">
+                <thead class="bg-gray-50 text-gray-500 uppercase sticky top-0 text-[11px]">
+                    <tr>
+                        <th class="pos-cart-col-item px-3 py-2">Produto</th>
+                        <th class="pos-cart-col-qty px-2 py-2 text-center">Qtd</th>
+                        <th class="pos-cart-col-sub px-3 py-2 text-right">Subtotal</th>
+                        <th class="pos-cart-col-del px-1 py-2"></th>
+                    </tr>
                 </thead>
                 <tbody id="cart-table-body" class="divide-y divide-gray-100"></tbody>
             </table>
